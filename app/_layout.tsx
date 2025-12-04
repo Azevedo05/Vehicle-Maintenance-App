@@ -4,7 +4,10 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-import { LocalizationProvider, useLocalization } from "@/contexts/LocalizationContext";
+import {
+  LocalizationProvider,
+  useLocalization,
+} from "@/contexts/LocalizationContext";
 import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
 import { VehicleProvider } from "@/contexts/VehicleContext";
 import { AlertProvider } from "@/contexts/AlertContext";
@@ -19,18 +22,18 @@ const queryClient = new QueryClient();
 function RootLayoutNav() {
   const { colors } = useTheme();
   const { t } = useLocalization();
-  
+
   // Sync notifications with maintenance tasks
   useMaintenanceNotifications();
 
   return (
-    <Stack screenOptions={{ headerBackTitle: t('common.back') }}>
+    <Stack screenOptions={{ headerBackTitle: t("common.back") }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen
         name="add-vehicle"
         options={{
           presentation: "modal",
-          title: t('vehicles.add'),
+          title: t("vehicles.add"),
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
         }}
@@ -39,7 +42,7 @@ function RootLayoutNav() {
         name="edit-vehicle"
         options={{
           presentation: "modal",
-          title: t('vehicles.edit'),
+          title: t("vehicles.edit"),
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
         }}
@@ -47,7 +50,7 @@ function RootLayoutNav() {
       <Stack.Screen
         name="vehicle/[id]"
         options={{
-          title: t('vehicles.details'),
+          title: t("vehicles.details"),
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
         }}
@@ -55,7 +58,7 @@ function RootLayoutNav() {
       <Stack.Screen
         name="vehicles/compare"
         options={{
-          title: t('vehicles.compare_vehicles'),
+          title: t("vehicles.compare_vehicles"),
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
         }}
@@ -63,7 +66,7 @@ function RootLayoutNav() {
       <Stack.Screen
         name="vehicles/bulk"
         options={{
-          title: t('vehicles.bulk_operations'),
+          title: t("vehicles.bulk_operations"),
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
         }}
@@ -72,7 +75,7 @@ function RootLayoutNav() {
         name="add-task"
         options={{
           presentation: "modal",
-          title: t('maintenance.add_task'),
+          title: t("maintenance.add_task"),
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
         }}
@@ -81,7 +84,7 @@ function RootLayoutNav() {
         name="add-record"
         options={{
           presentation: "modal",
-          title: t('maintenance.log_maintenance'),
+          title: t("maintenance.log_maintenance"),
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
         }}
@@ -90,7 +93,7 @@ function RootLayoutNav() {
         name="add-fuel-log"
         options={{
           presentation: "modal",
-          title: t('fuel.add_log_title'),
+          title: t("fuel.add_log_title"),
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
         }}
@@ -98,7 +101,7 @@ function RootLayoutNav() {
       <Stack.Screen
         name="record/[id]"
         options={{
-          title: t('maintenance.details'),
+          title: t("maintenance.details"),
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
         }}
@@ -120,7 +123,7 @@ export default function RootLayout() {
             <NotificationProvider>
               <VehicleProvider>
                 <AlertProvider>
-                  <GestureHandlerRootView>
+                  <GestureHandlerRootView style={{ flex: 1 }}>
                     <RootLayoutNav />
                   </GestureHandlerRootView>
                 </AlertProvider>

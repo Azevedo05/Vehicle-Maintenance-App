@@ -1,29 +1,40 @@
-import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { AlertCircle, Calendar, DollarSign, FileText, Gauge, MapPin, Trash2 } from 'lucide-react-native';
-import React, { useState } from 'react';
+import { router, Stack, useLocalSearchParams } from "expo-router";
+import {
+  AlertCircle,
+  Calendar,
+  DollarSign,
+  FileText,
+  Gauge,
+  MapPin,
+  Trash2,
+} from "lucide-react-native";
+import React, { useState } from "react";
 import {
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useVehicles } from '@/contexts/VehicleContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useLocalization } from '@/contexts/LocalizationContext';
-import { getMaintenanceTypeLabel } from '@/types/vehicle';
-import { useAppAlert } from '@/contexts/AlertContext';
+import { useVehicles } from "@/contexts/VehicleContext";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useLocalization } from "@/contexts/LocalizationContext";
+import { usePreferences } from "@/contexts/PreferencesContext";
+import { getMaintenanceTypeLabel } from "@/types/maintenance";
+import { useAppAlert } from "@/contexts/AlertContext";
 
 export default function RecordDetailScreen() {
   const { id } = useLocalSearchParams();
   const recordId = id as string;
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const { getRecordById, getVehicleById, deleteRecord, restoreLastSnapshot } = useVehicles();
+  const { getRecordById, getVehicleById, deleteRecord, restoreLastSnapshot } =
+    useVehicles();
   const { colors } = useTheme();
   const { t } = useLocalization();
+  const { formatDistance } = usePreferences();
   const { showAlert, showToast } = useAppAlert();
 
   const record = getRecordById(recordId);
@@ -36,43 +47,37 @@ export default function RecordDetailScreen() {
       return;
     }
 
-    console.log('[RecordDetail] handleDeleteRecord open confirm', {
-      recordId,
-      vehicleId: vehicle.id,
-      isDeleting,
-    });
-
     showAlert({
-      title: t('maintenance.delete_record'),
-      message: t('maintenance.delete_record_text'),
+      title: t("maintenance.delete_record"),
+      message: t("maintenance.delete_record_text"),
       buttons: [
-        { text: t('common.cancel'), style: 'cancel' },
+        { text: t("common.cancel"), style: "cancel" },
         {
-          text: t('common.delete'),
-          style: 'destructive',
+          text: t("common.delete"),
+          style: "destructive",
           onPress: async () => {
             if (!record) return;
-            
+
             setIsDeleting(true);
-            
+
             try {
               await deleteRecord(recordId);
-              
+
               // Mostrar toast antes de navegar
               showToast({
-                message: t('maintenance.delete_record_success'),
-                actionLabel: t('common.undo'),
+                message: t("maintenance.delete_record_success"),
+                actionLabel: t("common.undo"),
                 onAction: async () => {
                   await restoreLastSnapshot();
                 },
               });
-              
+
               // Pequeno delay para garantir que o toast aparece antes de navegar
               setTimeout(() => {
                 router.back();
               }, 100);
             } catch (error) {
-              console.error('Error deleting record:', error);
+              console.error("Error deleting record:", error);
               setIsDeleting(false);
             }
           },
@@ -85,12 +90,12 @@ export default function RecordDetailScreen() {
     return (
       <View style={styles.errorContainer}>
         <AlertCircle size={48} color={colors.error} />
-        <Text style={styles.errorText}>{t('maintenance.not_found')}</Text>
+        <Text style={styles.errorText}>{t("maintenance.not_found")}</Text>
         <TouchableOpacity
           style={styles.errorButton}
           onPress={() => router.back()}
         >
-          <Text style={styles.errorButtonText}>{t('common.go_back')}</Text>
+          <Text style={styles.errorButtonText}>{t("common.go_back")}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -104,8 +109,8 @@ export default function RecordDetailScreen() {
 
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   };
@@ -114,7 +119,7 @@ export default function RecordDetailScreen() {
     <>
       <Stack.Screen
         options={{
-          title: t('maintenance.details'),
+          title: t("maintenance.details"),
           headerRight: () => (
             <TouchableOpacity
               onPress={handleDeleteRecord}
@@ -125,15 +130,19 @@ export default function RecordDetailScreen() {
           ),
         }}
       />
-      <SafeAreaView style={styles.container} edges={['bottom']}>
+      <SafeAreaView style={styles.container} edges={["bottom"]}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
         >
           <View style={styles.headerCard}>
             <Text style={styles.title}>{record.title}</Text>
-            <Text style={styles.type}>{getMaintenanceTypeLabel(record.type, t)}</Text>
-            <Text style={styles.vehicle}>{vehicle.name}</Text>
+            <Text style={styles.type}>
+              {getMaintenanceTypeLabel(record.type, t)}
+            </Text>
+            <Text style={styles.vehicle}>
+              {vehicle.make} {vehicle.model}
+            </Text>
           </View>
 
           <View style={styles.detailsCard}>
@@ -142,8 +151,10 @@ export default function RecordDetailScreen() {
                 <Calendar size={20} color={colors.primary} />
               </View>
               <View style={styles.detailContent}>
-                <Text style={styles.detailLabel}>{t('maintenance.date')}</Text>
-                <Text style={styles.detailValue}>{formatDate(record.date)}</Text>
+                <Text style={styles.detailLabel}>{t("maintenance.date")}</Text>
+                <Text style={styles.detailValue}>
+                  {formatDate(record.date)}
+                </Text>
               </View>
             </View>
 
@@ -152,9 +163,11 @@ export default function RecordDetailScreen() {
                 <Gauge size={20} color={colors.primary} />
               </View>
               <View style={styles.detailContent}>
-                <Text style={styles.detailLabel}>{t('maintenance.mileage')}</Text>
+                <Text style={styles.detailLabel}>
+                  {t("maintenance.mileage")}
+                </Text>
                 <Text style={styles.detailValue}>
-                  {record.mileage.toLocaleString()} {t('vehicles.km')}
+                  {formatDistance(record.mileage)}
                 </Text>
               </View>
             </View>
@@ -165,8 +178,12 @@ export default function RecordDetailScreen() {
                   <DollarSign size={20} color={colors.success} />
                 </View>
                 <View style={styles.detailContent}>
-                  <Text style={styles.detailLabel}>{t('maintenance.cost')}</Text>
-                  <Text style={styles.detailValue}>€{record.cost.toFixed(2)}</Text>
+                  <Text style={styles.detailLabel}>
+                    {t("maintenance.cost")}
+                  </Text>
+                  <Text style={styles.detailValue}>
+                    €{record.cost.toFixed(2)}
+                  </Text>
                 </View>
               </View>
             )}
@@ -177,7 +194,9 @@ export default function RecordDetailScreen() {
                   <MapPin size={20} color={colors.primary} />
                 </View>
                 <View style={styles.detailContent}>
-                  <Text style={styles.detailLabel}>{t('maintenance.location')}</Text>
+                  <Text style={styles.detailLabel}>
+                    {t("maintenance.location")}
+                  </Text>
                   <Text style={styles.detailValue}>{record.location}</Text>
                 </View>
               </View>
@@ -189,7 +208,9 @@ export default function RecordDetailScreen() {
                   <FileText size={20} color={colors.primary} />
                 </View>
                 <View style={styles.detailContent}>
-                  <Text style={styles.detailLabel}>{t('maintenance.notes')}</Text>
+                  <Text style={styles.detailLabel}>
+                    {t("maintenance.notes")}
+                  </Text>
                   <Text style={styles.detailValue}>{record.notes}</Text>
                 </View>
               </View>
@@ -201,7 +222,7 @@ export default function RecordDetailScreen() {
   );
 }
 
-const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
+const createStyles = (colors: ReturnType<typeof useTheme>["colors"]) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -209,14 +230,14 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     errorContainer: {
       flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: "center",
+      alignItems: "center",
       padding: 20,
       backgroundColor: colors.background,
     },
     errorText: {
       fontSize: 18,
-      fontWeight: '600' as const,
+      fontWeight: "600" as const,
       color: colors.text,
       marginTop: 16,
       marginBottom: 24,
@@ -228,9 +249,9 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       borderRadius: 12,
     },
     errorButtonText: {
-      color: '#FFFFFF',
+      color: "#FFFFFF",
       fontSize: 16,
-      fontWeight: '600' as const,
+      fontWeight: "600" as const,
     },
     headerButton: {
       padding: 8,
@@ -254,14 +275,14 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     title: {
       fontSize: 24,
-      fontWeight: '700' as const,
+      fontWeight: "700" as const,
       color: colors.text,
       marginBottom: 8,
     },
     type: {
       fontSize: 16,
       color: colors.primary,
-      fontWeight: '600' as const,
+      fontWeight: "600" as const,
       marginBottom: 4,
     },
     vehicle: {
@@ -279,8 +300,8 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       elevation: 3,
     },
     detailRow: {
-      flexDirection: 'row',
-      alignItems: 'flex-start',
+      flexDirection: "row",
+      alignItems: "flex-start",
       paddingVertical: 12,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
@@ -289,9 +310,9 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       width: 40,
       height: 40,
       borderRadius: 20,
-      backgroundColor: colors.primary + '15',
-      justifyContent: 'center',
-      alignItems: 'center',
+      backgroundColor: colors.primary + "15",
+      justifyContent: "center",
+      alignItems: "center",
       marginRight: 12,
     },
     detailContent: {
@@ -301,13 +322,12 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       fontSize: 12,
       color: colors.textSecondary,
       marginBottom: 4,
-      textTransform: 'uppercase',
-      fontWeight: '600' as const,
+      textTransform: "uppercase",
+      fontWeight: "600" as const,
     },
     detailValue: {
       fontSize: 16,
       color: colors.text,
-      fontWeight: '500' as const,
+      fontWeight: "500" as const,
     },
   });
-

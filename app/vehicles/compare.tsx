@@ -1,20 +1,20 @@
-import { Check, Car } from 'lucide-react-native';
-import React, { useMemo, useState } from 'react';
+import { Check, Car } from "lucide-react-native";
+import React, { useMemo, useState } from "react";
 import {
-  Alert,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useLocalization } from '@/contexts/LocalizationContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useVehicles } from '@/contexts/VehicleContext';
-import { usePreferences } from '@/contexts/PreferencesContext';
-import { VEHICLE_CATEGORY_INFO } from '@/types/vehicle';
+import { useLocalization } from "@/contexts/LocalizationContext";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useVehicles } from "@/contexts/VehicleContext";
+import { usePreferences } from "@/contexts/PreferencesContext";
+import { useAppAlert } from "@/contexts/AlertContext";
+import { VEHICLE_CATEGORY_INFO } from "@/types/vehicle";
 
 const MAX_SELECTION = 4;
 
@@ -23,6 +23,7 @@ export default function CompareVehiclesScreen() {
   const { t } = useLocalization();
   const { currencySymbol } = usePreferences();
   const { vehicles, records, getUpcomingTasks } = useVehicles();
+  const { showAlert } = useAppAlert();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const styles = createStyles(colors);
@@ -34,10 +35,10 @@ export default function CompareVehiclesScreen() {
       }
 
       if (prev.length >= MAX_SELECTION) {
-        Alert.alert(
-          t('vehicles.selection_limit_title'),
-          t('vehicles.selection_limit_text', { count: MAX_SELECTION })
-        );
+        showAlert({
+          title: t("vehicles.selection_limit_title"),
+          message: t("vehicles.selection_limit_text", { count: MAX_SELECTION }),
+        });
         return prev;
       }
 
@@ -54,12 +55,16 @@ export default function CompareVehiclesScreen() {
         const vehicleRecords = records
           .filter((record) => record.vehicleId === id)
           .sort((a, b) => b.date - a.date);
-        const totalSpent = vehicleRecords.reduce((sum, record) => sum + (record.cost || 0), 0);
+        const totalSpent = vehicleRecords.reduce(
+          (sum, record) => sum + (record.cost || 0),
+          0
+        );
         const lastMaintenance = vehicleRecords[0]?.date;
 
         const tasks = getUpcomingTasks(vehicle.id);
         const overdueTasks = tasks.filter((task) => {
-          const isOverdueDate = task.daysUntilDue !== undefined && task.daysUntilDue <= 0;
+          const isOverdueDate =
+            task.daysUntilDue !== undefined && task.daysUntilDue <= 0;
           const isOverdueMileage =
             task.milesUntilDue !== undefined && task.milesUntilDue <= 0;
           return isOverdueDate || isOverdueMileage;
@@ -68,7 +73,7 @@ export default function CompareVehiclesScreen() {
 
         return {
           id,
-          name: vehicle.name,
+          name: `${vehicle.make} ${vehicle.model}`,
           make: vehicle.make,
           model: vehicle.model,
           category: vehicle.category,
@@ -86,35 +91,38 @@ export default function CompareVehiclesScreen() {
 
   const formatDate = (timestamp?: number) => {
     if (!timestamp) {
-      return t('vehicles.no_records_short');
+      return t("vehicles.no_records_short");
     }
     const date = new Date(timestamp);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   };
 
-  const selectedCountLabel = t('vehicles.selected_count', {
+  const selectedCountLabel = t("vehicles.selected_count", {
     count: selectedIds.length,
   });
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <SafeAreaView style={styles.container} edges={["bottom"]}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>{t('vehicles.compare_vehicles')}</Text>
-          <Text style={styles.subtitle}>{t('vehicles.select_to_compare')}</Text>
+          <Text style={styles.title}>{t("vehicles.compare_vehicles")}</Text>
+          <Text style={styles.subtitle}>{t("vehicles.select_to_compare")}</Text>
         </View>
 
         <View style={styles.selectionInfo}>
           <Text style={styles.selectionText}>{selectedCountLabel}</Text>
           <TouchableOpacity
-            style={[styles.clearButton, selectedIds.length === 0 && styles.clearButtonDisabled]}
+            style={[
+              styles.clearButton,
+              selectedIds.length === 0 && styles.clearButtonDisabled,
+            ]}
             onPress={() => setSelectedIds([])}
             disabled={selectedIds.length === 0}
           >
@@ -124,7 +132,7 @@ export default function CompareVehiclesScreen() {
                 selectedIds.length === 0 && styles.clearButtonTextDisabled,
               ]}
             >
-              {t('vehicles.clear_selection')}
+              {t("vehicles.clear_selection")}
             </Text>
           </TouchableOpacity>
         </View>
@@ -133,7 +141,9 @@ export default function CompareVehiclesScreen() {
           {vehicles.length === 0 ? (
             <View style={styles.emptyList}>
               <Car size={48} color={colors.placeholder} />
-              <Text style={styles.emptyListText}>{t('vehicles.empty_text')}</Text>
+              <Text style={styles.emptyListText}>
+                {t("vehicles.empty_text")}
+              </Text>
             </View>
           ) : (
             vehicles.map((vehicle) => {
@@ -152,20 +162,28 @@ export default function CompareVehiclesScreen() {
                   onPress={() => toggleSelection(vehicle.id)}
                   activeOpacity={0.8}
                 >
-                  <View style={[styles.checkbox, isSelected && styles.checkboxActive]}>
+                  <View
+                    style={[
+                      styles.checkbox,
+                      isSelected && styles.checkboxActive,
+                    ]}
+                  >
                     {isSelected && <Check size={16} color="#FFFFFF" />}
                   </View>
                   <View style={styles.itemInfo}>
                     <View style={styles.itemHeader}>
                       <Text style={styles.itemTitle} numberOfLines={1}>
-                        {vehicle.name}
+                        {vehicle.make} {vehicle.model}
                       </Text>
                       {vehicle.archived && (
-                        <Text style={styles.archivedTag}>{t('vehicles.archived')}</Text>
+                        <Text style={styles.archivedTag}>
+                          {t("vehicles.archived")}
+                        </Text>
                       )}
                     </View>
                     <Text style={styles.itemSubtitle} numberOfLines={1}>
-                      {vehicle.make} {vehicle.model} • {vehicle.currentMileage.toLocaleString()} km
+                      {vehicle.make} {vehicle.model} •{" "}
+                      {vehicle.currentMileage.toLocaleString()} km
                     </Text>
                     {categoryInfo && (
                       <Text style={styles.itemCategory}>
@@ -180,12 +198,12 @@ export default function CompareVehiclesScreen() {
         </View>
 
         <View style={styles.comparisonSection}>
-          <Text style={styles.sectionTitle}>{t('vehicles.comparison')}</Text>
+          <Text style={styles.sectionTitle}>{t("vehicles.comparison")}</Text>
 
           {comparisonData.length < 2 ? (
             <View style={styles.comparisonEmpty}>
               <Text style={styles.comparisonEmptyText}>
-                {t('vehicles.select_two_prompt')}
+                {t("vehicles.select_two_prompt")}
               </Text>
             </View>
           ) : (
@@ -197,33 +215,53 @@ export default function CompareVehiclesScreen() {
               {comparisonData.map((vehicle) => (
                 <View key={vehicle.id} style={styles.comparisonCard}>
                   <Text style={styles.cardName} numberOfLines={1}>
-                    {vehicle.name}
+                    {vehicle.make} {vehicle.model}
                   </Text>
                   <View style={styles.metricRow}>
-                    <Text style={styles.metricLabel}>{t('statistics.total_spent')}</Text>
+                    <Text style={styles.metricLabel}>
+                      {t("statistics.total_spent")}
+                    </Text>
                     <Text style={styles.metricValue}>
                       {currencySymbol}
                       {vehicle.totalSpent.toFixed(2)}
                     </Text>
                   </View>
                   <View style={styles.metricRow}>
-                    <Text style={styles.metricLabel}>{t('statistics.total_maintenance')}</Text>
-                    <Text style={styles.metricValue}>{vehicle.maintenanceCount}</Text>
+                    <Text style={styles.metricLabel}>
+                      {t("statistics.total_maintenance")}
+                    </Text>
+                    <Text style={styles.metricValue}>
+                      {vehicle.maintenanceCount}
+                    </Text>
                   </View>
                   <View style={styles.metricRow}>
-                    <Text style={styles.metricLabel}>{t('vehicles.last_maintenance')}</Text>
-                    <Text style={styles.metricValue}>{formatDate(vehicle.lastMaintenance)}</Text>
+                    <Text style={styles.metricLabel}>
+                      {t("vehicles.last_maintenance")}
+                    </Text>
+                    <Text style={styles.metricValue}>
+                      {formatDate(vehicle.lastMaintenance)}
+                    </Text>
                   </View>
                   <View style={styles.metricRow}>
-                    <Text style={styles.metricLabel}>{t('vehicles.overdue_tasks')}</Text>
-                    <Text style={styles.metricValue}>{vehicle.overdueTasks}</Text>
+                    <Text style={styles.metricLabel}>
+                      {t("vehicles.overdue_tasks")}
+                    </Text>
+                    <Text style={styles.metricValue}>
+                      {vehicle.overdueTasks}
+                    </Text>
                   </View>
                   <View style={styles.metricRow}>
-                    <Text style={styles.metricLabel}>{t('vehicles.upcoming_tasks')}</Text>
-                    <Text style={styles.metricValue}>{vehicle.upcomingTasks}</Text>
+                    <Text style={styles.metricLabel}>
+                      {t("vehicles.upcoming_tasks")}
+                    </Text>
+                    <Text style={styles.metricValue}>
+                      {vehicle.upcomingTasks}
+                    </Text>
                   </View>
                   <View style={styles.metricRow}>
-                    <Text style={styles.metricLabel}>{t('vehicles.current_mileage')}</Text>
+                    <Text style={styles.metricLabel}>
+                      {t("vehicles.current_mileage")}
+                    </Text>
                     <Text style={styles.metricValue}>
                       {vehicle.currentMileage.toLocaleString()} km
                     </Text>
@@ -238,7 +276,7 @@ export default function CompareVehiclesScreen() {
   );
 }
 
-const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
+const createStyles = (colors: ReturnType<typeof useTheme>["colors"]) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -257,7 +295,7 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     title: {
       fontSize: 28,
-      fontWeight: '700' as const,
+      fontWeight: "700" as const,
       color: colors.text,
     },
     subtitle: {
@@ -266,9 +304,9 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       lineHeight: 20,
     },
     selectionInfo: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
     },
     selectionText: {
       fontSize: 15,
@@ -286,7 +324,7 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     clearButtonText: {
       fontSize: 14,
-      fontWeight: '600' as const,
+      fontWeight: "600" as const,
       color: colors.text,
     },
     clearButtonTextDisabled: {
@@ -301,17 +339,17 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       gap: 8,
     },
     emptyList: {
-      alignItems: 'center',
+      alignItems: "center",
       paddingVertical: 32,
       gap: 12,
     },
     emptyListText: {
       color: colors.textSecondary,
-      textAlign: 'center',
+      textAlign: "center",
     },
     listItem: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: 12,
       padding: 12,
       borderRadius: 12,
@@ -320,7 +358,7 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     listItemSelected: {
       borderColor: colors.primary,
-      backgroundColor: colors.primary + '10',
+      backgroundColor: colors.primary + "10",
     },
     listItemArchived: {
       opacity: 0.6,
@@ -331,8 +369,8 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       borderRadius: 8,
       borderWidth: 2,
       borderColor: colors.border,
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: "center",
+      alignItems: "center",
     },
     checkboxActive: {
       backgroundColor: colors.primary,
@@ -344,20 +382,20 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       gap: 4,
     },
     itemHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: 8,
     },
     itemTitle: {
       fontSize: 16,
-      fontWeight: '600' as const,
+      fontWeight: "600" as const,
       color: colors.text,
       flex: 1,
     },
     archivedTag: {
       fontSize: 12,
       color: colors.warning,
-      fontWeight: '600' as const,
+      fontWeight: "600" as const,
     },
     itemSubtitle: {
       fontSize: 13,
@@ -372,7 +410,7 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     sectionTitle: {
       fontSize: 20,
-      fontWeight: '700' as const,
+      fontWeight: "700" as const,
       color: colors.text,
     },
     comparisonEmpty: {
@@ -383,7 +421,7 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       backgroundColor: colors.card,
     },
     comparisonEmptyText: {
-      textAlign: 'center',
+      textAlign: "center",
       color: colors.textSecondary,
       lineHeight: 20,
     },
@@ -402,26 +440,25 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     cardName: {
       fontSize: 17,
-      fontWeight: '700' as const,
+      fontWeight: "700" as const,
       color: colors.text,
       marginBottom: 6,
     },
     metricRow: {
       marginTop: 4,
-      width: '100%',
+      width: "100%",
       paddingHorizontal: 2,
     },
     metricLabel: {
       fontSize: 11,
       color: colors.textSecondary,
-      textAlign: 'left',
+      textAlign: "left",
     },
     metricValue: {
       fontSize: 15,
-      fontWeight: '700' as const,
+      fontWeight: "700" as const,
       color: colors.text,
-      textAlign: 'right',
+      textAlign: "right",
       marginTop: 0,
     },
   });
-

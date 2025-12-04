@@ -1,10 +1,5 @@
-import {
-  FuelLog,
-  MaintenanceRecord,
-  MaintenanceType,
-  Vehicle,
-  VehicleCategory,
-} from '@/types/vehicle';
+import { FuelLog, Vehicle, VehicleCategory } from "@/types/vehicle";
+import { MaintenanceRecord, MaintenanceType } from "@/types/maintenance";
 
 export interface VehicleStats {
   vehicleId: string;
@@ -67,31 +62,33 @@ export interface OverallStats {
 /**
  * Calculate overall statistics from maintenance records
  */
-export function calculateOverallStats(records: MaintenanceRecord[]): OverallStats {
+export function calculateOverallStats(
+  records: MaintenanceRecord[]
+): OverallStats {
   const currentYear = new Date().getFullYear();
   const now = Date.now();
-  
+
   let totalSpent = 0;
   let thisYearSpent = 0;
   let thisYearCount = 0;
-  
+
   const typeCounts: Record<string, number> = {};
   const typeSpending: Record<string, number> = {};
-  
+
   // Get oldest and newest record dates for monthly average calculation
   let oldestDate = now;
   let newestDate = 0;
-  
+
   records.forEach((record) => {
     const cost = record.cost || 0;
     totalSpent += cost;
-    
+
     const recordYear = new Date(record.date).getFullYear();
     if (recordYear === currentYear) {
       thisYearSpent += cost;
       thisYearCount++;
     }
-    
+
     // Track date range
     if (record.date < oldestDate) {
       oldestDate = record.date;
@@ -99,12 +96,12 @@ export function calculateOverallStats(records: MaintenanceRecord[]): OverallStat
     if (record.date > newestDate) {
       newestDate = record.date;
     }
-    
+
     // Count by type
     typeCounts[record.type] = (typeCounts[record.type] || 0) + 1;
     typeSpending[record.type] = (typeSpending[record.type] || 0) + cost;
   });
-  
+
   // Calculate average monthly spending
   let averageMonthlySpent = 0;
   if (records.length > 0 && oldestDate < newestDate) {
@@ -114,7 +111,7 @@ export function calculateOverallStats(records: MaintenanceRecord[]): OverallStat
     );
     averageMonthlySpent = totalSpent / monthsDiff;
   }
-  
+
   // Find most frequent type
   let mostFrequentType: MaintenanceType | null = null;
   let maxCount = 0;
@@ -124,7 +121,7 @@ export function calculateOverallStats(records: MaintenanceRecord[]): OverallStat
       mostFrequentType = type as MaintenanceType;
     }
   });
-  
+
   // Find most expensive type
   let mostExpensiveType: MaintenanceType | null = null;
   let maxSpending = 0;
@@ -134,7 +131,7 @@ export function calculateOverallStats(records: MaintenanceRecord[]): OverallStat
       mostExpensiveType = type as MaintenanceType;
     }
   });
-  
+
   return {
     totalSpent,
     totalMaintenance: records.length,
@@ -155,15 +152,19 @@ export function calculateVehicleStats(
 ): VehicleStats[] {
   return vehicles.map((vehicle) => {
     const vehicleRecords = records.filter((r) => r.vehicleId === vehicle.id);
-    const totalSpent = vehicleRecords.reduce((sum, r) => sum + (r.cost || 0), 0);
+    const totalSpent = vehicleRecords.reduce(
+      (sum, r) => sum + (r.cost || 0),
+      0
+    );
     const lastRecord = vehicleRecords.sort((a, b) => b.date - a.date)[0];
-    
+
     return {
       vehicleId: vehicle.id,
       vehicleName: `${vehicle.make} ${vehicle.model}`,
       totalSpent,
       maintenanceCount: vehicleRecords.length,
-      averageCost: vehicleRecords.length > 0 ? totalSpent / vehicleRecords.length : 0,
+      averageCost:
+        vehicleRecords.length > 0 ? totalSpent / vehicleRecords.length : 0,
       lastMaintenance: lastRecord?.date,
     };
   });
@@ -177,7 +178,7 @@ export function calculateTypeStats(
   vehicles: Vehicle[]
 ): TypeStats[] {
   const typeMap: Record<string, TypeStats> = {};
-  
+
   records.forEach((record) => {
     if (!typeMap[record.type]) {
       typeMap[record.type] = {
@@ -188,10 +189,10 @@ export function calculateTypeStats(
         vehicleBreakdown: [],
       };
     }
-    
+
     typeMap[record.type].count++;
     typeMap[record.type].totalSpent += record.cost || 0;
-    
+
     // Track vehicle breakdown - check if vehicles array exists and has items
     if (vehicles && vehicles.length > 0) {
       const vehicleData = vehicles.find((v) => v.id === record.vehicleId);
@@ -200,7 +201,7 @@ export function calculateTypeStats(
         const existingVehicle = typeMap[record.type].vehicleBreakdown.find(
           (v) => v.vehicleId === record.vehicleId
         );
-        
+
         if (existingVehicle) {
           existingVehicle.count++;
         } else {
@@ -213,14 +214,14 @@ export function calculateTypeStats(
       }
     }
   });
-  
+
   // Calculate averages
   Object.values(typeMap).forEach((stat) => {
     stat.averageCost = stat.count > 0 ? stat.totalSpent / stat.count : 0;
     // Sort vehicle breakdown by count
     stat.vehicleBreakdown.sort((a, b) => b.count - a.count);
   });
-  
+
   // Sort by count (most frequent first)
   return Object.values(typeMap).sort((a, b) => b.count - a.count);
 }
@@ -230,28 +231,50 @@ export function calculateCategoryStats(
   records: MaintenanceRecord[]
 ): CategoryStats[] {
   const categories: Record<VehicleCategory, CategoryStats> = {
-    personal: { category: 'personal', vehicleCount: 0, maintenanceCount: 0, totalSpent: 0 },
-    work: { category: 'work', vehicleCount: 0, maintenanceCount: 0, totalSpent: 0 },
-    family: { category: 'family', vehicleCount: 0, maintenanceCount: 0, totalSpent: 0 },
-    other: { category: 'other', vehicleCount: 0, maintenanceCount: 0, totalSpent: 0 },
+    personal: {
+      category: "personal",
+      vehicleCount: 0,
+      maintenanceCount: 0,
+      totalSpent: 0,
+    },
+    work: {
+      category: "work",
+      vehicleCount: 0,
+      maintenanceCount: 0,
+      totalSpent: 0,
+    },
+    family: {
+      category: "family",
+      vehicleCount: 0,
+      maintenanceCount: 0,
+      totalSpent: 0,
+    },
+    other: {
+      category: "other",
+      vehicleCount: 0,
+      maintenanceCount: 0,
+      totalSpent: 0,
+    },
   };
 
   const vehicleCategoryMap = new Map<string, VehicleCategory>();
 
   vehicles.forEach((vehicle) => {
-    const category = vehicle.category ?? 'other';
+    const category = vehicle.category ?? "other";
     vehicleCategoryMap.set(vehicle.id, category);
     categories[category].vehicleCount += 1;
   });
 
   records.forEach((record) => {
-    const category = vehicleCategoryMap.get(record.vehicleId) ?? 'other';
+    const category = vehicleCategoryMap.get(record.vehicleId) ?? "other";
     categories[category].maintenanceCount += 1;
     categories[category].totalSpent += record.cost || 0;
   });
 
   return Object.values(categories)
-    .filter((category) => category.vehicleCount > 0 || category.maintenanceCount > 0)
+    .filter(
+      (category) => category.vehicleCount > 0 || category.maintenanceCount > 0
+    )
     .sort((a, b) => b.totalSpent - a.totalSpent);
 }
 
@@ -269,10 +292,11 @@ export function calculateFuelStats(fuelLogs: FuelLog[]): FuelStats {
 
   const totalFillUps = fuelLogs.length;
   const totalVolume = fuelLogs.reduce((sum, log) => sum + (log.volume || 0), 0);
-  const totalCost = fuelLogs.reduce((sum, log) => sum + (log.totalCost || 0), 0);
-  const lastFillDate = fuelLogs
-    .map((log) => log.date)
-    .sort((a, b) => b - a)[0];
+  const totalCost = fuelLogs.reduce(
+    (sum, log) => sum + (log.totalCost || 0),
+    0
+  );
+  const lastFillDate = fuelLogs.map((log) => log.date).sort((a, b) => b - a)[0];
 
   return {
     totalFillUps,
@@ -297,7 +321,9 @@ export function calculateFuelStatsByVehicle(
       const vehicle = vehicles.find((v) => v.id === log.vehicleId);
       statsMap[log.vehicleId] = {
         vehicleId: log.vehicleId,
-        vehicleName: vehicle ? `${vehicle.make} ${vehicle.model}` : log.vehicleId,
+        vehicleName: vehicle
+          ? `${vehicle.make} ${vehicle.model}`
+          : log.vehicleId,
         fillUps: 0,
         totalVolume: 0,
         totalCost: 0,
@@ -315,33 +341,41 @@ export function calculateFuelStatsByVehicle(
 /**
  * Calculate monthly statistics for the last 12 months
  */
-export function calculateMonthlyStats(records: MaintenanceRecord[]): MonthlyStats[] {
+export function calculateMonthlyStats(
+  records: MaintenanceRecord[]
+): MonthlyStats[] {
   const now = new Date();
   const monthsMap: Record<string, MonthlyStats> = {};
-  
+
   // Initialize last 12 months
   for (let i = 11; i >= 0; i--) {
     const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}`;
     monthsMap[key] = {
-      month: date.toLocaleString('default', { month: 'short' }),
+      month: date.toLocaleString("default", { month: "short" }),
       year: date.getFullYear(),
       totalSpent: 0,
       count: 0,
     };
   }
-  
+
   // Aggregate records
   records.forEach((record) => {
     const date = new Date(record.date);
-    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-    
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}`;
+
     if (monthsMap[key]) {
       monthsMap[key].totalSpent += record.cost || 0;
       monthsMap[key].count++;
     }
   });
-  
+
   return Object.values(monthsMap);
 }
 
@@ -368,16 +402,16 @@ export function calculateYearComparison(records: MaintenanceRecord[]): {
 } {
   const currentYear = new Date().getFullYear();
   const lastYear = currentYear - 1;
-  
+
   let currentYearSpent = 0;
   let currentYearCount = 0;
   let lastYearSpent = 0;
   let lastYearCount = 0;
-  
+
   records.forEach((record) => {
     const year = new Date(record.date).getFullYear();
     const cost = record.cost || 0;
-    
+
     if (year === currentYear) {
       currentYearSpent += cost;
       currentYearCount++;
@@ -386,12 +420,12 @@ export function calculateYearComparison(records: MaintenanceRecord[]): {
       lastYearCount++;
     }
   });
-  
+
   const percentageChange =
     lastYearSpent > 0
       ? ((currentYearSpent - lastYearSpent) / lastYearSpent) * 100
       : 0;
-  
+
   return {
     currentYear: { spent: currentYearSpent, count: currentYearCount },
     lastYear: { spent: lastYearSpent, count: lastYearCount },
@@ -402,7 +436,7 @@ export function calculateYearComparison(records: MaintenanceRecord[]): {
 /**
  * Format currency value
  */
-export function formatCurrency(value: number, symbol: string = '€'): string {
+export function formatCurrency(value: number, symbol: string = "€"): string {
   return `${symbol}${value.toFixed(2)}`;
 }
 
@@ -418,4 +452,3 @@ export function formatNumber(value: number): string {
   }
   return value.toFixed(0);
 }
-

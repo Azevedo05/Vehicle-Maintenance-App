@@ -1,12 +1,26 @@
-import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View, Animated, Easing } from 'react-native';
-import { Svg, Rect } from 'react-native-svg';
-import { BlurView } from 'expo-blur';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from "react";
+import {
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Animated,
+  Easing,
+  PanResponder,
+} from "react-native";
+import { BlurView } from "expo-blur";
 
-import { useTheme } from '@/contexts/ThemeContext';
-import { useLocalization } from '@/contexts/LocalizationContext';
+import { useTheme } from "@/contexts/ThemeContext";
+import { useLocalization } from "@/contexts/LocalizationContext";
 
-type AlertButtonStyle = 'default' | 'cancel' | 'destructive';
+type AlertButtonStyle = "default" | "cancel" | "destructive";
 
 export interface AlertButtonConfig {
   text?: string;
@@ -37,12 +51,14 @@ const AlertContext = createContext<AlertContextValue | undefined>(undefined);
 export const useAppAlert = (): AlertContextValue => {
   const ctx = useContext(AlertContext);
   if (!ctx) {
-    throw new Error('useAppAlert must be used within AlertProvider');
+    throw new Error("useAppAlert must be used within AlertProvider");
   }
   return ctx;
 };
 
-export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { colors } = useTheme();
   const { t } = useLocalization();
   const [visible, setVisible] = useState(false);
@@ -52,19 +68,22 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const toastProgress = useRef(new Animated.Value(0)).current;
   const toastOpacity = useRef(new Animated.Value(0)).current;
-  const [toastSize, setToastSize] = useState<{ width: number; height: number } | null>(null);
 
   const styles = createStyles(colors);
 
-  const showAlert = useCallback((config: AlertConfig) => {
-    // Fallback buttons if none provided
-    const buttons = config.buttons && config.buttons.length > 0
-      ? config.buttons
-      : [{ text: t('common.ok') }];
+  const showAlert = useCallback(
+    (config: AlertConfig) => {
+      // Fallback buttons if none provided
+      const buttons =
+        config.buttons && config.buttons.length > 0
+          ? config.buttons
+          : [{ text: t("common.ok") }];
 
-    setCurrent({ ...config, buttons });
-    setVisible(true);
-  }, [t]);
+      setCurrent({ ...config, buttons });
+      setVisible(true);
+    },
+    [t]
+  );
 
   const showToast = useCallback(
     (config: ToastConfig) => {
@@ -77,7 +96,6 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       toastProgress.setValue(0);
       toastOpacity.setValue(0);
-      setToastSize(null);
 
       Animated.timing(toastOpacity, {
         toValue: 1,
@@ -107,6 +125,36 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     [toastOpacity, toastProgress]
   );
 
+  const dismissToast = useCallback(() => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+      toastTimeoutRef.current = null;
+    }
+    Animated.timing(toastOpacity, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => {
+      setToastVisible(false);
+      setToast(null);
+    });
+  }, [toastOpacity]);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return Math.abs(gestureState.dy) > 10;
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy < -20) {
+          // Swipe up
+          dismissToast();
+        }
+      },
+    })
+  ).current;
+
   const handleButtonPress = (index: number) => {
     if (!current || !current.buttons) return;
     const button = current.buttons[index];
@@ -117,7 +165,7 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const handleToastAction = () => {
-      if (!toast || !toast.onAction) {
+    if (!toast || !toast.onAction) {
       setToastVisible(false);
       return;
     }
@@ -148,7 +196,11 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         onRequestClose={() => setVisible(false)}
       >
         <View style={styles.overlay}>
-          <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFillObject} />
+          <BlurView
+            intensity={80}
+            tint="dark"
+            style={StyleSheet.absoluteFillObject}
+          />
           <View style={styles.card}>
             {current?.title ? (
               <Text style={styles.title}>{current.title}</Text>
@@ -159,19 +211,20 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             <View
               style={[
                 styles.actionsRow,
-                (current?.buttons?.length ?? 0) === 1 && styles.actionsRowSingle,
+                (current?.buttons?.length ?? 0) === 1 &&
+                  styles.actionsRowSingle,
               ]}
             >
               {current?.buttons?.map((button, index) => {
-                const style = button.style ?? 'default';
+                const style = button.style ?? "default";
                 const isSingle = (current.buttons?.length ?? 0) === 1;
                 return (
                   <TouchableOpacity
                     key={`${button.text ?? index}-${style}`}
                     style={[
                       isSingle ? styles.buttonSingle : styles.button,
-                      style === 'cancel' && styles.buttonCancel,
-                      style === 'destructive' && styles.buttonDestructive,
+                      style === "cancel" && styles.buttonCancel,
+                      style === "destructive" && styles.buttonDestructive,
                     ]}
                     onPress={() => handleButtonPress(index)}
                     activeOpacity={0.8}
@@ -179,11 +232,11 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     <Text
                       style={[
                         isSingle ? styles.buttonSingleText : styles.buttonText,
-                        style === 'cancel' && styles.buttonTextCancel,
-                        style === 'destructive' && styles.buttonTextDestructive,
+                        style === "cancel" && styles.buttonTextCancel,
+                        style === "destructive" && styles.buttonTextDestructive,
                       ]}
                     >
-                      {button.text ?? t('common.ok')}
+                      {button.text ?? t("common.ok")}
                     </Text>
                   </TouchableOpacity>
                 );
@@ -204,46 +257,14 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                   {
                     translateY: toastOpacity.interpolate({
                       inputRange: [0, 1],
-                      outputRange: [12, 0],
+                      outputRange: [-20, 0],
                     }),
                   },
                 ],
               },
             ]}
-            onLayout={(e) => {
-              const { width, height } = e.nativeEvent.layout;
-              setToastSize({ width, height });
-            }}
+            {...panResponder.panHandlers}
           >
-            {toastSize && (
-              <Svg
-                pointerEvents="none"
-                style={StyleSheet.absoluteFillObject}
-                width={toastSize.width}
-                height={toastSize.height}
-              >
-                <AnimatedRect
-                  x={1.5}
-                  y={1.5}
-                  width={toastSize.width - 3}
-                  height={toastSize.height - 3}
-                  rx={(toastSize.height - 3) / 2}
-                  ry={(toastSize.height - 3) / 2}
-                  stroke={colors.primary}
-                  strokeWidth={1.5}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  fill="transparent"
-                  strokeDasharray={
-                    2 * (toastSize.width + toastSize.height - 6)
-                  }
-                  strokeDashoffset={toastProgress.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, 2 * (toastSize.width + toastSize.height - 6)],
-                  })}
-                />
-              </Svg>
-            )}
             <Text style={styles.toastMessage}>{toast.message}</Text>
             {toast.actionLabel && toast.onAction && (
               <TouchableOpacity
@@ -254,6 +275,17 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 <Text style={styles.toastActionText}>{toast.actionLabel}</Text>
               </TouchableOpacity>
             )}
+            <Animated.View
+              style={[
+                styles.progressBar,
+                {
+                  width: toastProgress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ["100%", "0%"],
+                  }),
+                },
+              ]}
+            />
           </Animated.View>
         </View>
       )}
@@ -261,20 +293,18 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
-const AnimatedRect = Animated.createAnimatedComponent(Rect);
-
-const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
+const createStyles = (colors: ReturnType<typeof useTheme>["colors"]) =>
   StyleSheet.create({
     overlay: {
       flex: 1,
       // Leve escurecimento só para destacar o blur, sem "apagar" o ecrã
-      backgroundColor: '#00000022',
-      justifyContent: 'center',
-      alignItems: 'center',
+      backgroundColor: "#00000022",
+      justifyContent: "center",
+      alignItems: "center",
       padding: 24,
     },
     card: {
-      width: '100%',
+      width: "100%",
       backgroundColor: colors.card,
       borderRadius: 18,
       paddingHorizontal: 20,
@@ -289,7 +319,7 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     title: {
       fontSize: 17,
-      fontWeight: '700',
+      fontWeight: "700",
       color: colors.text,
       marginBottom: 8,
     },
@@ -299,12 +329,12 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       marginBottom: 16,
     },
     actionsRow: {
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
+      flexDirection: "row",
+      justifyContent: "flex-end",
       gap: 8,
     },
     actionsRowSingle: {
-      justifyContent: 'center',
+      justifyContent: "center",
     },
     button: {
       paddingHorizontal: 14,
@@ -317,21 +347,21 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       paddingVertical: 12,
     },
     buttonCancel: {
-      backgroundColor: 'transparent',
+      backgroundColor: "transparent",
     },
     buttonDestructive: {
-      backgroundColor: colors.error + '20',
+      backgroundColor: colors.error + "20",
     },
     buttonText: {
       fontSize: 14,
-      fontWeight: '600',
+      fontWeight: "600",
       color: colors.text,
     },
     buttonSingleText: {
       fontSize: 16,
-      fontWeight: '600',
+      fontWeight: "600",
       color: colors.primary,
-      textAlign: 'center',
+      textAlign: "center",
     },
     buttonTextCancel: {
       color: colors.textSecondary,
@@ -340,44 +370,56 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       color: colors.error,
     },
     toastContainer: {
-      position: 'absolute',
-      left: 16,
-      right: 16,
-      bottom: 24,
-      alignItems: 'center',
+      position: "absolute",
+      left: 20,
+      right: 20,
+      top: 60,
+      alignItems: "center",
+      zIndex: 9999,
     },
     toastCard: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      maxWidth: 480,
-      width: '100%',
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      maxWidth: 400,
+      width: "100%",
       paddingHorizontal: 16,
-      paddingVertical: 10,
-      borderRadius: 999,
+      paddingVertical: 16,
+      borderRadius: 16,
       backgroundColor: colors.card,
-      borderWidth: 0,
       shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 3 },
-      shadowOpacity: 0.25,
-      shadowRadius: 8,
-      elevation: 5,
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.15,
+      shadowRadius: 16,
+      elevation: 10,
+      overflow: "hidden", // Ensure progress bar is clipped at corners
     },
     toastMessage: {
       flex: 1,
-      fontSize: 14,
+      fontSize: 15,
+      fontWeight: "500",
       color: colors.text,
-      marginRight: 12,
+      marginRight: 16,
+      lineHeight: 20,
     },
     toastActionButton: {
-      paddingHorizontal: 8,
-      paddingVertical: 4,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      backgroundColor: colors.surface,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
     },
     toastActionText: {
       fontSize: 14,
-      fontWeight: '600',
+      fontWeight: "600",
       color: colors.primary,
     },
+    progressBar: {
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      height: 4,
+      backgroundColor: colors.primary,
+    },
   });
-
-

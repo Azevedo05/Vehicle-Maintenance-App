@@ -1,10 +1,8 @@
-import * as ImagePicker from 'expo-image-picker';
-import { Image } from 'expo-image';
-import { router, useLocalSearchParams } from 'expo-router';
-import { Camera, X } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import * as ImagePicker from "expo-image-picker";
+import { router, Stack, useLocalSearchParams } from "expo-router";
+import { Camera, X, Check } from "lucide-react-native";
+import React, { useState } from "react";
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -13,53 +11,46 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+  ActivityIndicator,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Image } from "expo-image";
 
-import { useVehicles } from '@/contexts/VehicleContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useLocalization } from '@/contexts/LocalizationContext';
-import { useAppAlert } from '@/contexts/AlertContext';
-import { VehicleCategory, VEHICLE_CATEGORY_INFO } from '@/types/vehicle';
+import { useLocalization } from "@/contexts/LocalizationContext";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useVehicles } from "@/contexts/VehicleContext";
+import { useAppAlert } from "@/contexts/AlertContext";
+import { VehicleCategory, VEHICLE_CATEGORY_INFO } from "@/types/vehicle";
+import MaskInput from "react-native-mask-input";
 
 export default function EditVehicleScreen() {
   const { id } = useLocalSearchParams();
-  const vehicleId = id as string;
   const { getVehicleById, updateVehicle, restoreLastSnapshot } = useVehicles();
   const { colors } = useTheme();
   const { t } = useLocalization();
-  const { showToast } = useAppAlert();
+  const { showToast, showAlert } = useAppAlert();
 
-  const vehicle = getVehicleById(vehicleId);
+  const vehicle = getVehicleById(id as string);
 
-  const [name, setName] = useState('');
-  const [make, setMake] = useState('');
-  const [model, setModel] = useState('');
-  const [year, setYear] = useState('');
-  const [licensePlate, setLicensePlate] = useState('');
-  const [currentMileage, setCurrentMileage] = useState('');
-  const [photo, setPhoto] = useState<string | undefined>();
-  const [category, setCategory] = useState<VehicleCategory | undefined>();
+  const [make, setMake] = useState(vehicle?.make || "");
+  const [model, setModel] = useState(vehicle?.model || "");
+  const [year, setYear] = useState(vehicle?.year.toString() || "");
+  const [licensePlate, setLicensePlate] = useState(vehicle?.licensePlate || "");
+  const [currentMileage, setCurrentMileage] = useState(
+    vehicle?.currentMileage.toString() || ""
+  );
+  const [photo, setPhoto] = useState<string | undefined>(vehicle?.photo);
+  const [category, setCategory] = useState<VehicleCategory | undefined>(
+    vehicle?.category
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (vehicle) {
-      setName(vehicle.name);
-      setMake(vehicle.make);
-      setModel(vehicle.model);
-      setYear(vehicle.year.toString());
-      setLicensePlate(vehicle.licensePlate || '');
-      setCurrentMileage(vehicle.currentMileage.toString());
-      setPhoto(vehicle.photo);
-      setCategory(vehicle.category);
-    }
-  }, [vehicle]);
+  const styles = createStyles(colors);
 
   if (!vehicle) {
-    const errorStyles = createStyles(colors);
     return (
-      <View style={errorStyles.errorContainer}>
-        <Text style={errorStyles.errorText}>{t('vehicles.not_found')}</Text>
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{t("vehicles.not_found")}</Text>
       </View>
     );
   }
@@ -67,16 +58,16 @@ export default function EditVehicleScreen() {
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    if (status !== 'granted') {
-      Alert.alert(
-        t('vehicles.permission_needed'),
-        t('vehicles.permission_text')
-      );
+    if (status !== "granted") {
+      showAlert({
+        title: t("vehicles.permission_needed"),
+        message: t("vehicles.permission_text"),
+      });
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
+      mediaTypes: ["images"],
       allowsEditing: true,
       aspect: [4, 3],
       quality: 0.8,
@@ -89,33 +80,44 @@ export default function EditVehicleScreen() {
 
   const handleSubmit = async () => {
     if (
-      !name.trim() ||
       !make.trim() ||
       !model.trim() ||
       !year.trim() ||
-      !currentMileage.trim()
+      !currentMileage.trim() ||
+      !category
     ) {
-      Alert.alert(t('vehicles.missing_info'), t('vehicles.fill_required'));
+      showAlert({
+        title: t("vehicles.missing_info"),
+        message: t("vehicles.fill_required"),
+      });
       return;
     }
 
     const yearNum = parseInt(year);
-    if (isNaN(yearNum) || yearNum < 1900 || yearNum > new Date().getFullYear() + 1) {
-      Alert.alert(t('vehicles.invalid_year'), t('vehicles.valid_year_text'));
+    if (
+      isNaN(yearNum) ||
+      yearNum < 1900 ||
+      yearNum > new Date().getFullYear() + 1
+    ) {
+      showAlert({
+        title: t("vehicles.invalid_year"),
+        message: t("vehicles.valid_year_text"),
+      });
       return;
     }
 
     const mileageNum = parseInt(currentMileage);
     if (isNaN(mileageNum) || mileageNum < 0) {
-      Alert.alert(t('vehicles.invalid_mileage'), t('vehicles.valid_mileage_text'));
+      showAlert({
+        title: t("vehicles.invalid_mileage"),
+        message: t("vehicles.valid_mileage_text"),
+      });
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const vehicleName = name.trim();
-      await updateVehicle(vehicleId, {
-        name: vehicleName,
+      await updateVehicle(vehicle.id, {
         make: make.trim(),
         model: model.trim(),
         year: yearNum,
@@ -124,34 +126,50 @@ export default function EditVehicleScreen() {
         photo,
         category,
       });
-      
+
       router.back();
-      
+
       setTimeout(() => {
         showToast({
-          message: t('vehicles.update_success', { name: vehicleName }),
-          actionLabel: t('common.undo'),
+          message: t("vehicles.update_success", {
+            name: `${make.trim()} ${model.trim()}`,
+          }),
+          actionLabel: t("common.undo"),
           onAction: async () => {
             await restoreLastSnapshot();
           },
         });
       }, 150);
     } catch (error) {
-      console.error('Error updating vehicle:', error);
-      Alert.alert(t('common.error'), t('vehicles.update_error'));
+      console.error("Error updating vehicle:", error);
+      showAlert({
+        title: t("common.error"),
+        message: t("vehicles.update_error"),
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const styles = createStyles(colors);
-
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <SafeAreaView style={styles.container} edges={["bottom"]}>
+      <Stack.Screen
+        options={{
+          title: t("vehicles.edit_vehicle"),
+          headerRight: () =>
+            isSubmitting ? (
+              <ActivityIndicator color={colors.primary} />
+            ) : (
+              <TouchableOpacity onPress={handleSubmit} disabled={isSubmitting}>
+                <Check size={24} color={colors.primary} />
+              </TouchableOpacity>
+            ),
+        }}
+      />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior="padding"
         style={styles.keyboardView}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        keyboardVerticalOffset={100}
       >
         <ScrollView
           style={styles.scrollView}
@@ -165,7 +183,11 @@ export default function EditVehicleScreen() {
           >
             {photo ? (
               <View style={styles.photoContainer}>
-                <Image source={{ uri: photo }} style={styles.photo} contentFit="cover" />
+                <Image
+                  source={{ uri: photo }}
+                  style={styles.photo}
+                  contentFit="cover"
+                />
                 <TouchableOpacity
                   style={styles.removePhotoButton}
                   onPress={(e) => {
@@ -178,8 +200,10 @@ export default function EditVehicleScreen() {
               </View>
             ) : (
               <View style={styles.photoPlaceholder}>
-                <Camera size={32} color="#8E8E93" />
-                <Text style={styles.photoPlaceholderText}>{t('vehicles.add_photo')}</Text>
+                <Camera size={32} color={colors.textSecondary} />
+                <Text style={styles.photoPlaceholderText}>
+                  {t("vehicles.add_photo")}
+                </Text>
               </View>
             )}
           </TouchableOpacity>
@@ -187,64 +211,54 @@ export default function EditVehicleScreen() {
           <View style={styles.form}>
             <View style={styles.inputGroup}>
               <Text style={styles.label}>
-                {t('vehicles.name')} <Text style={styles.required}>*</Text>
-              </Text>
-              <TextInput
-                style={styles.input}
-                value={name}
-                onChangeText={setName}
-                placeholder={t('vehicles.name_placeholder')}
-                placeholderTextColor={colors.placeholder}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>
-                {t('vehicles.make')} <Text style={styles.required}>*</Text>
+                {t("vehicles.make")} <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
                 style={styles.input}
                 value={make}
                 onChangeText={setMake}
-                placeholder={t('vehicles.make_placeholder')}
+                placeholder={t("vehicles.make_placeholder")}
                 placeholderTextColor={colors.placeholder}
               />
             </View>
 
             <View style={styles.inputGroup}>
               <Text style={styles.label}>
-                {t('vehicles.model')} <Text style={styles.required}>*</Text>
+                {t("vehicles.model")} <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
                 style={styles.input}
                 value={model}
                 onChangeText={setModel}
-                placeholder={t('vehicles.model_placeholder')}
+                placeholder={t("vehicles.model_placeholder")}
                 placeholderTextColor={colors.placeholder}
               />
             </View>
 
             <View style={styles.inputGroup}>
               <Text style={styles.label}>
-                {t('vehicles.year')} <Text style={styles.required}>*</Text>
+                {t("vehicles.year")} <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
                 style={styles.input}
                 value={year}
                 onChangeText={setYear}
-                placeholder={t('vehicles.year_placeholder')}
+                placeholder={t("vehicles.year_placeholder")}
                 placeholderTextColor={colors.placeholder}
                 keyboardType="numeric"
               />
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>{t('vehicles.license_plate')}</Text>
-              <TextInput
+              <Text style={styles.label}>{t("vehicles.license_plate")}</Text>
+              <MaskInput
                 style={styles.input}
                 value={licensePlate}
-                onChangeText={setLicensePlate}
-                placeholder={t('vehicles.license_placeholder')}
+                onChangeText={(masked, unmasked) =>
+                  setLicensePlate(masked.toUpperCase())
+                }
+                mask={[/\w/, /\w/, "-", /\w/, /\w/, "-", /\w/, /\w/]}
+                placeholder={t("vehicles.license_placeholder")}
                 placeholderTextColor={colors.placeholder}
                 autoCapitalize="characters"
               />
@@ -252,70 +266,71 @@ export default function EditVehicleScreen() {
 
             <View style={styles.inputGroup}>
               <Text style={styles.label}>
-                {t('vehicles.current_mileage')} ({t('vehicles.km')}) <Text style={styles.required}>*</Text>
+                {t("vehicles.current_mileage")} ({t("vehicles.km")}){" "}
+                <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
                 style={styles.input}
                 value={currentMileage}
                 onChangeText={setCurrentMileage}
-                placeholder={t('vehicles.mileage_placeholder')}
+                placeholder={t("vehicles.mileage_placeholder")}
                 placeholderTextColor={colors.placeholder}
                 keyboardType="numeric"
               />
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>{t('vehicles.category')}</Text>
+              <Text style={styles.label}>
+                {t("vehicles.category")} <Text style={styles.required}>*</Text>
+              </Text>
               <View style={styles.categoryGrid}>
-                {(Object.keys(VEHICLE_CATEGORY_INFO) as VehicleCategory[]).map((cat) => {
-                  const info = VEHICLE_CATEGORY_INFO[cat];
-                  const IconComponent = info.Icon;
-                  return (
-                    <TouchableOpacity
-                      key={cat}
-                      style={[
-                        styles.categoryButton,
-                        category === cat && styles.categoryButtonActive,
-                        { borderColor: category === cat ? info.color : colors.border },
-                      ]}
-                      onPress={() => setCategory(category === cat ? undefined : cat)}
-                    >
-                      <IconComponent 
-                        size={20} 
-                        color={category === cat ? info.color : colors.textSecondary} 
-                      />
-                      <Text style={[
-                        styles.categoryLabel,
-                        category === cat && { color: info.color },
-                      ]}>
-                        {t(`vehicles.category_${cat}`)}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
+                {(Object.keys(VEHICLE_CATEGORY_INFO) as VehicleCategory[]).map(
+                  (cat) => {
+                    const info = VEHICLE_CATEGORY_INFO[cat];
+                    const IconComponent = info.Icon;
+                    return (
+                      <TouchableOpacity
+                        key={cat}
+                        style={[
+                          styles.categoryButton,
+                          category === cat && styles.categoryButtonActive,
+                          {
+                            borderColor:
+                              category === cat ? info.color : colors.border,
+                          },
+                        ]}
+                        onPress={() =>
+                          setCategory(category === cat ? undefined : cat)
+                        }
+                      >
+                        <IconComponent
+                          size={20}
+                          color={
+                            category === cat ? info.color : colors.textSecondary
+                          }
+                        />
+                        <Text
+                          style={[
+                            styles.categoryLabel,
+                            category === cat && { color: info.color },
+                          ]}
+                        >
+                          {t(`vehicles.category_${cat}`)}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  }
+                )}
               </View>
             </View>
           </View>
         </ScrollView>
-
-        <View style={styles.footer}>
-          <TouchableOpacity
-            style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
-            onPress={handleSubmit}
-            disabled={isSubmitting}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.submitButtonText}>
-              {isSubmitting ? t('vehicles.saving') : t('vehicles.save_changes')}
-            </Text>
-          </TouchableOpacity>
-        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
-const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
+const createStyles = (colors: any) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -323,14 +338,14 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     errorContainer: {
       flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: "center",
+      alignItems: "center",
       padding: 20,
       backgroundColor: colors.background,
     },
     errorText: {
       fontSize: 18,
-      fontWeight: '600' as const,
+      fontWeight: "600" as const,
       color: colors.text,
     },
     keyboardView: {
@@ -343,11 +358,11 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       padding: 16,
     },
     photoSection: {
-      alignItems: 'center',
+      alignItems: "center",
       marginBottom: 24,
     },
     photoContainer: {
-      position: 'relative',
+      position: "relative" as const,
     },
     photo: {
       width: 200,
@@ -356,15 +371,15 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       backgroundColor: colors.border,
     },
     removePhotoButton: {
-      position: 'absolute',
+      position: "absolute" as const,
       top: 8,
       right: 8,
       width: 32,
       height: 32,
       borderRadius: 16,
-      backgroundColor: 'rgba(0, 0, 0, 0.6)',
-      justifyContent: 'center',
-      alignItems: 'center',
+      backgroundColor: "rgba(0, 0, 0, 0.6)",
+      justifyContent: "center" as const,
+      alignItems: "center" as const,
     },
     photoPlaceholder: {
       width: 200,
@@ -373,15 +388,15 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       backgroundColor: colors.surface,
       borderWidth: 2,
       borderColor: colors.border,
-      borderStyle: 'dashed',
-      justifyContent: 'center',
-      alignItems: 'center',
+      borderStyle: "dashed" as const,
+      justifyContent: "center" as const,
+      alignItems: "center" as const,
     },
     photoPlaceholderText: {
       marginTop: 8,
       fontSize: 14,
       color: colors.textSecondary,
-      fontWeight: '500' as const,
+      fontWeight: "500" as const,
     },
     form: {
       gap: 16,
@@ -391,10 +406,10 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     label: {
       fontSize: 16,
-      fontWeight: '600' as const,
+      fontWeight: "600" as const,
       color: colors.text,
       flexShrink: 1,
-      flexWrap: 'wrap',
+      flexWrap: "wrap",
     },
     required: {
       color: colors.error,
@@ -408,40 +423,20 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       borderWidth: 1,
       borderColor: colors.border,
     },
-    footer: {
-      padding: 16,
-      backgroundColor: colors.background,
-      borderTopWidth: 1,
-      borderTopColor: colors.border,
-    },
-    submitButton: {
-      backgroundColor: colors.primary,
-      borderRadius: 12,
-      padding: 16,
-      alignItems: 'center',
-    },
-    submitButtonDisabled: {
-      opacity: 0.5,
-    },
-    submitButtonText: {
-      color: '#FFFFFF',
-      fontSize: 17,
-      fontWeight: '600' as const,
-    },
     categoryGrid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
+      flexDirection: "row",
+      flexWrap: "wrap",
       gap: 12,
     },
     categoryButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       paddingVertical: 10,
       paddingHorizontal: 14,
       borderRadius: 8,
       borderWidth: 2,
       gap: 6,
-      minWidth: '48%',
+      minWidth: "48%",
       flex: 1,
     },
     categoryButtonActive: {
@@ -449,7 +444,7 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     categoryLabel: {
       fontSize: 14,
-      fontWeight: '500',
+      fontWeight: "500",
       color: colors.text,
     },
   });

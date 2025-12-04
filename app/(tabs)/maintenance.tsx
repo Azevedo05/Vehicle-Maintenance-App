@@ -1,223 +1,399 @@
-import { router } from 'expo-router';
-import { Bell, Filter } from 'lucide-react-native';
-import React, { useMemo, useState } from 'react';
+import { router } from "expo-router";
+import { Bell, Filter, SlidersHorizontal } from "lucide-react-native";
+import * as Notifications from "expo-notifications";
+import React, { useMemo, useState, useRef } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  Modal,
   ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useLocalization } from '@/contexts/LocalizationContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useVehicles } from '@/contexts/VehicleContext';
-import { getMaintenanceTypeLabel, MaintenanceType, MAINTENANCE_TYPES } from '@/types/vehicle';
-import { useNotifications } from '@/contexts/NotificationContext';
-import { useAppAlert } from '@/contexts/AlertContext';
+import { useLocalization } from "@/contexts/LocalizationContext";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useVehicles } from "@/contexts/VehicleContext";
+import {
+  getMaintenanceTypeLabel,
+  MaintenanceType,
+  MAINTENANCE_TYPES,
+} from "@/types/maintenance";
+import { usePreferences } from "@/contexts/PreferencesContext";
+import { useNotifications } from "@/contexts/NotificationContext";
+import { useAppAlert } from "@/contexts/AlertContext";
+import { BottomSheet } from "@/components/BottomSheet";
+import { Alert } from "react-native";
+import { MaintenanceListSkeleton } from "@/components/maintenance/MaintenanceListSkeleton";
+import { MaintenanceFilters } from "@/components/maintenance/MaintenanceFilters";
+import { AnimatedItem } from "@/components/ui/AnimatedItem";
+import { SwipeableRow } from "@/components/ui/SwipeableRow";
+import { createStyles } from "@/components/styles/maintenance.styles";
+
+type MaintenanceSortOption =
+  | "due_date_overdue"
+  | "due_date_upcoming"
+  | "type"
+  | "vehicle";
+
+type QuickFilter = "all" | "overdue" | "upcoming";
 
 export default function MaintenanceScreen() {
   const { colors } = useTheme();
   const { t } = useLocalization();
-  const { getUpcomingTasks, isLoading, vehicles } = useVehicles();
+  const { formatDistance } = usePreferences();
+  const {
+    getUpcomingTasks,
+    isLoading,
+    vehicles,
+    deleteTask,
+    restoreLastSnapshot,
+  } = useVehicles();
   const { notificationsEnabled } = useNotifications();
-  const { showAlert } = useAppAlert();
+  const { showAlert, showToast } = useAppAlert();
 
   const [filterModalVisible, setFilterModalVisible] = useState(false);
-  const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
-  const [selectedType, setSelectedType] = useState<MaintenanceType | null>(null);
+  const [selectedVehicleIds, setSelectedVehicleIds] = useState<string[]>([]);
+  const [selectedTypes, setSelectedTypes] = useState<MaintenanceType[]>([]);
+  const [sortOption, setSortOption] =
+    useState<MaintenanceSortOption>("due_date_overdue");
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
 
   const styles = createStyles(colors);
 
   const upcomingTasks = getUpcomingTasks();
-  
+
   // Apply filters
   const filteredTasks = useMemo(() => {
     let tasks = upcomingTasks;
-    
-    if (selectedVehicleId) {
-      tasks = tasks.filter((t) => t.vehicle.id === selectedVehicleId);
+
+    // Apply vehicle and type filters
+    if (selectedVehicleIds.length > 0) {
+      tasks = tasks.filter((t) => selectedVehicleIds.includes(t.vehicle.id));
     }
-    
-    if (selectedType) {
-      tasks = tasks.filter((t) => t.task.type === selectedType);
+
+    if (selectedTypes.length > 0) {
+      tasks = tasks.filter((t) => selectedTypes.includes(t.task.type));
     }
-    
-    return tasks;
-  }, [upcomingTasks, selectedVehicleId, selectedType]);
+
+    // Apply quick filter
+    if (quickFilter === "overdue") {
+      tasks = tasks.filter((t) => {
+        const isOverdueDate =
+          t.daysUntilDue !== undefined && t.daysUntilDue <= 0;
+        const isOverdueMileage =
+          t.milesUntilDue !== undefined && t.milesUntilDue <= 0;
+        return isOverdueDate || isOverdueMileage;
+      });
+    } else if (quickFilter === "upcoming") {
+      tasks = tasks.filter((t) => {
+        const isUpcomingDate =
+          t.daysUntilDue !== undefined &&
+          t.daysUntilDue > 0 &&
+          t.daysUntilDue <= 30;
+        const isUpcomingMileage =
+          t.milesUntilDue !== undefined &&
+          t.milesUntilDue > 0 &&
+          t.milesUntilDue <= 2000;
+        return isUpcomingDate || isUpcomingMileage;
+      });
+    }
+
+    // Sort tasks
+    const sorted = [...tasks].sort((a, b) => {
+      switch (sortOption) {
+        case "due_date_overdue": {
+          // Overdue first, then by days/miles until due
+          const aDue = a.daysUntilDue ?? a.milesUntilDue ?? Infinity;
+          const bDue = b.daysUntilDue ?? b.milesUntilDue ?? Infinity;
+          return aDue - bDue;
+        }
+        case "due_date_upcoming": {
+          // Upcoming first (reverse order)
+          const aDue = a.daysUntilDue ?? a.milesUntilDue ?? -Infinity;
+          const bDue = b.daysUntilDue ?? b.milesUntilDue ?? -Infinity;
+          return bDue - aDue;
+        }
+        case "type":
+          return getMaintenanceTypeLabel(a.task.type, t).localeCompare(
+            getMaintenanceTypeLabel(b.task.type, t)
+          );
+        case "vehicle":
+          return `${a.vehicle.make} ${a.vehicle.model}`.localeCompare(
+            `${b.vehicle.make} ${b.vehicle.model}`
+          );
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
+  }, [
+    upcomingTasks,
+    selectedVehicleIds,
+    selectedTypes,
+    quickFilter,
+    sortOption,
+    t,
+  ]);
 
   const dueTasks = filteredTasks.filter((t) => t.isDue);
   const scheduledTasks = filteredTasks.filter((t) => !t.isDue);
-  
+
   const overdueCount = dueTasks.filter((t) => {
     const isOverdueDate = t.daysUntilDue !== undefined && t.daysUntilDue <= 0;
-    const isOverdueMileage = t.milesUntilDue !== undefined && t.milesUntilDue <= 0;
+    const isOverdueMileage =
+      t.milesUntilDue !== undefined && t.milesUntilDue <= 0;
     return isOverdueDate || isOverdueMileage;
   }).length;
 
   // Combine tasks with section info for FlatList
   const listData = useMemo(() => {
-    const data: { type: 'header' | 'task'; section?: string; item?: typeof dueTasks[0] | typeof scheduledTasks[0] }[] = [];
-    
+    const data: {
+      type: "header" | "task";
+      section?: string;
+      item?: (typeof dueTasks)[0] | (typeof scheduledTasks)[0];
+    }[] = [];
+
     if (dueTasks.length > 0) {
-      data.push({ type: 'header', section: 'due' });
+      data.push({ type: "header", section: "due" });
       dueTasks.forEach((item) => {
-        data.push({ type: 'task', section: 'due', item });
+        data.push({ type: "task", section: "due", item });
       });
     }
-    
+
     if (scheduledTasks.length > 0) {
-      data.push({ type: 'header', section: 'scheduled' });
+      data.push({ type: "header", section: "scheduled" });
       scheduledTasks.forEach((item) => {
-        data.push({ type: 'task', section: 'scheduled', item });
+        data.push({ type: "task", section: "scheduled", item });
       });
     }
-    
+
     return data;
   }, [dueTasks, scheduledTasks]);
 
-  const renderItemSeparator = ({ leadingItem }: { leadingItem: typeof listData[0] }) => {
+  const renderItemSeparator = ({
+    leadingItem,
+  }: {
+    leadingItem: (typeof listData)[0];
+  }) => {
     // Only show separator after task items, not after headers
-    if (leadingItem?.type === 'task') {
+    if (leadingItem?.type === "task") {
       return <View style={styles.itemSeparator} />;
     }
     return null;
   };
 
-  const renderTaskItem = ({ item: dataItem }: { item: typeof listData[0] }) => {
-    if (dataItem.type === 'header') {
-    return (
+  const renderTaskItem = ({
+    item: dataItem,
+    index,
+  }: {
+    item: (typeof listData)[0];
+    index: number;
+  }) => {
+    if (dataItem.type === "header") {
+      return (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            {dataItem.section === 'due' 
-              ? t('maintenance.due_now') 
-              : t('maintenance.scheduled')}
+            {dataItem.section === "due"
+              ? t("maintenance.due_now")
+              : t("maintenance.scheduled")}
           </Text>
-      </View>
-    );
-  }
+        </View>
+      );
+    }
 
     if (!dataItem.item) return null;
 
     const item = dataItem.item;
-    const isDue = dataItem.section === 'due';
+    const isDue = dataItem.section === "due";
 
-  return (
-      <TouchableOpacity
-        style={[styles.taskCard, isDue && styles.dueTaskCard]}
-        onPress={() => router.push(`/vehicle/${item.vehicle.id}`)}
-        activeOpacity={0.7}
-      >
-        <View style={styles.taskInfo}>
-          <Text style={styles.taskTitle} numberOfLines={1}>
-            {getMaintenanceTypeLabel(item.task.type, t)}
-          </Text>
-          <Text style={styles.taskVehicle} numberOfLines={1}>{item.vehicle.name}</Text>
-          <Text style={isDue ? styles.taskDue : styles.taskScheduled}>
-            {item.daysUntilDue !== undefined
-              ? item.daysUntilDue <= 0
-                ? t('maintenance.overdue')
-                : isDue
-                  ? t('maintenance.due_in_days', { days: item.daysUntilDue })
-                  : t('maintenance.in_days', { days: item.daysUntilDue })
-              : item.milesUntilDue !== undefined
-                ? item.milesUntilDue <= 0
-                  ? t('maintenance.overdue')
-                  : isDue
-                    ? t('maintenance.due_in_km', { km: item.milesUntilDue })
-                    : t('maintenance.in_km', { km: item.milesUntilDue })
-                : t('maintenance.due_soon')}
-          </Text>
-        </View>
-      </TouchableOpacity>
+    return (
+      <AnimatedItem index={index}>
+        <SwipeableRow
+          borderRadius={12}
+          onDelete={() => {
+            showAlert({
+              title: t("common.delete"),
+              message: t("maintenance.delete_confirm"),
+              buttons: [
+                { text: t("common.cancel"), style: "cancel" },
+                {
+                  text: t("common.delete"),
+                  style: "destructive",
+                  onPress: async () => {
+                    await deleteTask(item.task.id);
+                    showToast({
+                      message: t("maintenance.delete_success"),
+                      actionLabel: t("common.undo"),
+                      onAction: async () => {
+                        await restoreLastSnapshot();
+                      },
+                    });
+                  },
+                },
+              ],
+            });
+          }}
+        >
+          <TouchableOpacity
+            style={[styles.taskCard, isDue && styles.dueTaskCard]}
+            onPress={() => router.push(`/vehicle/${item.vehicle.id}`)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.taskInfo}>
+              <Text style={styles.taskTitle} numberOfLines={1}>
+                {getMaintenanceTypeLabel(item.task.type, t)}
+              </Text>
+              <Text style={styles.taskVehicle} numberOfLines={1}>
+                {item.vehicle.make} {item.vehicle.model}
+              </Text>
+              <Text style={isDue ? styles.taskDue : styles.taskScheduled}>
+                {item.daysUntilDue !== undefined
+                  ? item.daysUntilDue <= 0
+                    ? t("maintenance.overdue")
+                    : t("maintenance.due_on_date", {
+                        date: new Date(
+                          item.task.nextDueDate || 0
+                        ).toLocaleDateString(),
+                      })
+                  : item.milesUntilDue !== undefined
+                  ? item.milesUntilDue <= 0
+                    ? t("maintenance.overdue")
+                    : t("maintenance.due_at_km", {
+                        km: formatDistance(item.task.nextDueMileage || 0),
+                      })
+                  : t("maintenance.due_soon")}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </SwipeableRow>
+      </AnimatedItem>
     );
   };
 
   const renderListHeader = () => (
     <>
-        <View style={styles.header}>
-          <Text style={styles.screenTitle}>{t('maintenance.title')}</Text>
+      <View style={styles.header}>
+        <Text style={styles.screenTitle}>{t("maintenance.title")}</Text>
         <View style={styles.headerButtons}>
           <TouchableOpacity
-            style={styles.headerIconButton}
+            style={styles.iconHeaderButton}
             onPress={() => setFilterModalVisible(true)}
             activeOpacity={0.7}
           >
-            <Filter size={20} color={colors.primary} />
-            {(selectedVehicleId || selectedType) && (
+            <SlidersHorizontal size={18} color={colors.text} />
+            <Text style={styles.iconHeaderButtonText}>
+              {t("maintenance.filters")}
+            </Text>
+            {(selectedVehicleIds.length > 0 || selectedTypes.length > 0) && (
               <View style={styles.filterBadge} />
             )}
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.headerIconButton}
+            style={styles.iconHeaderButton}
             onPress={() => {
               if (!notificationsEnabled) {
                 showAlert({
-                  title: t('settings.notifications'),
-                  message: t('settings.notifications_enable_first'),
+                  title: t("settings.notifications"),
+                  message: t("settings.notifications_enable_first"),
                 });
                 return;
               }
-              router.push('/notification-settings');
+              router.push("/notification-settings");
             }}
             activeOpacity={0.7}
           >
-            <Bell size={20} color={colors.primary} />
+            <Bell size={18} color={colors.text} />
           </TouchableOpacity>
         </View>
-        </View>
+      </View>
 
-      {(dueTasks.length > 0 || scheduledTasks.length > 0) && (
-        <View style={styles.summaryCard}>
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>{t('maintenance.overdue')}</Text>
-            <Text style={styles.summaryValue}>{overdueCount}</Text>
-          </View>
-          <View style={styles.summaryDivider} />
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>{t('maintenance.due_now')}</Text>
-            <Text style={styles.summaryValue}>{dueTasks.length}</Text>
-          </View>
-          <View style={styles.summaryDivider} />
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>{t('maintenance.scheduled')}</Text>
-            <Text style={styles.summaryValue}>{scheduledTasks.length}</Text>
-          </View>
+      <View style={styles.summaryCard}>
+        <View style={styles.summaryItem}>
+          <Text style={styles.summaryLabel}>{t("maintenance.overdue")}</Text>
+          <Text style={styles.summaryValue}>{overdueCount}</Text>
         </View>
-      )}
+        <View style={styles.summaryDivider} />
+        <View style={styles.summaryItem}>
+          <Text style={styles.summaryLabel}>{t("maintenance.due_now")}</Text>
+          <Text style={styles.summaryValue}>{dueTasks.length}</Text>
+        </View>
+        <View style={styles.summaryDivider} />
+        <View style={styles.summaryItem}>
+          <Text style={styles.summaryLabel}>{t("maintenance.scheduled")}</Text>
+          <Text style={styles.summaryValue}>{scheduledTasks.length}</Text>
+        </View>
+      </View>
+
+      {/* Quick Filter Chips */}
+      <View style={styles.quickFiltersRow}>
+        {[
+          {
+            key: "all" as QuickFilter,
+            label: t("maintenance.filter_all_tasks"),
+          },
+          {
+            key: "overdue" as QuickFilter,
+            label: t("maintenance.filter_overdue"),
+          },
+          {
+            key: "upcoming" as QuickFilter,
+            label: t("maintenance.filter_upcoming"),
+          },
+        ].map((filter) => (
+          <TouchableOpacity
+            key={filter.key}
+            style={[
+              styles.quickFilterChip,
+              quickFilter === filter.key && styles.quickFilterChipActive,
+            ]}
+            onPress={() => setQuickFilter(filter.key)}
+            activeOpacity={0.7}
+          >
+            <Text
+              style={[
+                styles.quickFilterChipText,
+                quickFilter === filter.key && styles.quickFilterChipTextActive,
+              ]}
+            >
+              {filter.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
     </>
   );
 
   const renderListEmpty = () => (
-          <View style={styles.emptyState}>
-            <Bell size={64} color={colors.placeholder} />
-            <Text style={styles.emptyTitle}>{t('maintenance.empty_title_all_done')}</Text>
-            <Text style={styles.emptyText}>
-              {t('maintenance.empty_text_all_done')}
-            </Text>
-          </View>
+    <View style={styles.emptyState}>
+      <Bell size={64} color={colors.placeholder} />
+      <Text style={styles.emptyTitle}>
+        {t("maintenance.empty_title_all_done")}
+      </Text>
+      <Text style={styles.emptyText}>
+        {t("maintenance.empty_text_all_done")}
+      </Text>
+    </View>
   );
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </View>
+      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+        <MaintenanceListSkeleton />
+      </SafeAreaView>
     );
   }
 
-                  return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+  return (
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <FlatList
         data={listData}
         renderItem={renderTaskItem}
-        keyExtractor={(item, index) => 
-          item.type === 'header' 
-            ? `header-${item.section}-${index}` 
+        keyExtractor={(item, index) =>
+          item.type === "header"
+            ? `header-${item.section}-${index}`
             : `task-${item.item?.task.id}-${index}`
         }
         ItemSeparatorComponent={renderItemSeparator}
@@ -232,378 +408,30 @@ export default function MaintenanceScreen() {
       />
 
       {/* Filter Modal */}
-      <Modal
+      <MaintenanceFilters
         visible={filterModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setFilterModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <View style={styles.modalHeaderRow}>
-              <Text style={styles.modalTitle}>{t('maintenance.filters')}</Text>
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectedVehicleId(null);
-                  setSelectedType(null);
-                  setFilterModalVisible(false);
-                }}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.modalHeaderLink}>
-                  {t('vehicles.clear_filters')}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView 
-              style={styles.modalScrollView}
-              contentContainerStyle={styles.modalScrollContent}
-              showsVerticalScrollIndicator={false}
-            >
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>{t('vehicles.title')}</Text>
-                <View style={styles.filterChips}>
-                  <TouchableOpacity
-                    style={[
-                      styles.filterChip,
-                      !selectedVehicleId && styles.filterChipActive,
-                    ]}
-                    onPress={() => setSelectedVehicleId(null)}
-                  >
-                    <Text
-                      style={[
-                        styles.filterChipText,
-                        !selectedVehicleId && styles.filterChipTextActive,
-                      ]}
-                    >
-                      {t('vehicles.filter_all')}
-                    </Text>
-                  </TouchableOpacity>
-                  {vehicles.map((vehicle) => (
-                    <TouchableOpacity
-                      key={vehicle.id}
-                      style={[
-                        styles.filterChip,
-                        selectedVehicleId === vehicle.id && styles.filterChipActive,
-                      ]}
-                      onPress={() => setSelectedVehicleId(vehicle.id)}
-                    >
-                      <Text
-                        style={[
-                          styles.filterChipText,
-                          selectedVehicleId === vehicle.id && styles.filterChipTextActive,
-                        ]}
-                      >
-                        {vehicle.name}
-                        </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>{t('maintenance.select_type')}</Text>
-                <View style={styles.filterChips}>
-                  <TouchableOpacity
-                    style={[
-                      styles.filterChip,
-                      !selectedType && styles.filterChipActive,
-                    ]}
-                    onPress={() => setSelectedType(null)}
-                  >
-                    <Text
-                      style={[
-                        styles.filterChipText,
-                        !selectedType && styles.filterChipTextActive,
-                      ]}
-                    >
-                      {t('vehicles.filter_all')}
-                    </Text>
-                  </TouchableOpacity>
-                  {Object.entries(MAINTENANCE_TYPES).map(([key, type]) => (
-                    <TouchableOpacity
-                      key={key}
-                      style={[
-                        styles.filterChip,
-                        selectedType === key && styles.filterChipActive,
-                      ]}
-                      onPress={() => setSelectedType(key as MaintenanceType)}
-                    >
-                      <Text
-                        style={[
-                          styles.filterChipText,
-                          selectedType === key && styles.filterChipTextActive,
-                        ]}
-                      >
-                        {getMaintenanceTypeLabel(key as MaintenanceType, t)}
-                        </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-      </ScrollView>
-
-            <TouchableOpacity
-              style={styles.modalCancel}
-              onPress={() => setFilterModalVisible(false)}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.modalCancelText}>{t('common.close')}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+        onClose={() => setFilterModalVisible(false)}
+        selectedVehicleIds={selectedVehicleIds}
+        onSelectVehicle={(id) => {
+          setSelectedVehicleIds((prev) =>
+            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+          );
+        }}
+        selectedTypes={selectedTypes}
+        onSelectType={(type) => {
+          setSelectedTypes((prev) =>
+            prev.includes(type)
+              ? prev.filter((t) => t !== type)
+              : [...prev, type]
+          );
+        }}
+        onClearFilters={() => {
+          setSelectedVehicleIds([]);
+          setSelectedTypes([]);
+          setSortOption("due_date_overdue");
+        }}
+        vehicles={vehicles}
+      />
     </SafeAreaView>
   );
 }
-
-const createStyles = (colors: any) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: colors.background,
-    },
-    scrollView: {
-      flex: 1,
-    },
-    scrollContent: {
-      paddingHorizontal: 16,
-      paddingBottom: 100,
-    },
-    header: {
-      paddingTop: 8,
-      marginBottom: 12,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    },
-    screenTitle: {
-      fontSize: 28,
-      fontWeight: '700' as const,
-      color: colors.text,
-    },
-    headerIconButton: {
-      padding: 6,
-      borderRadius: 999,
-      backgroundColor: colors.card,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    emptyState: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingVertical: 100,
-    },
-    emptyTitle: {
-      fontSize: 24,
-      fontWeight: '600' as const,
-      color: colors.text,
-      marginTop: 16,
-      marginBottom: 8,
-    },
-    emptyText: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      textAlign: 'center',
-      paddingHorizontal: 40,
-    },
-    section: {
-      marginTop: 8,
-      marginBottom: 8,
-    },
-    itemSeparator: {
-      height: 12,
-    },
-    sectionTitle: {
-      fontSize: 20,
-      fontWeight: '700' as const,
-      color: colors.text,
-      marginBottom: 8,
-    },
-    taskCard: {
-      backgroundColor: colors.card,
-      borderRadius: 12,
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: 12,
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.05,
-      shadowRadius: 4,
-      elevation: 2,
-    },
-    dueTaskCard: {
-      borderWidth: 1,
-      borderColor: colors.error,
-    },
-    taskInfo: {
-      flex: 1,
-      minWidth: 0,
-    },
-    taskTitle: {
-      fontSize: 16,
-      fontWeight: '600' as const,
-      color: colors.text,
-      marginBottom: 2,
-      flexShrink: 1,
-    },
-    taskVehicle: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      marginBottom: 2,
-      flexShrink: 1,
-    },
-    taskDue: {
-      fontSize: 14,
-      fontWeight: '500' as const,
-      color: colors.error,
-    },
-    taskScheduled: {
-      fontSize: 14,
-      color: colors.primary,
-    },
-    headerButtons: {
-      flexDirection: 'row',
-      gap: 8,
-    },
-    filterBadge: {
-      position: 'absolute',
-      top: 0,
-      right: 0,
-      width: 8,
-      height: 8,
-      borderRadius: 4,
-      backgroundColor: colors.error,
-    },
-    summaryCard: {
-      backgroundColor: colors.card,
-      borderRadius: 12,
-      padding: 16,
-      marginBottom: 16,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-around',
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.05,
-      shadowRadius: 4,
-      elevation: 2,
-    },
-    summaryItem: {
-      alignItems: 'center',
-      flex: 1,
-    },
-    summaryLabel: {
-      fontSize: 12,
-      color: colors.textSecondary,
-      marginBottom: 4,
-    },
-    summaryValue: {
-      fontSize: 24,
-      fontWeight: '700' as const,
-      color: colors.text,
-    },
-    summaryDivider: {
-      width: 1,
-      height: 40,
-      backgroundColor: colors.border,
-    },
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: '#00000080',
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 24,
-    },
-    modalCard: {
-      width: '100%',
-      maxWidth: 360,
-      backgroundColor: colors.card,
-      borderRadius: 20,
-      paddingHorizontal: 20,
-      paddingVertical: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
-      maxHeight: '80%',
-    },
-    modalHeaderRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 8,
-    },
-    modalTitle: {
-      fontSize: 20,
-      fontWeight: '700' as const,
-      color: colors.text,
-    },
-    modalHeaderLink: {
-      fontSize: 13,
-      color: colors.primary,
-      fontWeight: '500' as const,
-      textDecorationLine: 'underline',
-    },
-    modalScrollView: {
-      maxHeight: 400,
-    },
-    modalScrollContent: {
-      paddingBottom: 0,
-    },
-    filterSection: {
-      marginBottom: 14,
-      gap: 8,
-    },
-    filterSectionTitle: {
-      fontSize: 16,
-      fontWeight: '600' as const,
-      color: colors.text,
-      marginBottom: 12,
-      marginLeft: 4,
-    },
-    filterChips: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: 4,
-      paddingVertical: 4,
-    },
-    filterChip: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 4,
-      paddingHorizontal: 10,
-      paddingVertical: 7,
-      borderRadius: 20,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.card,
-    },
-    filterChipActive: {
-      backgroundColor: colors.primary,
-      borderColor: colors.primary,
-    },
-    filterChipText: {
-      color: colors.text,
-      fontWeight: '500' as const,
-    },
-    filterChipTextActive: {
-      color: '#FFFFFF',
-    },
-    modalCancel: {
-      marginTop: 8,
-      paddingVertical: 12,
-    },
-    modalCancelText: {
-      fontSize: 16,
-      fontWeight: '600' as const,
-      color: colors.primary,
-      textAlign: 'center',
-    },
-  });

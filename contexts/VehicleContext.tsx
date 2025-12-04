@@ -1,19 +1,15 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import createContextHook from '@nkzw/create-context-hook';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import createContextHook from "@nkzw/create-context-hook";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import {
-  FuelLog,
-  MaintenanceRecord,
-  MaintenanceTask,
-  Vehicle,
-} from '@/types/vehicle';
+import { FuelLog, Vehicle } from "@/types/vehicle";
+import { MaintenanceRecord, MaintenanceTask } from "@/types/maintenance";
 
 const STORAGE_KEYS = {
-  VEHICLES: '@vehicles',
-  TASKS: '@maintenance_tasks',
-  RECORDS: '@maintenance_records',
-  FUEL_LOGS: '@fuel_logs',
+  VEHICLES: "@vehicles",
+  TASKS: "@maintenance_tasks",
+  RECORDS: "@maintenance_records",
+  FUEL_LOGS: "@fuel_logs",
 };
 
 export const [VehicleProvider, useVehicles] = createContextHook(() => {
@@ -35,26 +31,27 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
 
   const loadData = async () => {
     try {
-      const [vehiclesData, tasksData, recordsData, fuelLogsData] = await Promise.all([
-        AsyncStorage.getItem(STORAGE_KEYS.VEHICLES),
-        AsyncStorage.getItem(STORAGE_KEYS.TASKS),
-        AsyncStorage.getItem(STORAGE_KEYS.RECORDS),
-        AsyncStorage.getItem(STORAGE_KEYS.FUEL_LOGS),
-      ]);
+      const [vehiclesData, tasksData, recordsData, fuelLogsData] =
+        await Promise.all([
+          AsyncStorage.getItem(STORAGE_KEYS.VEHICLES),
+          AsyncStorage.getItem(STORAGE_KEYS.TASKS),
+          AsyncStorage.getItem(STORAGE_KEYS.RECORDS),
+          AsyncStorage.getItem(STORAGE_KEYS.FUEL_LOGS),
+        ]);
 
       if (vehiclesData) setVehicles(JSON.parse(vehiclesData));
       else setVehicles([]);
-      
+
       if (tasksData) setTasks(JSON.parse(tasksData));
       else setTasks([]);
-      
+
       if (recordsData) setRecords(JSON.parse(recordsData));
       else setRecords([]);
 
       if (fuelLogsData) setFuelLogs(JSON.parse(fuelLogsData));
       else setFuelLogs([]);
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error("Error loading data:", error);
     } finally {
       setIsLoading(false);
     }
@@ -67,10 +64,13 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
 
   const saveVehicles = useCallback(async (newVehicles: Vehicle[]) => {
     try {
-      await AsyncStorage.setItem(STORAGE_KEYS.VEHICLES, JSON.stringify(newVehicles));
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.VEHICLES,
+        JSON.stringify(newVehicles)
+      );
       setVehicles(newVehicles);
     } catch (error) {
-      console.error('Error saving vehicles:', error);
+      console.error("Error saving vehicles:", error);
     }
   }, []);
 
@@ -79,25 +79,31 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
       await AsyncStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(newTasks));
       setTasks(newTasks);
     } catch (error) {
-      console.error('Error saving tasks:', error);
+      console.error("Error saving tasks:", error);
     }
   }, []);
 
   const saveRecords = useCallback(async (newRecords: MaintenanceRecord[]) => {
     try {
-      await AsyncStorage.setItem(STORAGE_KEYS.RECORDS, JSON.stringify(newRecords));
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.RECORDS,
+        JSON.stringify(newRecords)
+      );
       setRecords(newRecords);
     } catch (error) {
-      console.error('Error saving records:', error);
+      console.error("Error saving records:", error);
     }
   }, []);
 
   const saveFuelLogs = useCallback(async (newFuelLogs: FuelLog[]) => {
     try {
-      await AsyncStorage.setItem(STORAGE_KEYS.FUEL_LOGS, JSON.stringify(newFuelLogs));
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.FUEL_LOGS,
+        JSON.stringify(newFuelLogs)
+      );
       setFuelLogs(newFuelLogs);
     } catch (error) {
-      console.error('Error saving fuel logs:', error);
+      console.error("Error saving fuel logs:", error);
     }
   }, []);
 
@@ -129,7 +135,7 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
   }, [saveVehicles, saveTasks, saveRecords, saveFuelLogs]);
 
   const addVehicle = useCallback(
-    async (vehicle: Omit<Vehicle, 'id' | 'createdAt' | 'updatedAt'>) => {
+    async (vehicle: Omit<Vehicle, "id" | "createdAt" | "updatedAt">) => {
       takeSnapshot();
       const newVehicle: Vehicle = {
         ...vehicle,
@@ -163,7 +169,17 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
       await saveRecords(records.filter((r) => r.vehicleId !== id));
       await saveFuelLogs(fuelLogs.filter((f) => f.vehicleId !== id));
     },
-    [vehicles, tasks, records, fuelLogs, saveVehicles, saveTasks, saveRecords, saveFuelLogs, takeSnapshot]
+    [
+      vehicles,
+      tasks,
+      records,
+      fuelLogs,
+      saveVehicles,
+      saveTasks,
+      saveRecords,
+      saveFuelLogs,
+      takeSnapshot,
+    ]
   );
 
   const setVehicleArchived = useCallback(
@@ -190,6 +206,30 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
     [vehicles, saveVehicles, takeSnapshot]
   );
 
+  const reorderVehicles = useCallback(
+    async (orderedIds: string[]) => {
+      takeSnapshot();
+
+      // Create a map of id -> new index
+      const orderMap = new Map(orderedIds.map((id, index) => [id, index]));
+
+      // Update all vehicles
+      const updatedVehicles = vehicles.map((v) => {
+        if (orderMap.has(v.id)) {
+          return {
+            ...v,
+            customOrder: orderMap.get(v.id),
+            updatedAt: Date.now(),
+          };
+        }
+        return v;
+      });
+
+      await saveVehicles(updatedVehicles);
+    },
+    [vehicles, saveVehicles, takeSnapshot]
+  );
+
   const deleteVehiclesBulk = useCallback(
     async (ids: string[]) => {
       if (ids.length === 0) return;
@@ -202,11 +242,21 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
       await saveRecords(records.filter((r) => !idSet.has(r.vehicleId)));
       await saveFuelLogs(fuelLogs.filter((f) => !idSet.has(f.vehicleId)));
     },
-    [vehicles, tasks, records, fuelLogs, saveVehicles, saveTasks, saveRecords, saveFuelLogs, takeSnapshot]
+    [
+      vehicles,
+      tasks,
+      records,
+      fuelLogs,
+      saveVehicles,
+      saveTasks,
+      saveRecords,
+      saveFuelLogs,
+      takeSnapshot,
+    ]
   );
 
   const addTask = useCallback(
-    async (task: Omit<MaintenanceTask, 'id' | 'createdAt' | 'updatedAt'>) => {
+    async (task: Omit<MaintenanceTask, "id" | "createdAt" | "updatedAt">) => {
       takeSnapshot();
       const newTask: MaintenanceTask = {
         ...task,
@@ -240,7 +290,7 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
   );
 
   const addRecord = useCallback(
-    async (record: Omit<MaintenanceRecord, 'id' | 'createdAt'>) => {
+    async (record: Omit<MaintenanceRecord, "id" | "createdAt">) => {
       takeSnapshot();
       const newRecord: MaintenanceRecord = {
         ...record,
@@ -259,10 +309,11 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
               lastCompletedMileage: record.mileage,
             };
 
-            if (task.intervalType === 'mileage') {
+            if (task.intervalType === "mileage") {
               updates.nextDueMileage = record.mileage + task.intervalValue;
             } else {
-              updates.nextDueDate = record.date + task.intervalValue * 24 * 60 * 60 * 1000;
+              updates.nextDueDate =
+                record.date + task.intervalValue * 24 * 60 * 60 * 1000;
             }
 
             await updateTask(record.taskId, updates);
@@ -273,9 +324,23 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
         }
       }
 
+      // Update vehicle mileage if the new record has higher mileage
+      const vehicle = vehicles.find((v) => v.id === record.vehicleId);
+      if (vehicle && record.mileage > vehicle.currentMileage) {
+        await updateVehicle(vehicle.id, { currentMileage: record.mileage });
+      }
+
       return newRecord;
     },
-    [records, tasks, saveRecords, updateTask, takeSnapshot]
+    [
+      records,
+      tasks,
+      vehicles,
+      saveRecords,
+      updateTask,
+      updateVehicle,
+      takeSnapshot,
+    ]
   );
 
   const deleteRecord = useCallback(
@@ -286,8 +351,19 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
     [records, saveRecords, takeSnapshot]
   );
 
+  const updateRecord = useCallback(
+    async (id: string, updates: Partial<MaintenanceRecord>) => {
+      takeSnapshot();
+      const updatedRecords = records.map((r) =>
+        r.id === id ? { ...r, ...updates } : r
+      );
+      await saveRecords(updatedRecords);
+    },
+    [records, saveRecords, takeSnapshot]
+  );
+
   const addFuelLog = useCallback(
-    async (log: Omit<FuelLog, 'id' | 'createdAt'>) => {
+    async (log: Omit<FuelLog, "id" | "createdAt">) => {
       takeSnapshot();
       const newLog: FuelLog = {
         ...log,
@@ -304,6 +380,17 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
     async (id: string) => {
       takeSnapshot();
       await saveFuelLogs(fuelLogs.filter((log) => log.id !== id));
+    },
+    [fuelLogs, saveFuelLogs, takeSnapshot]
+  );
+
+  const updateFuelLog = useCallback(
+    async (id: string, updates: Partial<FuelLog>) => {
+      takeSnapshot();
+      const updatedLogs = fuelLogs.map((log) =>
+        log.id === id ? { ...log, ...updates } : log
+      );
+      await saveFuelLogs(updatedLogs);
     },
     [fuelLogs, saveFuelLogs, takeSnapshot]
   );
@@ -355,11 +442,11 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
           let daysUntilDue: number | undefined;
           let milesUntilDue: number | undefined;
 
-          if (task.intervalType === 'date' && task.nextDueDate) {
+          if (task.intervalType === "date" && task.nextDueDate) {
             const daysMs = task.nextDueDate - now;
             daysUntilDue = Math.floor(daysMs / (24 * 60 * 60 * 1000));
             isDue = daysUntilDue <= 7;
-          } else if (task.intervalType === 'mileage' && task.nextDueMileage) {
+          } else if (task.intervalType === "mileage" && task.nextDueMileage) {
             milesUntilDue = task.nextDueMileage - vehicle.currentMileage;
             isDue = milesUntilDue <= 500;
           }
@@ -401,8 +488,10 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
     updateTask,
     deleteTask,
     addRecord,
+    updateRecord,
     deleteRecord,
     addFuelLog,
+    updateFuelLog,
     deleteFuelLog,
     restoreLastSnapshot,
     getVehicleById,
@@ -414,5 +503,6 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
     reloadData,
     setVehicleArchived,
     setVehiclesArchived,
+    reorderVehicles,
   };
 });

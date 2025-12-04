@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Vehicle Maintenance Tracker",
-    "slug": "vehicle-maintenance-tracker-w06rnuj",
+    "name": "Shift",
+    "slug": "shift-vehicle-tracker",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -11,7 +11,7 @@
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
     "ios": {
       "supportsTablet": false,
@@ -25,7 +25,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#000000"
       },
       "package": "app.rork.vehicle_maintenance_tracker_w06rnuj",
       "permissions": [
@@ -35,7 +35,8 @@
         "android.permission.POST_NOTIFICATIONS",
         "android.permission.RECORD_AUDIO"
       ],
-      "useNextNotificationsApi": true
+      "useNextNotificationsApi": true,
+      "softwareKeyboardLayoutMode": "pan"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
@@ -59,10 +60,7 @@
         "expo-notifications",
         {
           "icon": "./assets/images/notification-icon.png",
-          "color": "#007AFF",
-          "sounds": [
-            "./assets/sounds/notification.wav"
-          ]
+          "color": "#007AFF"
         }
       ]
     ],

@@ -1,9 +1,17 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import createContextHook from '@nkzw/create-context-hook';
-import { useCallback, useEffect, useState } from 'react';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import createContextHook from "@nkzw/create-context-hook";
+import { useCallback, useEffect, useState } from "react";
 
-export type DistanceUnit = 'km' | 'mi';
-export type Currency = 'EUR' | 'USD' | 'GBP' | 'BRL' | 'JPY' | 'CAD' | 'AUD' | 'CHF';
+export type DistanceUnit = "km" | "mi";
+export type Currency =
+  | "EUR"
+  | "USD"
+  | "GBP"
+  | "BRL"
+  | "JPY"
+  | "CAD"
+  | "AUD"
+  | "CHF";
 
 export interface NotificationInterval {
   days?: number;
@@ -13,7 +21,8 @@ export interface NotificationInterval {
 export interface NotificationSettings {
   notificationTime: number; // Hour of day (0-23)
   dateIntervals: number[]; // Days before (e.g., [7, 3, 1])
-  mileageIntervals: number[]; // KM before (e.g., [1000, 500, 200])
+  overdueIntervals: number[]; // Days after (e.g., [1, 3, 7])
+  overdueFrequency: "custom" | "daily" | "weekly" | "monthly";
 }
 
 interface Preferences {
@@ -22,36 +31,38 @@ interface Preferences {
   notificationSettings: NotificationSettings;
 }
 
-const PREFERENCES_STORAGE_KEY = '@preferences';
+const PREFERENCES_STORAGE_KEY = "@preferences";
 
 const DEFAULT_PREFERENCES: Preferences = {
-  distanceUnit: 'km',
-  currency: 'EUR',
+  distanceUnit: "km",
+  currency: "EUR",
   notificationSettings: {
     notificationTime: 9, // 9 AM
     dateIntervals: [7, 3, 1], // 7, 3, and 1 day before
-    mileageIntervals: [1000, 500, 200], // 1000km, 500km, 200km before
+    overdueIntervals: [1, 3, 7], // 1, 3, and 7 days after
+    overdueFrequency: "custom",
   },
 };
 
 export const CURRENCY_SYMBOLS: Record<Currency, string> = {
-  EUR: '€',
-  USD: '$',
-  GBP: '£',
-  BRL: 'R$',
-  JPY: '¥',
-  CAD: 'CA$',
-  AUD: 'A$',
-  CHF: 'CHF',
+  EUR: "€",
+  USD: "$",
+  GBP: "£",
+  BRL: "R$",
+  JPY: "¥",
+  CAD: "CA$",
+  AUD: "A$",
+  CHF: "CHF",
 };
 
 export const DISTANCE_LABELS: Record<DistanceUnit, string> = {
-  km: 'Kilometers',
-  mi: 'Miles',
+  km: "Kilometers",
+  mi: "Miles",
 };
 
 export const [PreferencesProvider, usePreferences] = createContextHook(() => {
-  const [preferences, setPreferences] = useState<Preferences>(DEFAULT_PREFERENCES);
+  const [preferences, setPreferences] =
+    useState<Preferences>(DEFAULT_PREFERENCES);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -63,10 +74,12 @@ export const [PreferencesProvider, usePreferences] = createContextHook(() => {
       const stored = await AsyncStorage.getItem(PREFERENCES_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
+        // Force distanceUnit to km for now as the feature is disabled
+        parsed.distanceUnit = "km";
         setPreferences({ ...DEFAULT_PREFERENCES, ...parsed });
       }
     } catch (error) {
-      console.error('Error loading preferences:', error);
+      console.error("Error loading preferences:", error);
     } finally {
       setIsLoading(false);
     }
@@ -74,10 +87,13 @@ export const [PreferencesProvider, usePreferences] = createContextHook(() => {
 
   const savePreferences = useCallback(async (newPreferences: Preferences) => {
     try {
-      await AsyncStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(newPreferences));
+      await AsyncStorage.setItem(
+        PREFERENCES_STORAGE_KEY,
+        JSON.stringify(newPreferences)
+      );
       setPreferences(newPreferences);
     } catch (error) {
-      console.error('Error saving preferences:', error);
+      console.error("Error saving preferences:", error);
     }
   }, []);
 
@@ -104,20 +120,22 @@ export const [PreferencesProvider, usePreferences] = createContextHook(() => {
 
   // Helper functions for conversion
   const convertDistance = useCallback(
-    (value: number, fromUnit: DistanceUnit = 'km'): number => {
+    (value: number, fromUnit: DistanceUnit = "km"): number => {
       if (fromUnit === preferences.distanceUnit) {
         return value;
       }
       // Convert km to miles or vice versa
-      return fromUnit === 'km' ? value * 0.621371 : value / 0.621371;
+      return fromUnit === "km" ? value * 0.621371 : value / 0.621371;
     },
     [preferences.distanceUnit]
   );
 
   const formatDistance = useCallback(
-    (value: number, fromUnit: DistanceUnit = 'km'): string => {
+    (value: number, fromUnit: DistanceUnit = "km"): string => {
       const converted = convertDistance(value, fromUnit);
-      return `${Math.round(converted).toLocaleString()} ${preferences.distanceUnit}`;
+      return `${Math.round(converted).toLocaleString()} ${
+        preferences.distanceUnit
+      }`;
     },
     [convertDistance, preferences.distanceUnit]
   );
@@ -145,4 +163,3 @@ export const [PreferencesProvider, usePreferences] = createContextHook(() => {
     formatCurrency,
   };
 });
-

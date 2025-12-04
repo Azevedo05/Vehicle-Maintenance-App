@@ -1,5 +1,5 @@
-import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { Stack, router, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -7,73 +7,168 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Check, Trash2 } from "lucide-react-native";
 
-import { useVehicles } from '@/contexts/VehicleContext';
-import { MAINTENANCE_TYPES, MaintenanceType, getMaintenanceTypeLabel } from '@/types/vehicle';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useAppAlert } from '@/contexts/AlertContext';
-import { useLocalization } from '@/contexts/LocalizationContext';
+import { useVehicles } from "@/contexts/VehicleContext";
+import {
+  MAINTENANCE_TYPES,
+  MaintenanceType,
+  getMaintenanceTypeLabel,
+} from "@/types/maintenance";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useLocalization } from "@/contexts/LocalizationContext";
+import { useAppAlert } from "@/contexts/AlertContext";
+
+import { Input } from "@/components/ui/Input";
+import { Card } from "@/components/ui/Card";
+import { SuccessAnimation } from "@/components/ui/SuccessAnimation";
 
 export default function AddRecordScreen() {
-  const { vehicleId, taskId } = useLocalSearchParams();
-  const { addRecord, getVehicleById, tasks, updateVehicle, restoreLastSnapshot } = useVehicles();
+  const { vehicleId, taskId, recordId } = useLocalSearchParams();
+  const {
+    getVehicleById,
+    tasks,
+    addRecord,
+    updateRecord,
+    getRecordById,
+    deleteRecord,
+    restoreLastSnapshot,
+  } = useVehicles();
   const { colors } = useTheme();
   const { t } = useLocalization();
-  const { showToast } = useAppAlert();
+  const { showToast, showAlert } = useAppAlert();
 
   const vehicle = vehicleId ? getVehicleById(vehicleId as string) : null;
   const task = taskId ? tasks.find((t) => t.id === taskId) : null;
+  const existingRecord = recordId
+    ? getRecordById(recordId as string)
+    : undefined;
 
   const [selectedType, setSelectedType] = useState<MaintenanceType>(
-    task?.type || 'oil_change'
+    task?.type || "oil_change"
   );
-  const [title, setTitle] = useState(task?.title || t('maintenance.types.oil_change'));
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [mileage, setMileage] = useState(vehicle?.currentMileage.toString() || '0');
-  const [cost, setCost] = useState('');
-  const [location, setLocation] = useState('');
-  const [notes, setNotes] = useState('');
+  const [title, setTitle] = useState(
+    task?.title || t("maintenance.types.oil_change")
+  );
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [mileage, setMileage] = useState("");
+  const [cost, setCost] = useState("");
+  const [location, setLocation] = useState("");
+  const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
-    if (task) {
+    if (existingRecord) {
+      setSelectedType(existingRecord.type);
+      setTitle(existingRecord.title);
+      setDate(new Date(existingRecord.date).toISOString().split("T")[0]);
+      setMileage(existingRecord.mileage.toString());
+      setCost(existingRecord.cost?.toString() || "");
+      setLocation(existingRecord.location || "");
+      setNotes(existingRecord.notes || "");
+    } else if (task) {
       setSelectedType(task.type);
       setTitle(task.title);
     }
-  }, [task]);
+  }, [task, existingRecord]);
+
+  const sortedMaintenanceTypes = useMemo(() => {
+    const types = Object.keys(MAINTENANCE_TYPES) as MaintenanceType[];
+    return types.sort((a, b) => {
+      if (a === "other") return 1;
+      if (b === "other") return -1;
+      const labelA = getMaintenanceTypeLabel(a, t);
+      const labelB = getMaintenanceTypeLabel(b, t);
+      return labelA.localeCompare(labelB);
+    });
+  }, [t]);
 
   const handleTypeSelect = (type: MaintenanceType) => {
     setSelectedType(type);
-    setTitle(getMaintenanceTypeLabel(type, t));
+    if (!existingRecord) {
+      setTitle(getMaintenanceTypeLabel(type, t));
+    }
+  };
+
+  const handleDelete = () => {
+    if (!existingRecord) return;
+
+    showAlert({
+      title: t("common.delete"),
+      message: t("maintenance.delete_confirm"),
+      buttons: [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("common.delete"),
+          style: "destructive",
+          onPress: async () => {
+            await deleteRecord(existingRecord.id);
+            showToast({
+              message: t("maintenance.delete_success"),
+              actionLabel: t("common.undo"),
+              onAction: async () => {
+                await restoreLastSnapshot();
+              },
+            });
+            router.back();
+          },
+        },
+      ],
+    });
   };
 
   const handleSubmit = async () => {
     if (!vehicleId || !title.trim() || !date || !mileage.trim()) {
-      Alert.alert(t('vehicles.missing_info'), t('vehicles.fill_required'));
+      showAlert({
+        title: t("vehicles.missing_info"),
+        message: t("vehicles.fill_required"),
+      });
       return;
     }
 
     const mileageNum = parseInt(mileage);
     if (isNaN(mileageNum) || mileageNum < 0) {
-      Alert.alert(t('vehicles.invalid_mileage'), t('vehicles.valid_mileage_text'));
+      showAlert({
+        title: t("vehicles.invalid_mileage"),
+        message: t("vehicles.valid_mileage_text"),
+      });
+      return;
+    }
+
+    if (mileageNum > 2000000) {
+      showAlert({
+        title: t("vehicles.invalid_mileage"),
+        message: t("validation.max_mileage"),
+      });
+      return;
+    }
+
+    if (vehicle && mileageNum < vehicle.currentMileage) {
+      showAlert({
+        title: t("vehicles.invalid_mileage"),
+        message: t("vehicles.mileage_lower_than_current"),
+      });
       return;
     }
 
     const costNum = cost.trim() ? parseFloat(cost) : undefined;
     if (costNum !== undefined && (isNaN(costNum) || costNum < 0)) {
-      Alert.alert(t('maintenance.invalid_cost'), t('maintenance.invalid_cost_text'));
+      showAlert({
+        title: t("maintenance.invalid_cost"),
+        message: t("maintenance.invalid_cost_text"),
+      });
       return;
     }
 
     setIsSubmitting(true);
     try {
       const recordTitle = title.trim();
-      await addRecord({
+      const recordData = {
         vehicleId: vehicleId as string,
         taskId: taskId as string | undefined,
         type: selectedType,
@@ -83,48 +178,76 @@ export default function AddRecordScreen() {
         cost: costNum,
         location: location.trim() || undefined,
         notes: notes.trim() || undefined,
-      });
+      };
 
-      if (vehicle && vehicle.currentMileage < mileageNum) {
-        await updateVehicle(vehicleId as string, { currentMileage: mileageNum });
+      if (existingRecord) {
+        await updateRecord(existingRecord.id, recordData);
+      } else {
+        await addRecord(recordData);
       }
 
-      router.back();
-      
-      setTimeout(() => {
-        showToast({
-          message: t('maintenance.add_record_success', { title: recordTitle }),
-          actionLabel: t('common.undo'),
-          onAction: async () => {
-            await restoreLastSnapshot();
-          },
-        });
-      }, 150);
+      setShowSuccess(true);
     } catch (error) {
-      console.error('Error adding record:', error);
-      Alert.alert(t('common.error'), t('maintenance.log_error'));
+      console.error("Error saving record:", error);
+      showAlert({
+        title: t("common.error"),
+        message: t("maintenance.log_error"),
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const styles = createStyles(colors);
+
   if (!vehicle) {
     const errorStyles = createStyles(colors);
     return (
       <View style={errorStyles.errorContainer}>
-        <Text style={errorStyles.errorText}>{t('vehicles.not_found')}</Text>
+        <Text style={errorStyles.errorText}>{t("vehicles.not_found")}</Text>
       </View>
     );
   }
 
-  const styles = createStyles(colors);
-
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <SafeAreaView style={styles.container} edges={["bottom"]}>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <View
+              style={{ flexDirection: "row", gap: 16, alignItems: "center" }}
+            >
+              <TouchableOpacity
+                onPress={handleSubmit}
+                disabled={isSubmitting}
+                style={{ opacity: isSubmitting ? 0.5 : 1 }}
+              >
+                <Check size={20} color={colors.primary} />
+              </TouchableOpacity>
+              {existingRecord && (
+                <TouchableOpacity
+                  onPress={handleDelete}
+                  disabled={isSubmitting}
+                  style={{ opacity: isSubmitting ? 0.5 : 1 }}
+                >
+                  <Trash2 size={20} color={colors.error} />
+                </TouchableOpacity>
+              )}
+            </View>
+          ),
+        }}
+      />
+      <SuccessAnimation
+        visible={showSuccess}
+        onAnimationFinish={() => {
+          setShowSuccess(false);
+          router.back();
+        }}
+      />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        keyboardVerticalOffset={100}
       >
         <ScrollView
           style={styles.scrollView}
@@ -133,21 +256,32 @@ export default function AddRecordScreen() {
         >
           {!task && (
             <>
-              <Text style={styles.sectionTitle}>{t('maintenance.select_type')}</Text>
+              <Text style={styles.sectionTitle}>
+                {t("maintenance.select_type")}
+              </Text>
               <View style={styles.typeGrid}>
-                {(Object.keys(MAINTENANCE_TYPES) as MaintenanceType[]).map((type) => {
+                {sortedMaintenanceTypes.map((type) => {
                   const isSelected = selectedType === type;
                   return (
-                    <TouchableOpacity
+                    <Card
                       key={type}
-                      style={[styles.typeCard, isSelected && styles.typeCardSelected]}
+                      variant={isSelected ? "elevated" : "outlined"}
+                      style={[
+                        styles.typeCard,
+                        isSelected ? styles.typeCardSelected : undefined,
+                      ]}
                       onPress={() => handleTypeSelect(type)}
-                      activeOpacity={0.7}
                     >
-                      <Text style={[styles.typeLabel, isSelected && styles.typeLabelSelected]} numberOfLines={2}>
+                      <Text
+                        style={[
+                          styles.typeLabel,
+                          isSelected && styles.typeLabelSelected,
+                        ]}
+                        numberOfLines={2}
+                      >
                         {getMaintenanceTypeLabel(type, t)}
                       </Text>
-                    </TouchableOpacity>
+                    </Card>
                   );
                 })}
               </View>
@@ -155,103 +289,66 @@ export default function AddRecordScreen() {
           )}
 
           <View style={styles.form}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>
-                {t('maintenance.title_field')} <Text style={styles.required}>*</Text>
-              </Text>
-              <TextInput
-                style={styles.input}
+            {selectedType === "other" && (
+              <Input
+                label={t("maintenance.title_field")}
                 value={title}
                 onChangeText={setTitle}
-                placeholder={t('maintenance.task_name')}
-                placeholderTextColor={colors.placeholder}
+                placeholder={t("maintenance.task_name")}
+                required
               />
-            </View>
+            )}
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>
-                {t('maintenance.date')} <Text style={styles.required}>*</Text>
-              </Text>
-              <TextInput
-                style={styles.input}
-                value={date}
-                onChangeText={setDate}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor={colors.placeholder}
-              />
-            </View>
+            <Input
+              label={t("maintenance.date")}
+              value={date}
+              onChangeText={setDate}
+              placeholder={t("maintenance.date_placeholder")}
+              required
+            />
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>
-                {t('maintenance.mileage')} ({t('vehicles.km')}) <Text style={styles.required}>*</Text>
-              </Text>
-              <TextInput
-                style={styles.input}
-                value={mileage}
-                onChangeText={setMileage}
-                placeholder={t('vehicles.mileage_placeholder')}
-                placeholderTextColor={colors.placeholder}
-                keyboardType="numeric"
-              />
-            </View>
+            <Input
+              label={`${t("vehicles.current_mileage")} (${t("vehicles.km")})`}
+              value={mileage}
+              onChangeText={setMileage}
+              placeholder={t("vehicles.mileage_placeholder")}
+              keyboardType="numeric"
+              required
+            />
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>{t('maintenance.cost')}</Text>
-              <TextInput
-                style={styles.input}
-                value={cost}
-                onChangeText={setCost}
-                placeholder="e.g., 45.00"
-                placeholderTextColor={colors.placeholder}
-                keyboardType="decimal-pad"
-              />
-            </View>
+            <Input
+              label={t("maintenance.cost")}
+              value={cost}
+              onChangeText={setCost}
+              placeholder={t("maintenance.cost_placeholder")}
+              keyboardType="decimal-pad"
+            />
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>{t('maintenance.location')}</Text>
-              <TextInput
-                style={styles.input}
-                value={location}
-                onChangeText={setLocation}
-                placeholder="e.g., Main Street Garage"
-                placeholderTextColor={colors.placeholder}
-              />
-            </View>
+            <Input
+              label={t("maintenance.location")}
+              value={location}
+              onChangeText={setLocation}
+              placeholder={t("maintenance.location_placeholder")}
+            />
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>{t('maintenance.notes')}</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                value={notes}
-                onChangeText={setNotes}
-                placeholder={t('maintenance.notes')}
-                placeholderTextColor={colors.placeholder}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-              />
-            </View>
+            <Input
+              label={t("maintenance.notes")}
+              value={notes}
+              onChangeText={setNotes}
+              placeholder={t("maintenance.notes")}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+              style={styles.textArea}
+            />
           </View>
         </ScrollView>
-
-        <View style={styles.footer}>
-          <TouchableOpacity
-            style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
-            onPress={handleSubmit}
-            disabled={isSubmitting}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.submitButtonText}>
-              {isSubmitting ? t('maintenance.logging') : t('maintenance.log_maintenance')}
-            </Text>
-          </TouchableOpacity>
-        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
-const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
+const createStyles = (colors: ReturnType<typeof useTheme>["colors"]) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -259,14 +356,14 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     errorContainer: {
       flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: "center",
+      alignItems: "center",
       padding: 20,
       backgroundColor: colors.background,
     },
     errorText: {
       fontSize: 18,
-      fontWeight: '600' as const,
+      fontWeight: "600" as const,
       color: colors.text,
     },
     keyboardView: {
@@ -280,38 +377,36 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     sectionTitle: {
       fontSize: 20,
-      fontWeight: '700' as const,
+      fontWeight: "700" as const,
       color: colors.text,
       marginBottom: 16,
     },
     typeGrid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
+      flexDirection: "row",
+      flexWrap: "wrap",
       gap: 8,
       marginBottom: 24,
-      justifyContent: 'space-between',
+      justifyContent: "space-between",
     },
     typeCard: {
-      width: '31%',
+      width: "31%",
       minWidth: 90,
-      backgroundColor: colors.surface,
-      borderRadius: 12,
       padding: 12,
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderWidth: 2,
-      borderColor: 'transparent',
+      justifyContent: "center",
+      alignItems: "center",
       minHeight: 60,
+      backgroundColor: colors.surface,
     },
     typeCardSelected: {
+      backgroundColor: colors.primary + "15",
       borderColor: colors.primary,
-      backgroundColor: colors.primary + '15',
+      borderWidth: 2,
     },
     typeLabel: {
       fontSize: 12,
-      fontWeight: '600' as const,
+      fontWeight: "600" as const,
       color: colors.textSecondary,
-      textAlign: 'center',
+      textAlign: "center",
       flexShrink: 1,
     },
     typeLabelSelected: {
@@ -319,28 +414,6 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     form: {
       gap: 16,
-    },
-    inputGroup: {
-      gap: 8,
-    },
-    label: {
-      fontSize: 16,
-      fontWeight: '600' as const,
-      color: colors.text,
-      flexShrink: 1,
-      flexWrap: 'wrap',
-    },
-    required: {
-      color: colors.error,
-    },
-    input: {
-      backgroundColor: colors.surface,
-      borderRadius: 12,
-      padding: 16,
-      fontSize: 16,
-      color: colors.text,
-      borderWidth: 1,
-      borderColor: colors.border,
     },
     textArea: {
       minHeight: 100,
@@ -350,19 +423,5 @@ const createStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       backgroundColor: colors.background,
       borderTopWidth: 1,
       borderTopColor: colors.border,
-    },
-    submitButton: {
-      backgroundColor: colors.primary,
-      borderRadius: 12,
-      padding: 16,
-      alignItems: 'center',
-    },
-    submitButtonDisabled: {
-      opacity: 0.5,
-    },
-    submitButtonText: {
-      color: '#FFFFFF',
-      fontSize: 17,
-      fontWeight: '600' as const,
     },
   });

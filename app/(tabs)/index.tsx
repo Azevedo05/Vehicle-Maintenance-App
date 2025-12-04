@@ -1,37 +1,45 @@
-import { router } from "expo-router";
-import {
-  Archive,
-  BarChart3,
-  Car,
-  Fuel,
-  MoreHorizontal,
-  Plus,
-  SlidersHorizontal,
-  Wrench,
-} from "lucide-react-native";
 import React, { useEffect, useState, useMemo } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Keyboard,
-  Modal,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { FlatList, Keyboard, TouchableOpacity, View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Image } from "expo-image";
+import { Plus, Car, ChevronUp, ChevronDown } from "lucide-react-native";
+import { router } from "expo-router";
+import * as Haptics from "expo-haptics";
 
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { usePreferences } from "@/contexts/PreferencesContext";
 import { useVehicles } from "@/contexts/VehicleContext";
-import { VEHICLE_CATEGORY_INFO, VehicleCategory } from "@/types/vehicle";
+import { useAppAlert } from "@/contexts/AlertContext";
+import { Vehicle, VehicleCategory, VehicleSortOption } from "@/types/vehicle";
+import { createStyles } from "@/components/styles/index.styles";
+
+import { VehicleListItem } from "@/components/vehicles/VehicleListItem";
+import { VehicleListHeader } from "@/components/vehicles/VehicleListHeader";
+import { VehicleListEmpty } from "@/components/vehicles/VehicleListEmpty";
+import { VehicleFilters } from "@/components/vehicles/VehicleFilters";
+import { VehicleActions } from "@/components/vehicles/VehicleActions";
+import { VehicleQuickActions } from "@/components/vehicles/VehicleQuickActions";
+import { VehicleListSkeleton } from "@/components/vehicles/VehicleListSkeleton";
+import { VehicleListFooter } from "@/components/vehicles/VehicleListFooter";
+import { AnimatedItem } from "@/components/ui/AnimatedItem";
+import { SwipeableRow } from "@/components/ui/SwipeableRow";
 
 export default function VehiclesScreen() {
   const { colors } = useTheme();
   const { t } = useLocalization();
-  const { vehicles, isLoading, getUpcomingTasks } = useVehicles();
+  const { formatDistance } = usePreferences();
+  const {
+    vehicles,
+    isLoading,
+    getRecordsByVehicle,
+    deleteVehicle,
+    updateVehicle,
+    deleteVehiclesBulk,
+    reorderVehicles,
+    restoreLastSnapshot,
+  } = useVehicles();
+  const { showAlert, showToast } = useAppAlert();
+
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<
     VehicleCategory[]
@@ -40,6 +48,16 @@ export default function VehiclesScreen() {
   const [actionVehicleId, setActionVehicleId] = useState<string | null>(null);
   const [isFilterMenuVisible, setFilterMenuVisible] = useState(false);
   const [isActionsMenuVisible, setActionsMenuVisible] = useState(false);
+  const [isQuickActionsMenuVisible, setQuickActionsModalVisible] =
+    useState(false);
+  const [selectionMode, setSelectionMode] = useState(false); // Kept for future use if needed, though not fully implemented in extraction
+  const [sortOption, setSortOption] = useState<VehicleSortOption>("custom");
+  const [isReorderMode, setIsReorderMode] = useState(false);
+  const flatListRef = React.useRef<FlatList>(null);
+
+  const handleScrollToTop = () => {
+    flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+  };
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -64,7 +82,7 @@ export default function VehiclesScreen() {
   const styles = createStyles(colors);
 
   const filteredVehicles = useMemo(() => {
-    return vehicles.filter((vehicle) => {
+    const filtered = vehicles.filter((vehicle) => {
       const vehicleCategory = vehicle.category ?? "other";
       const isArchived = !!vehicle.archived;
       const matchesCategory =
@@ -74,160 +92,329 @@ export default function VehiclesScreen() {
 
       return matchesCategory && matchesArchive;
     });
-  }, [vehicles, selectedCategories, showArchived]);
 
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </View>
-    );
-  }
+    // Sort vehicles
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortOption) {
+        case "newest":
+          return b.createdAt - a.createdAt;
+        case "oldest":
+          return a.createdAt - b.createdAt;
+        case "name_az":
+          return `${a.make} ${a.model}`.localeCompare(`${b.make} ${b.model}`);
+        case "name_za":
+          return `${b.make} ${b.model}`.localeCompare(`${a.make} ${a.model}`);
+        case "year_new":
+          return b.year - a.year;
+        case "year_old":
+          return a.year - b.year;
+        case "mileage_high":
+          return b.currentMileage - a.currentMileage;
+        case "mileage_low":
+          return a.currentMileage - b.currentMileage;
+        case "last_maintenance": {
+          const aRecords = getRecordsByVehicle(a.id);
+          const bRecords = getRecordsByVehicle(b.id);
+          const aLastDate =
+            aRecords.length > 0 ? Math.max(...aRecords.map((r) => r.date)) : 0;
+          const bLastDate =
+            bRecords.length > 0 ? Math.max(...bRecords.map((r) => r.date)) : 0;
+          return bLastDate - aLastDate;
+        }
+        case "custom":
+          return (
+            (a.customOrder ?? Number.MAX_SAFE_INTEGER) -
+            (b.customOrder ?? Number.MAX_SAFE_INTEGER)
+          );
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
+  }, [
+    vehicles,
+    selectedCategories,
+    showArchived,
+    sortOption,
+    getRecordsByVehicle,
+  ]);
+
+  const handleToggleReorderMode = () => {
+    if (!isReorderMode && filteredVehicles.length > 0) {
+      // Entering reorder mode
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      setSortOption("custom");
+
+      // Normalize order on entry
+      const currentIds = filteredVehicles.map((v) => v.id);
+      reorderVehicles(currentIds);
+    }
+    setIsReorderMode((prev) => !prev);
+  };
+
+  const moveItemUp = (index: number) => {
+    if (index === 0) return;
+
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    // Create new order of IDs
+    const currentIds = filteredVehicles.map((v) => v.id);
+    const [id] = currentIds.splice(index, 1);
+    currentIds.splice(index - 1, 0, id);
+
+    // Atomic bulk update
+    reorderVehicles(currentIds);
+  };
+
+  const moveItemDown = (index: number) => {
+    if (index === filteredVehicles.length - 1) return;
+
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    // Create new order of IDs
+    const currentIds = filteredVehicles.map((v) => v.id);
+    const [id] = currentIds.splice(index, 1);
+    currentIds.splice(index + 1, 0, id);
+
+    // Atomic bulk update
+    reorderVehicles(currentIds);
+  };
 
   const renderItemSeparator = () => <View style={styles.itemSeparator} />;
 
-  const renderVehicleItem = ({ item: vehicle }: { item: typeof filteredVehicles[0] }) => {
-              const upcomingTasks = getUpcomingTasks(vehicle.id);
-              const dueTasks = upcomingTasks.filter((t) => {
-                const isOverdueDate =
-                  t.daysUntilDue !== undefined && t.daysUntilDue <= 0;
-                const isOverdueMileage =
-                  t.milesUntilDue !== undefined && t.milesUntilDue <= 0;
-                return t.isDue || isOverdueDate || isOverdueMileage;
-              });
-
-              const categoryInfo =
-                vehicle.category && VEHICLE_CATEGORY_INFO[vehicle.category];
-
-              return (
-                <TouchableOpacity
-                  style={styles.vehicleCard}
-                  onPress={() => router.push(`/vehicle/${vehicle.id}`)}
-                  onLongPress={() => setActionVehicleId(vehicle.id)}
-                  delayLongPress={250}
-                  activeOpacity={0.7}
-                >
-                  {vehicle.photo ? (
-                    <Image
-                      source={{ uri: vehicle.photo }}
-                      style={styles.vehicleImage}
-                      contentFit="cover"
-                    />
-                  ) : (
-                    <View style={styles.vehicleImagePlaceholder}>
-                      <Car size={32} color="#8E8E93" />
-                    </View>
-                  )}
-                  <View style={styles.vehicleInfo}>
-                    <View style={styles.vehicleHeaderRow}>
-                      <Text style={styles.vehicleName} numberOfLines={1}>
-                        {vehicle.name}
-                      </Text>
-                      {vehicle.archived && (
-                        <View style={styles.archivedBadge}>
-                          <Text style={styles.archivedBadgeText}>
-                            {t("vehicles.archived")}
-                          </Text>
-                        </View>
-                      )}
-                    </View>
-                    <Text style={styles.vehicleDetails} numberOfLines={1}>
-                      {vehicle.make} {vehicle.model} {vehicle.year}
-                    </Text>
-                    <Text style={styles.vehicleMileage}>
-                      {vehicle.currentMileage.toLocaleString()} km
-                    </Text>
-                    {categoryInfo && (
-                      <View style={styles.categoryBadge}>
-                        <categoryInfo.Icon
-                          size={14}
-                          color={categoryInfo.color}
-                        />
-                        <Text style={styles.categoryBadgeText}>
-                          {t(`vehicles.category_${vehicle.category}`)}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                  {dueTasks.length > 0 && (
-                    <View style={styles.alertBadge}>
-                      <Text style={styles.alertBadgeText}>
-                        {dueTasks.length}
-                      </Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
-              );
-  };
-
-  const renderListHeader = () => (
-    <View style={styles.header}>
-      <Text style={styles.screenTitle}>{t("vehicles.title")}</Text>
-      <View style={styles.headerButtonsRow}>
-        <TouchableOpacity
-          style={styles.iconHeaderButton}
-          onPress={() => setFilterMenuVisible(true)}
-          activeOpacity={0.8}
-        >
-          <SlidersHorizontal size={18} color={colors.text} />
-          <Text style={styles.iconHeaderButtonText}>
-            {t("vehicles.filter_menu")}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.iconHeaderButton}
-          onPress={() => setActionsMenuVisible(true)}
-          activeOpacity={0.8}
-        >
-          <MoreHorizontal size={18} color={colors.text} />
-          <Text style={styles.iconHeaderButtonText}>
-            {t("vehicles.actions_menu")}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+  // Render function for normal mode (FlatList)
+  const renderNormalItem = ({
+    item,
+    index,
+  }: {
+    item: Vehicle;
+    index: number;
+  }) => (
+    <AnimatedItem index={index}>
+      <SwipeableRow
+        onDelete={() => {
+          showAlert({
+            title: t("common.delete"),
+            message: t("vehicles.delete_confirm", {
+              name: `${item.make} ${item.model}`,
+            }),
+            buttons: [
+              { text: t("common.cancel"), style: "cancel" },
+              {
+                text: t("common.delete"),
+                style: "destructive",
+                onPress: async () => {
+                  await deleteVehicle(item.id);
+                  showToast({
+                    message: t("vehicles.delete_success", {
+                      name: `${item.make} ${item.model}`,
+                    }),
+                    actionLabel: t("common.undo"),
+                    onAction: async () => {
+                      await restoreLastSnapshot();
+                    },
+                  });
+                },
+              },
+            ],
+          });
+        }}
+      >
+        <VehicleListItem
+          vehicle={item}
+          onLongPress={(id) => {
+            setActionVehicleId(id);
+            setQuickActionsModalVisible(true);
+          }}
+        />
+      </SwipeableRow>
+    </AnimatedItem>
   );
 
-  const renderListEmpty = () => {
-    if (vehicles.length === 0) {
-      return (
-        <View style={styles.emptyState}>
-          <Car size={64} color={colors.placeholder} />
-          <Text style={styles.emptyTitle}>{t("vehicles.empty_title")}</Text>
-          <Text style={styles.emptyText}>{t("vehicles.empty_text")}</Text>
-        </View>
-      );
-    }
+  const renderListHeader = () => (
+    <VehicleListHeader
+      showArchived={showArchived}
+      onToggleArchived={() => setShowArchived((prev) => !prev)}
+      onOpenFilter={() => setFilterMenuVisible(true)}
+      onOpenActions={() => setActionsMenuVisible(true)}
+      isReorderMode={isReorderMode}
+      onToggleReorderMode={handleToggleReorderMode}
+      canReorder={filteredVehicles.length > 1}
+      hasActiveFilters={selectedCategories.length > 0}
+    />
+  );
+
+  if (isLoading) {
     return (
-      <View style={styles.emptyState}>
-        <Car size={64} color={colors.placeholder} />
-        <Text style={styles.emptyTitle}>{t("vehicles.no_results")}</Text>
-        <Text style={styles.emptyText}>
-          {t("vehicles.no_results_text")}
-        </Text>
-          </View>
+      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+        <View style={styles.scrollContent}>
+          <VehicleListHeader
+            showArchived={showArchived}
+            onToggleArchived={() => setShowArchived((prev) => !prev)}
+            onOpenFilter={() => setFilterMenuVisible(true)}
+            onOpenActions={() => setActionsMenuVisible(true)}
+          />
+          <View style={{ height: 16 }} />
+          <VehicleListSkeleton />
+        </View>
+      </SafeAreaView>
     );
-  };
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-      <FlatList
-        data={filteredVehicles}
-        renderItem={renderVehicleItem}
-        keyExtractor={(item) => item.id}
-        ItemSeparatorComponent={renderItemSeparator}
-        ListHeaderComponent={renderListHeader}
-        ListEmptyComponent={renderListEmpty}
-        contentContainerStyle={styles.scrollContent}
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-        initialNumToRender={10}
-        maxToRenderPerBatch={10}
-        windowSize={10}
-        removeClippedSubviews={true}
-      />
+      {isReorderMode ? (
+        <FlatList
+          data={filteredVehicles}
+          renderItem={({ item, index }) => (
+            <AnimatedItem index={index} key={item.id}>
+              <View
+                style={{
+                  marginBottom: 12,
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <View style={{ marginRight: 12, gap: 8 }}>
+                  <TouchableOpacity
+                    onPress={() => moveItemUp(index)}
+                    disabled={index === 0}
+                    style={{
+                      backgroundColor: colors.card,
+                      borderRadius: 8,
+                      padding: 10,
+                      opacity: index === 0 ? 0.4 : 1,
+                      borderWidth: 1,
+                      borderColor: index === 0 ? colors.border : colors.primary,
+                    }}
+                  >
+                    <ChevronUp
+                      size={20}
+                      color={
+                        index === 0 ? colors.textSecondary : colors.primary
+                      }
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => moveItemDown(index)}
+                    disabled={index === filteredVehicles.length - 1}
+                    style={{
+                      backgroundColor: colors.card,
+                      borderRadius: 8,
+                      padding: 10,
+                      opacity: index === filteredVehicles.length - 1 ? 0.4 : 1,
+                      borderWidth: 1,
+                      borderColor:
+                        index === filteredVehicles.length - 1
+                          ? colors.border
+                          : colors.primary,
+                    }}
+                  >
+                    <ChevronDown
+                      size={20}
+                      color={
+                        index === filteredVehicles.length - 1
+                          ? colors.textSecondary
+                          : colors.primary
+                      }
+                    />
+                  </TouchableOpacity>
+                </View>
+                <TouchableOpacity
+                  onPress={() =>
+                    !isReorderMode && router.push(`/vehicle/${item.id}`)
+                  }
+                  disabled={isReorderMode}
+                  activeOpacity={isReorderMode ? 1 : 0.7}
+                  style={{
+                    flex: 1,
+                    backgroundColor: colors.card,
+                    borderRadius: 12,
+                    padding: 16,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    opacity: isReorderMode ? 0.8 : 1,
+                  }}
+                >
+                  <View
+                    style={{
+                      marginRight: 12,
+                      width: 60,
+                      height: 60,
+                      borderRadius: 8,
+                      backgroundColor: colors.background,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Car size={32} color={colors.textSecondary} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text
+                      style={{
+                        color: colors.text,
+                        fontSize: 16,
+                        fontWeight: "600",
+                        marginBottom: 4,
+                      }}
+                    >
+                      {item.make} {item.model}
+                    </Text>
+                    <Text
+                      style={{
+                        color: colors.textSecondary,
+                        fontSize: 14,
+                        marginBottom: 2,
+                      }}
+                    >
+                      {item.make} {item.model} {item.year}
+                    </Text>
+                    <Text style={{ color: colors.textSecondary, fontSize: 12 }}>
+                      {formatDistance(item.currentMileage)}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </AnimatedItem>
+          )}
+          keyExtractor={(item) => item.id}
+          ListHeaderComponent={renderListHeader}
+          ListEmptyComponent={
+            <VehicleListEmpty hasVehicles={vehicles.length > 0} />
+          }
+          contentContainerStyle={styles.scrollContent}
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        />
+      ) : (
+        <FlatList
+          ref={flatListRef}
+          data={filteredVehicles}
+          renderItem={renderNormalItem}
+          keyExtractor={(item) => item.id}
+          ItemSeparatorComponent={renderItemSeparator}
+          ListHeaderComponent={renderListHeader}
+          ListFooterComponent={
+            <VehicleListFooter
+              visible={filteredVehicles.length > 2}
+              onScrollToTop={handleScrollToTop}
+            />
+          }
+          ListEmptyComponent={
+            <VehicleListEmpty hasVehicles={vehicles.length > 0} />
+          }
+          contentContainerStyle={styles.scrollContent}
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={10}
+          removeClippedSubviews={true}
+        />
+      )}
 
-      {!isKeyboardVisible && (
+      {!isKeyboardVisible && !isReorderMode && (
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => router.push("/add-vehicle")}
@@ -237,589 +424,47 @@ export default function VehiclesScreen() {
         </TouchableOpacity>
       )}
 
-      {/* Filters menu */}
-      <Modal
+      <VehicleFilters
         visible={isFilterMenuVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setFilterMenuVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <View style={styles.modalHeaderRow}>
-              <Text style={styles.modalTitle}>{t("vehicles.filter_menu")}</Text>
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectedCategories([]);
-                  setShowArchived(false);
-                  setFilterMenuVisible(false);
-                }}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.modalHeaderLink}>
-                  {t("vehicles.clear_filters")}
-                </Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.filterChips}>
-              <TouchableOpacity
-                style={[
-                  styles.filterChip,
-                  selectedCategories.length === 0 && styles.filterChipActive,
-                ]}
-                onPress={() => setSelectedCategories([])}
-              >
-                <Text
-                  style={[
-                    styles.filterChipText,
-                    selectedCategories.length === 0 &&
-                      styles.filterChipTextActive,
-                  ]}
-                >
-                  {t("vehicles.filter_all")}
-                </Text>
-              </TouchableOpacity>
-              {(Object.keys(VEHICLE_CATEGORY_INFO) as VehicleCategory[]).map(
-                (category) => {
-                  const { Icon, color } = VEHICLE_CATEGORY_INFO[category];
-                  const isActive = selectedCategories.includes(category);
-                  return (
-                    <TouchableOpacity
-                      key={category}
-                      style={[
-                        styles.filterChip,
-                        isActive && styles.filterChipActive,
-                      ]}
-                      onPress={() =>
-                        setSelectedCategories((prev) =>
-                          prev.includes(category)
-                            ? prev.filter((c) => c !== category)
-                            : [...prev, category]
-                        )
-                      }
-                    >
-                      <Icon size={16} color={isActive ? "#FFFFFF" : color} />
-                      <Text
-                        style={[
-                          styles.filterChipText,
-                          isActive && styles.filterChipTextActive,
-                        ]}
-                      >
-                        {t(`vehicles.category_${category}`)}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                }
-              )}
-            </View>
+        onClose={() => setFilterMenuVisible(false)}
+        selectedCategories={selectedCategories}
+        onSelectCategory={(category) => {
+          setSelectedCategories((prev) =>
+            prev.includes(category)
+              ? prev.filter((c) => c !== category)
+              : [...prev, category]
+          );
+        }}
+        sortOption={sortOption}
+        onSelectSort={setSortOption}
+        onClearFilters={() => {
+          setSelectedCategories([]);
+          setShowArchived(false);
+          setSortOption("custom");
+        }}
+      />
 
-            <View style={styles.filterActionsRow}>
-              <TouchableOpacity
-                style={[
-                  styles.filterChip,
-                  showArchived && styles.filterChipActive,
-                ]}
-                onPress={() => setShowArchived((prev) => !prev)}
-                activeOpacity={0.8}
-              >
-                <Archive
-                  size={16}
-                  color={showArchived ? "#FFFFFF" : colors.text}
-                />
-                <Text
-                  style={[
-                    styles.filterChipText,
-                    showArchived && styles.filterChipTextActive,
-                  ]}
-                >
-                  {showArchived
-                    ? t("vehicles.hide_archived")
-                    : t("vehicles.show_archived")}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity
-              style={styles.modalCancel}
-              onPress={() => setFilterMenuVisible(false)}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.modalCancelText}>{t("common.close")}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Actions menu (compare / bulk) */}
-      <Modal
+      <VehicleActions
         visible={isActionsMenuVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setActionsMenuVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>{t("vehicles.actions_menu")}</Text>
-            <TouchableOpacity
-              style={styles.modalAction}
-              onPress={() => {
-                setActionsMenuVisible(false);
-                router.push("/vehicles/compare");
-              }}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.modalActionText}>
-                {t("vehicles.compare_vehicles")}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.modalAction}
-              onPress={() => {
-                setActionsMenuVisible(false);
-                router.push("/vehicles/bulk");
-              }}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.modalActionText}>
-                {t("vehicles.bulk_operations")}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.modalCancel}
-              onPress={() => setActionsMenuVisible(false)}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.modalCancelText}>{t("common.close")}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+        onClose={() => setActionsMenuVisible(false)}
+        onCompare={() => {
+          setActionsMenuVisible(false);
+          router.push("/vehicles/compare");
+        }}
+        onBulkOperations={() => {
+          setActionsMenuVisible(false);
+          router.push("/vehicles/bulk");
+        }}
+      />
 
-      {/* Quick actions popup for long-press on vehicle card */}
-      <Modal
-        visible={!!actionVehicleId}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setActionVehicleId(null)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>{t("vehicles.quick_actions")}</Text>
-            <View style={styles.quickRow}>
-              <TouchableOpacity
-                style={styles.quickItem}
-                onPress={() => {
-                  if (actionVehicleId) {
-                    router.push(`/add-task?vehicleId=${actionVehicleId}`);
-                  }
-                  setActionVehicleId(null);
-                }}
-                activeOpacity={0.8}
-              >
-                <View style={styles.quickIconButton}>
-                  <Wrench size={20} color="#FFFFFF" />
-                </View>
-                <Text style={styles.quickLabel}>
-                  {t("vehicles.quick_add_maintenance")}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.quickItem}
-                onPress={() => {
-                  if (actionVehicleId) {
-                    router.push(`/add-fuel-log?vehicleId=${actionVehicleId}`);
-                  }
-                  setActionVehicleId(null);
-                }}
-                activeOpacity={0.8}
-              >
-                <View style={styles.quickIconButton}>
-                  <Fuel size={20} color="#FFFFFF" />
-                </View>
-                <Text style={styles.quickLabel}>
-                  {t("vehicles.quick_add_fuel")}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.quickItem}
-                onPress={() => {
-                  if (actionVehicleId) {
-                    router.push(`/statistics?vehicleId=${actionVehicleId}`);
-                  }
-                  setActionVehicleId(null);
-                }}
-                activeOpacity={0.8}
-              >
-                <View style={styles.quickIconButton}>
-                  <BarChart3 size={20} color="#FFFFFF" />
-                </View>
-                <Text style={styles.quickLabel}>
-                  {t("vehicles.quick_view_stats")}
-                </Text>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity
-              style={styles.modalCancel}
-              onPress={() => setActionVehicleId(null)}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.modalCancelText}>{t("common.cancel")}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      <VehicleQuickActions
+        visible={isQuickActionsMenuVisible}
+        onClose={() => {
+          setQuickActionsModalVisible(false);
+          setActionVehicleId(null);
+        }}
+        vehicleId={actionVehicleId}
+      />
     </SafeAreaView>
   );
 }
-
-const createStyles = (colors: any) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: colors.background,
-    },
-    scrollView: {
-      flex: 1,
-    },
-    scrollContent: {
-      paddingHorizontal: 16,
-      paddingBottom: 100,
-    },
-    header: {
-      paddingTop: 8,
-      marginBottom: 12,
-    },
-    screenTitle: {
-      fontSize: 28,
-      fontWeight: "700" as const,
-      color: colors.text,
-      marginBottom: 24,
-    },
-    headerButtonsRow: {
-      flexDirection: "row",
-      justifyContent: "flex-start",
-      gap: 12,
-    },
-    iconHeaderButton: {
-      flexDirection: "row",
-      alignItems: "center",
-      paddingHorizontal: 10,
-      paddingVertical: 6,
-      borderRadius: 999,
-      backgroundColor: colors.surface,
-      borderWidth: 1,
-      borderColor: colors.border,
-      gap: 6,
-    },
-    iconHeaderButtonText: {
-      fontSize: 13,
-      color: colors.text,
-      fontWeight: "500" as const,
-    },
-    filterSection: {
-      marginBottom: 14,
-      gap: 8,
-    },
-    filterChips: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      gap: 8,
-      paddingVertical: 4,
-    },
-    filterChip: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 4,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      borderRadius: 20,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.card,
-      marginRight: 4,
-    },
-    filterActionsRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "flex-start",
-      marginTop: 12,
-      marginBottom: 16,
-    },
-    clearFiltersButton: {
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 999,
-      backgroundColor: "transparent",
-    },
-    clearFiltersText: {
-      fontSize: 13,
-      color: colors.textSecondary,
-      fontWeight: "500" as const,
-      textDecorationLine: "underline",
-    },
-    filterChipActive: {
-      backgroundColor: colors.primary,
-      borderColor: colors.primary,
-    },
-    filterChipText: {
-      color: colors.text,
-      fontWeight: "500" as const,
-    },
-    filterChipTextActive: {
-      color: "#FFFFFF",
-    },
-    modalHeaderRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: 8,
-    },
-    modalHeaderLink: {
-      fontSize: 13,
-      color: colors.primary,
-      fontWeight: "500" as const,
-      textDecorationLine: "underline",
-    },
-    toggleButton: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 8,
-      paddingHorizontal: 14,
-      paddingVertical: 10,
-      borderRadius: 12,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.card,
-      alignSelf: "flex-start",
-    },
-    toggleButtonActive: {
-      backgroundColor: colors.primary,
-      borderColor: colors.primary,
-    },
-    toggleButtonText: {
-      color: colors.text,
-      fontWeight: "600" as const,
-    },
-    toggleButtonTextActive: {
-      color: "#FFFFFF",
-    },
-    emptyState: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      paddingVertical: 100,
-    },
-    emptyTitle: {
-      fontSize: 24,
-      fontWeight: "600" as const,
-      color: colors.text,
-      marginTop: 16,
-      marginBottom: 8,
-    },
-    emptyText: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      textAlign: "center",
-      paddingHorizontal: 40,
-    },
-    vehicleList: {
-      gap: 12,
-    },
-    itemSeparator: {
-      height: 12,
-    },
-    vehicleCard: {
-      backgroundColor: colors.card,
-      borderRadius: 16,
-      flexDirection: "row",
-      alignItems: "center",
-      padding: 12,
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 8,
-      elevation: 3,
-    },
-    vehicleImage: {
-      width: 80,
-      height: 80,
-      borderRadius: 12,
-      backgroundColor: colors.border,
-    },
-    vehicleImagePlaceholder: {
-      width: 80,
-      height: 80,
-      borderRadius: 12,
-      backgroundColor: colors.border,
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    vehicleInfo: {
-      flex: 1,
-      marginLeft: 12,
-      minWidth: 0,
-    },
-    vehicleHeaderRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 8,
-    },
-    vehicleName: {
-      fontSize: 18,
-      fontWeight: "600" as const,
-      color: colors.text,
-      marginBottom: 4,
-      flexShrink: 1,
-    },
-    archivedBadge: {
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-      borderRadius: 10,
-      backgroundColor: colors.warning + "30",
-    },
-    archivedBadgeText: {
-      fontSize: 12,
-      color: colors.warning,
-      fontWeight: "600" as const,
-    },
-    vehicleDetails: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      marginBottom: 2,
-      flexShrink: 1,
-    },
-    vehicleMileage: {
-      fontSize: 14,
-      fontWeight: "500" as const,
-      color: colors.primary,
-    },
-    categoryBadge: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 6,
-      marginTop: 6,
-    },
-    categoryBadgeText: {
-      fontSize: 12,
-      color: colors.textSecondary,
-      fontWeight: "500" as const,
-    },
-    alertBadge: {
-      backgroundColor: colors.error,
-      borderRadius: 12,
-      width: 24,
-      height: 24,
-      justifyContent: "center",
-      alignItems: "center",
-      marginLeft: 8,
-    },
-    alertBadgeText: {
-      color: "#FFFFFF",
-      fontSize: 12,
-      fontWeight: "700" as const,
-    },
-    addButton: {
-      position: "absolute",
-      right: 16,
-      bottom: 16,
-      width: 56,
-      height: 56,
-      borderRadius: 28,
-      backgroundColor: colors.primary,
-      justifyContent: "center",
-      alignItems: "center",
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3,
-      shadowRadius: 8,
-      elevation: 8,
-    },
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: "#00000080",
-      justifyContent: "center",
-      alignItems: "center",
-      padding: 24,
-    },
-    modalCard: {
-      width: "100%",
-      maxWidth: 360,
-      backgroundColor: colors.card,
-      borderRadius: 20,
-      paddingHorizontal: 20,
-      paddingVertical: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    modalTitle: {
-      fontSize: 16,
-      fontWeight: "600" as const,
-      color: colors.textSecondary,
-      marginBottom: 12,
-    },
-    modalAction: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      paddingHorizontal: 12,
-      paddingVertical: 10,
-      borderRadius: 20,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.card,
-      marginTop: 8,
-    },
-    modalActionText: {
-      fontSize: 15,
-      color: colors.text,
-      fontWeight: "500" as const,
-    },
-    quickRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginTop: 4,
-      marginBottom: 4,
-      gap: 12,
-    },
-    quickItem: {
-      flex: 1,
-      alignItems: "center",
-      gap: 8,
-    },
-    quickIconButton: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      backgroundColor: colors.primary,
-      justifyContent: "center",
-      alignItems: "center",
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 6,
-      elevation: 3,
-    },
-    quickLabel: {
-      fontSize: 12,
-      color: colors.text,
-      textAlign: "center",
-      fontWeight: "500" as const,
-    },
-    modalCancel: {
-      marginTop: 8,
-      paddingVertical: 12,
-    },
-    modalCancelText: {
-      fontSize: 16,
-      fontWeight: "600" as const,
-      color: colors.primary,
-      textAlign: "center",
-    },
-  });
