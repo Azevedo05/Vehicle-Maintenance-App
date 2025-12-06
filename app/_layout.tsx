@@ -1,8 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+
+import { AnimatedSplashScreen } from "@/components/AnimatedSplashScreen";
 
 import {
   LocalizationProvider,
@@ -111,8 +113,12 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
+  const [isSplashAnimationFinished, setSplashAnimationFinished] =
+    useState(false);
+
   useEffect(() => {
-    SplashScreen.hideAsync();
+    // Native splash screen hiding is now handled by AnimatedSplashScreen
+    // to ensure no flash of content occurs before the video is ready.
   }, []);
 
   return (
@@ -124,6 +130,11 @@ export default function RootLayout() {
               <VehicleProvider>
                 <AlertProvider>
                   <GestureHandlerRootView style={{ flex: 1 }}>
+                    {!isSplashAnimationFinished && (
+                      <AnimatedSplashScreen
+                        onFinish={() => setSplashAnimationFinished(true)}
+                      />
+                    )}
                     <RootLayoutNav />
                   </GestureHandlerRootView>
                 </AlertProvider>

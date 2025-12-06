@@ -42,8 +42,14 @@
 - [x] **Filter Menu Handle Color**: Change the drag handle color to blue to indicate interactivity.
 - [x] **Ensure good white mode**: Ensure white mode is working correctly with good contrast and visibility.
 - [x] **Make Fuel Logs clicabel**: Make fuel logs clickable to open the log details page.
+- [x] **Change the Inspection Overdue border color to red**
+- [x] **Ensure "Next maintenance" appears in "Add maintenance task" even when the recurring task is not activated**
 
 ## 7. New Features & Research
 
 - [x] **License Plate API**: Research APIs to fetch vehicle details from license plate (Portugal/EU focus). See [Research Results](research/license_plate_apis.md) and [Free Options Analysis](research/free_license_plate_options.md).
 - [ ] **Gemini AI Integration**: Implement Google Gemini API for AI-powered assistance within the app.
+
+## 8. New Page 
+
+- [ ] **Quick Reminders & Nagging**: Implement a "To-Do" list for small checks (Oil, Tires) with frequent local notifications (e.g., "Remind me every 2h") to ensure they get done.

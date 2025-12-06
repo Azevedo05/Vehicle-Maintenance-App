@@ -62,7 +62,11 @@ export const createVehicleDetailsStyles = (colors: any) =>
     },
     dueTaskCard: {
       borderColor: colors.warning,
-      backgroundColor: colors.warning + "05",
+      backgroundColor: colors.card,
+    },
+    inspectionOverdueCard: {
+      borderColor: colors.error,
+      backgroundColor: colors.card,
     },
     taskInfo: {
       flex: 1,

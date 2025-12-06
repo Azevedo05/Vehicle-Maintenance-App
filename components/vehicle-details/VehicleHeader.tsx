@@ -53,83 +53,64 @@ export const VehicleHeader = ({ vehicle }: VehicleHeaderProps) => {
   };
 
   return (
-    <View style={styles.headerContainer}>
-      {vehicle.photo ? (
-        <>
-          <Image
-            source={{ uri: vehicle.photo }}
-            style={styles.vehicleImage}
-            contentFit="cover"
-          />
-          <LinearGradient
-            colors={["transparent", colors.background]}
-            style={styles.imageGradient}
-          />
-        </>
-      ) : (
-        <View style={styles.noImagePlaceholder}>
-          <Car size={64} color={colors.placeholder} />
-        </View>
-      )}
-
-      <View style={styles.infoCard}>
+    <View style={styles.infoCard}>
+      <View style={styles.headerTopRow}>
         <View style={styles.nameContainer}>
-          <View style={styles.nameRow}>
-            <Text style={styles.vehicleName}>
-              {vehicle.make} {vehicle.model}
-            </Text>
-            <TouchableOpacity
-              onPress={handleArchiveToggle}
-              style={{ padding: 4 }}
-            >
-              {vehicle.archived ? (
-                <ArchiveRestore size={20} color={colors.warning} />
-              ) : (
-                <Archive size={20} color={colors.primary} />
-              )}
-            </TouchableOpacity>
-          </View>
-          <View style={styles.badgeRow}>
-            {vehicle.licensePlate && (
-              <View style={styles.licenseBadge}>
-                <Text style={styles.licenseBadgeText}>
-                  {vehicle.licensePlate}
-                </Text>
-              </View>
-            )}
-            <View style={styles.yearBadge}>
-              <Text style={styles.yearBadgeText}>{vehicle.year}</Text>
-            </View>
-            {vehicle.fuelType && (
-              <View style={styles.categoryBadge}>
-                <Text style={styles.categoryBadgeText}>
-                  {t(`fuel.type_${vehicle.fuelType}`)}
-                </Text>
-              </View>
-            )}
-            {vehicle.category && (
-              <View style={styles.categoryBadge}>
-                <Text style={styles.categoryBadgeText}>
-                  {t(`vehicles.category_${vehicle.category}`)}
-                </Text>
-              </View>
-            )}
-          </View>
+          <Text style={styles.vehicleName}>
+            {vehicle.make}{" "}
+            <Text style={{ fontWeight: "400" }}>{vehicle.model}</Text>
+          </Text>
+          {/* License Plate as a secondary subtle element */}
+          {vehicle.licensePlate && (
+            <Text style={styles.licenseText}>{vehicle.licensePlate}</Text>
+          )}
         </View>
 
-        <View style={styles.mileageCard}>
-          <View style={styles.mileageIconContainer}>
-            <Gauge size={24} color={colors.primary} />
-          </View>
-          <View style={styles.mileageContent}>
-            <Text style={styles.mileageLabel}>
-              {t("vehicles.current_mileage")}
-            </Text>
-            <Text style={styles.mileageValue}>
-              {vehicle.currentMileage.toLocaleString()} {t("vehicles.km")}
-            </Text>
-          </View>
+        <TouchableOpacity
+          onPress={handleArchiveToggle}
+          style={styles.archiveButton}
+        >
+          {vehicle.archived ? (
+            <ArchiveRestore size={22} color={colors.warning} />
+          ) : (
+            <Archive size={22} color={colors.primary} />
+          )}
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.badgeRow}>
+        <View style={styles.yearBadge}>
+          <Text style={styles.yearBadgeText}>{vehicle.year}</Text>
         </View>
+        {vehicle.fuelType && (
+          <View style={styles.pillBadge}>
+            <Text style={styles.pillBadgeText}>
+              {t(`fuel.type_${vehicle.fuelType}`)}
+            </Text>
+          </View>
+        )}
+        {vehicle.category && (
+          <View style={styles.pillBadge}>
+            <Text style={styles.pillBadgeText}>
+              {t(`vehicles.category_${vehicle.category}`)}
+            </Text>
+          </View>
+        )}
+      </View>
+
+      <View style={styles.mileageContainer}>
+        <View style={styles.mileageHeader}>
+          <View style={styles.iconCircle}>
+            <Gauge size={20} color={colors.primary} />
+          </View>
+          <Text style={styles.mileageLabel}>
+            {t("vehicles.current_mileage")}
+          </Text>
+        </View>
+        <Text style={styles.mileageValue}>
+          {vehicle.currentMileage.toLocaleString()}{" "}
+          <Text style={styles.mileageUnit}>{t("vehicles.km")}</Text>
+        </Text>
       </View>
     </View>
   );
@@ -137,131 +118,105 @@ export const VehicleHeader = ({ vehicle }: VehicleHeaderProps) => {
 
 const createStyles = (colors: any) =>
   StyleSheet.create({
-    headerContainer: {
-      position: "relative",
-    },
-    vehicleImage: {
-      width: "100%",
-      height: 250,
-      backgroundColor: colors.border,
-    },
-    imageGradient: {
-      position: "absolute",
-      left: 0,
-      right: 0,
-      bottom: 0,
-      height: 100,
-    },
-    noImagePlaceholder: {
-      width: "100%",
-      height: 250,
-      backgroundColor: colors.primary + "10",
-      justifyContent: "center",
-      alignItems: "center",
-      borderBottomWidth: 3,
-      borderBottomColor: colors.primary + "30",
-    },
     infoCard: {
-      backgroundColor: colors.background,
-      paddingHorizontal: 20,
-      paddingTop: 12,
+      paddingHorizontal: 24,
       paddingBottom: 24,
+      gap: 20,
+    },
+    headerTopRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
     },
     nameContainer: {
-      flexDirection: "column",
-      alignItems: "flex-start",
-      marginBottom: 12,
-      gap: 4,
-    },
-    nameRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 8,
       flex: 1,
+      gap: 4,
     },
     vehicleName: {
       fontSize: 32,
       fontWeight: "800",
       color: colors.text,
-      flex: 1,
+      letterSpacing: -0.5,
+      lineHeight: 40,
+    },
+    licenseText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      fontWeight: "600",
+      letterSpacing: 1,
+    },
+    archiveButton: {
+      padding: 8,
+      backgroundColor: colors.surface,
+      borderRadius: 12,
     },
     badgeRow: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 8,
-      marginTop: 4,
-    },
-    licenseBadge: {
-      backgroundColor: colors.primary + "20",
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 8,
-      borderWidth: 1,
-      borderColor: colors.primary + "40",
-    },
-    licenseBadgeText: {
-      fontSize: 14,
-      fontWeight: "700",
-      color: colors.primary,
-      letterSpacing: 1,
-    },
-    categoryBadge: {
-      backgroundColor: colors.surface,
-      borderRadius: 8,
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    categoryBadgeText: {
-      fontSize: 12,
-      color: colors.textSecondary,
-      fontWeight: "600",
+      gap: 10,
+      flexWrap: "wrap",
     },
     yearBadge: {
+      backgroundColor: colors.primary,
+      borderRadius: 50,
+      paddingHorizontal: 14,
+      paddingVertical: 6,
+    },
+    yearBadgeText: {
+      fontSize: 13,
+      color: "#FFFFFF",
+      fontWeight: "700",
+    },
+    pillBadge: {
       backgroundColor: colors.surface,
-      borderRadius: 8,
-      paddingHorizontal: 10,
-      paddingVertical: 4,
+      borderRadius: 50,
+      paddingHorizontal: 14,
+      paddingVertical: 6,
       borderWidth: 1,
       borderColor: colors.border,
     },
-    yearBadgeText: {
-      fontSize: 12,
+    pillBadgeText: {
+      fontSize: 13,
       color: colors.textSecondary,
       fontWeight: "600",
     },
-    mileageCard: {
-      backgroundColor: colors.primary + "10",
-      borderRadius: 16,
-      padding: 16,
+    mileageContainer: {
+      marginTop: 8,
+      paddingTop: 20,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      gap: 8,
+    },
+    mileageHeader: {
       flexDirection: "row",
       alignItems: "center",
-      borderWidth: 1,
-      borderColor: colors.primary + "30",
+      gap: 8,
     },
-    mileageIconContainer: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      backgroundColor: colors.primary + "20",
+    iconCircle: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      backgroundColor: colors.primary + "15",
       justifyContent: "center",
       alignItems: "center",
-      marginRight: 12,
-    },
-    mileageContent: {
-      flex: 1,
     },
     mileageLabel: {
-      fontSize: 12,
+      fontSize: 13,
       color: colors.textSecondary,
-      marginBottom: 4,
-      textTransform: "uppercase",
       fontWeight: "600",
+      textTransform: "uppercase",
+      letterSpacing: 0.5,
     },
     mileageValue: {
-      fontSize: 24,
-      fontWeight: "700",
-      color: colors.primary,
+      fontSize: 36,
+      fontWeight: "300", // Light weight for large numbers looks premium
+      color: colors.text,
+      letterSpacing: -1,
+    },
+    mileageUnit: {
+      fontSize: 18,
+      fontWeight: "500",
+      color: colors.textSecondary,
+      marginLeft: 4,
     },
   });

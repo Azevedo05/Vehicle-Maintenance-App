@@ -1,5 +1,5 @@
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import { AlertCircle, Edit, Trash2 } from "lucide-react-native";
+import { AlertCircle } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -8,6 +8,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -15,6 +16,9 @@ import { useVehicles } from "@/contexts/VehicleContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useAppAlert } from "@/contexts/AlertContext";
+import { Image } from "expo-image";
+import { Car, ChevronLeft, Edit, Trash2 } from "lucide-react-native";
+import { BlurView } from "expo-blur";
 
 import { VehicleHeader } from "@/components/vehicle-details/VehicleHeader";
 import { MaintenanceOverview } from "@/components/vehicle-details/MaintenanceOverview";
@@ -108,41 +112,85 @@ export default function VehicleDetailScreen() {
   }
 
   return (
-    <>
-      <Stack.Screen
-        options={{
-          headerRight: () => (
-            <View style={{ flexDirection: "row", gap: 8 }}>
-              <TouchableOpacity
-                onPress={() => router.push(`/edit-vehicle?id=${vehicle.id}`)}
-                style={styles.headerButton}
-              >
-                <Edit size={20} color={colors.primary} />
-              </TouchableOpacity>
+    <View style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
 
-              <TouchableOpacity
-                onPress={handleDelete}
-                style={styles.headerButton}
-              >
-                <Trash2 size={20} color={colors.error} />
-              </TouchableOpacity>
-            </View>
-          ),
-        }}
-      />
-      <SafeAreaView style={styles.container} edges={["bottom"]}>
+      {/* Content */}
+      <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <VehicleHeader vehicle={vehicle} />
-          <MaintenanceOverview vehicleId={vehicleId} />
-          <MaintenanceHistory vehicleId={vehicleId} />
-          <FuelLogSection vehicleId={vehicleId} />
+          {/* Image - Goes behind the curved card */}
+          <View style={styles.heroSection}>
+            {vehicle.photo ? (
+              <Image
+                source={{ uri: vehicle.photo }}
+                style={styles.vehicleImage}
+                contentFit="cover"
+              />
+            ) : (
+              <View style={styles.noImagePlaceholder}>
+                <Car size={80} color={colors.placeholder} />
+              </View>
+            )}
+
+            {/* Floating Back Button */}
+            <View style={styles.floatingBackButtonContainer}>
+              <TouchableOpacity
+                onPress={() => router.back()}
+                activeOpacity={0.8}
+              >
+                <BlurView
+                  intensity={30}
+                  tint="dark"
+                  style={styles.floatingButtonBlur}
+                >
+                  <ChevronLeft size={24} color="#FFFFFF" />
+                </BlurView>
+              </TouchableOpacity>
+            </View>
+
+            {/* Floating Action Buttons */}
+            <View style={styles.floatingActions}>
+              <TouchableOpacity
+                onPress={() => router.push(`/edit-vehicle?id=${vehicle.id}`)}
+                activeOpacity={0.8}
+              >
+                <BlurView
+                  intensity={30}
+                  tint="dark"
+                  style={styles.floatingButtonBlur}
+                >
+                  <Edit size={20} color="#FFFFFF" />
+                </BlurView>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleDelete} activeOpacity={0.8}>
+                <BlurView
+                  intensity={30}
+                  tint="dark"
+                  style={styles.floatingButtonBlur}
+                >
+                  <Trash2 size={20} color="#FFFFFF" />
+                </BlurView>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Curved Content Card - Overlays the image */}
+          <View style={styles.curvedCard}>
+            {/* Vehicle Info inside curved card */}
+            <VehicleHeader vehicle={vehicle} />
+
+            {/* Maintenance sections */}
+            <MaintenanceOverview vehicleId={vehicleId} />
+            <MaintenanceHistory vehicleId={vehicleId} />
+            <FuelLogSection vehicleId={vehicleId} />
+          </View>
         </ScrollView>
       </SafeAreaView>
-    </>
+    </View>
   );
 }
 
@@ -177,13 +225,64 @@ const createStyles = (colors: any) =>
       fontSize: 16,
       fontWeight: "600",
     },
-    headerButton: {
-      padding: 8,
+    heroSection: {
+      position: "relative",
+    },
+    vehicleImage: {
+      width: "100%",
+      height: 400,
+      backgroundColor: colors.border,
+    },
+    noImagePlaceholder: {
+      width: "100%",
+      height: 400,
+      backgroundColor: colors.primary + "15",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    floatingBackButtonContainer: {
+      position: "absolute",
+      top: Platform.OS === "ios" ? 50 : 30,
+      left: 20,
+      zIndex: 10,
+    },
+    floatingActions: {
+      position: "absolute",
+      top: Platform.OS === "ios" ? 50 : 30,
+      right: 20,
+      flexDirection: "row",
+      gap: 12,
+      zIndex: 10,
+    },
+    floatingButtonBlur: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "rgba(0, 0, 0, 0.3)",
+      overflow: "hidden",
+    },
+    safeArea: {
+      flex: 1,
     },
     scrollView: {
       flex: 1,
     },
     scrollContent: {
       paddingBottom: 32,
+    },
+    curvedCard: {
+      backgroundColor: colors.background,
+      borderTopLeftRadius: 35,
+      borderTopRightRadius: 35,
+      marginTop: -80,
+      paddingTop: 32,
+      paddingHorizontal: 0,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: -10 },
+      shadowOpacity: 0.15,
+      shadowRadius: 20,
+      elevation: 15,
     },
   });

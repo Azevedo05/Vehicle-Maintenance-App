@@ -133,7 +133,7 @@ export const createStyles = (colors: any) =>
       gap: 4,
     },
     categoryBadgeText: {
-      fontSize: 12,
+      fontSize: 14,
       fontWeight: "600",
     },
     alertBadge: {

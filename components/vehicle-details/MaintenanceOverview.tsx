@@ -49,7 +49,13 @@ export const MaintenanceOverview = ({
           return (
             <View
               key={item.task.id}
-              style={[styles.taskCard, item.isDue && styles.dueTaskCard]}
+              style={[
+                styles.taskCard,
+                item.isDue &&
+                  (item.task.type === "inspection"
+                    ? styles.inspectionOverdueCard
+                    : styles.dueTaskCard),
+              ]}
             >
               <View style={styles.taskInfo}>
                 <Text style={styles.taskTitle} numberOfLines={2}>

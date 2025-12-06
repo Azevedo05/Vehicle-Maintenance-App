@@ -25,12 +25,12 @@ export const AnimatedItem = ({
   const translateY = useSharedValue(20);
 
   useEffect(() => {
-    const totalDelay = delay + index * 100; // Stagger by 100ms per item
+    const totalDelay = Math.min(index * 50, 300); // Stagger by 50ms, max 300ms delay
 
-    opacity.value = withDelay(totalDelay, withTiming(1, { duration: 500 }));
+    opacity.value = withDelay(totalDelay, withTiming(1, { duration: 300 }));
     translateY.value = withDelay(
       totalDelay,
-      withSpring(0, { damping: 25, stiffness: 250 })
+      withSpring(0, { damping: 20, stiffness: 300 })
     );
   }, [delay, index]);
 

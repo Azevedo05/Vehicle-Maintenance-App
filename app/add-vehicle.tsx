@@ -1,6 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { router, Stack } from "expo-router";
-import { Camera, X, Check } from "lucide-react-native";
+import { Camera, X, Check, Images } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
@@ -47,6 +48,7 @@ export default function AddVehicleScreen() {
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
 
   const { validate, errors, touched, handleBlur, rules } = useFormValidation({
     make,
@@ -57,10 +59,22 @@ export default function AddVehicleScreen() {
   });
   const styles = createStyles(colors);
 
-  const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  const handleImageSelection = () => {
+    setShowPhotoOptions(true);
+  };
 
-    if (status !== "granted") {
+  const pickImage = async (source: "camera" | "library") => {
+    setShowPhotoOptions(false);
+    let permissionResult;
+
+    if (source === "camera") {
+      permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    } else {
+      permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+    }
+
+    if (permissionResult.status !== "granted") {
       showAlert({
         title: t("vehicles.permission_needed"),
         message: t("vehicles.permission_text"),
@@ -68,12 +82,19 @@ export default function AddVehicleScreen() {
       return;
     }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
+    let result;
+    const options: ImagePicker.ImagePickerOptions = {
       mediaTypes: ["images"],
       allowsEditing: true,
       aspect: [4, 3],
       quality: 0.8,
-    });
+    };
+
+    if (source === "camera") {
+      result = await ImagePicker.launchCameraAsync(options);
+    } else {
+      result = await ImagePicker.launchImageLibraryAsync(options);
+    }
 
     if (!result.canceled) {
       setPhoto(result.assets[0].uri);
@@ -145,6 +166,7 @@ export default function AddVehicleScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["bottom"]}>
+      {/* ... (Stack.Screen and SuccessAnimation) ... */}
       <Stack.Screen
         options={{
           title: t("vehicles.add_vehicle"),
@@ -177,7 +199,7 @@ export default function AddVehicleScreen() {
         >
           <TouchableOpacity
             style={styles.photoSection}
-            onPress={pickImage}
+            onPress={handleImageSelection}
             activeOpacity={0.7}
           >
             {photo ? (
@@ -199,7 +221,7 @@ export default function AddVehicleScreen() {
               </View>
             ) : (
               <View style={styles.photoPlaceholder}>
-                <Camera size={32} color={colors.textSecondary} />
+                <Camera size={48} color={colors.textSecondary} />
                 <Text style={styles.photoPlaceholderText}>
                   {t("vehicles.add_photo")}
                 </Text>
@@ -208,6 +230,7 @@ export default function AddVehicleScreen() {
           </TouchableOpacity>
 
           <View style={styles.form}>
+            {/* ... form inputs ... */}
             <Input
               label={t("vehicles.make")}
               value={make}
@@ -323,6 +346,59 @@ export default function AddVehicleScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      <Modal
+        transparent
+        visible={showPhotoOptions}
+        animationType="fade"
+        onRequestClose={() => setShowPhotoOptions(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowPhotoOptions(false)}
+        >
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              {t("vehicles.choose_photo_source")}
+            </Text>
+
+            <View style={styles.modalOptions}>
+              <TouchableOpacity
+                style={styles.modalOption}
+                onPress={() => pickImage("camera")}
+                activeOpacity={0.7}
+              >
+                <View style={styles.modalIconContainer}>
+                  <Camera size={28} color={colors.primary} />
+                </View>
+                <Text style={styles.modalOptionText}>
+                  {t("vehicles.camera")}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.modalOption}
+                onPress={() => pickImage("library")}
+                activeOpacity={0.7}
+              >
+                <View style={styles.modalIconContainer}>
+                  <Images size={28} color={colors.primary} />
+                </View>
+                <Text style={styles.modalOptionText}>
+                  {t("vehicles.gallery")}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={styles.modalCancelButton}
+              onPress={() => setShowPhotoOptions(false)}
+            >
+              <Text style={styles.modalCancelText}>{t("common.cancel")}</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -345,43 +421,46 @@ const createStyles = (colors: any) =>
     photoSection: {
       alignItems: "center",
       marginBottom: 24,
+      width: "100%",
     },
     photoContainer: {
       position: "relative" as const,
+      width: "100%",
+      aspectRatio: 16 / 9,
     },
     photo: {
-      width: 200,
-      height: 150,
-      borderRadius: 12,
+      width: "100%",
+      height: "100%",
+      borderRadius: 16,
       backgroundColor: colors.border,
     },
     removePhotoButton: {
       position: "absolute" as const,
-      top: 8,
-      right: 8,
-      width: 32,
-      height: 32,
-      borderRadius: 16,
+      top: 12,
+      right: 12,
+      width: 36,
+      height: 36,
+      borderRadius: 18,
       backgroundColor: "rgba(0, 0, 0, 0.6)",
       justifyContent: "center" as const,
       alignItems: "center" as const,
     },
     photoPlaceholder: {
-      width: 200,
-      height: 150,
-      borderRadius: 12,
+      width: "100%",
+      aspectRatio: 16 / 9,
+      borderRadius: 16,
       backgroundColor: colors.surface,
       borderWidth: 2,
       borderColor: colors.border,
       borderStyle: "dashed" as const,
       justifyContent: "center" as const,
       alignItems: "center" as const,
+      gap: 12,
     },
     photoPlaceholderText: {
-      marginTop: 8,
-      fontSize: 14,
+      fontSize: 16,
       color: colors.textSecondary,
-      fontWeight: "500" as const,
+      fontWeight: "600" as const,
     },
     form: {
       gap: 16,
@@ -415,5 +494,69 @@ const createStyles = (colors: any) =>
     },
     categoryChip: {
       width: "47%",
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
+    },
+    modalContent: {
+      backgroundColor: colors.card,
+      borderRadius: 24,
+      padding: 24,
+      width: "100%",
+      maxWidth: 340,
+      gap: 24,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 16,
+      elevation: 10,
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+      color: colors.text,
+      textAlign: "center",
+      marginBottom: 8,
+    },
+    modalOptions: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      gap: 16,
+    },
+    modalOption: {
+      alignItems: "center",
+      gap: 12,
+      padding: 16,
+      borderRadius: 16,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      minWidth: 110,
+    },
+    modalIconContainer: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: colors.primary + "15",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    modalOptionText: {
+      fontSize: 15,
+      fontWeight: "600",
+      color: colors.text,
+    },
+    modalCancelButton: {
+      paddingVertical: 12,
+      alignItems: "center",
+    },
+    modalCancelText: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.error,
     },
   });

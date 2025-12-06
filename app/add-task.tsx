@@ -376,33 +376,30 @@ export default function AddTaskScreen() {
               </View>
             </View>
 
-            {isRecurring && (
-              <View style={styles.infoCard}>
-                <View
-                  style={[
-                    styles.iconContainer,
-                    { backgroundColor: colors.primary + "15" },
-                  ]}
-                >
-                  <Calendar size={20} color={colors.primary} />
-                </View>
-                <View style={styles.textContainer}>
-                  <Text style={[styles.cardTitle, { color: colors.primary }]}>
-                    {t("maintenance.next_maintenance")}
-                  </Text>
-                  <Text style={styles.cardText}>
-                    {intervalType === "mileage"
-                      ? t("maintenance.at_mileage", {
-                          mileage: (
-                            parseInt(lastMileage) +
-                            parseInt(intervalValue || "0")
-                          ).toLocaleString(),
-                        })
-                      : t("maintenance.in_days", { days: intervalValue })}
-                  </Text>
-                </View>
+            <View style={styles.infoCard}>
+              <View
+                style={[
+                  styles.iconContainer,
+                  { backgroundColor: colors.primary + "15" },
+                ]}
+              >
+                <Calendar size={20} color={colors.primary} />
               </View>
-            )}
+              <View style={styles.textContainer}>
+                <Text style={[styles.cardTitle, { color: colors.primary }]}>
+                  {t("maintenance.next_maintenance")}
+                </Text>
+                <Text style={styles.cardText}>
+                  {intervalType === "mileage"
+                    ? t("maintenance.at_mileage", {
+                        mileage: (
+                          parseInt(lastMileage) + parseInt(intervalValue || "0")
+                        ).toLocaleString(),
+                      })
+                    : t("maintenance.in_days", { days: intervalValue })}
+                </Text>
+              </View>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
