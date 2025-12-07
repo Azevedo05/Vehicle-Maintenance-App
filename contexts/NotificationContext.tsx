@@ -2,7 +2,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import createContextHook from "@nkzw/create-context-hook";
 import { useCallback, useEffect, useState } from "react";
+import { Platform } from "react-native";
 import { MaintenanceType } from "@/types/maintenance";
+import { useLocalization } from "@/contexts/LocalizationContext";
+import { usePreferences } from "@/contexts/PreferencesContext";
 
 const NOTIFICATION_STORAGE_KEY = "@notifications_enabled";
 
@@ -19,13 +22,15 @@ Notifications.setNotificationHandler({
 
 export const [NotificationProvider, useNotifications] = createContextHook(
   () => {
+    const { t } = useLocalization();
+    const { notificationSettings } = usePreferences();
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
     const [permissionGranted, setPermissionGranted] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
       loadSettings();
-      checkPermissions();
+      setupNotifications();
 
       // Listen for received notifications (foreground)
       const receivedSubscription =
@@ -46,6 +51,18 @@ export const [NotificationProvider, useNotifications] = createContextHook(
         responseSubscription.remove();
       };
     }, []);
+
+    const setupNotifications = async () => {
+      if (Platform.OS === "android") {
+        await Notifications.setNotificationChannelAsync("default", {
+          name: "default",
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: "#FF231F7C",
+        });
+      }
+      checkPermissions();
+    };
 
     const loadSettings = async () => {
       try {
@@ -140,18 +157,25 @@ export const [NotificationProvider, useNotifications] = createContextHook(
           if (daysUntil < 0) {
             // Notification for overdue tasks - sent at 9 AM today
             const overdueDate = new Date();
-            if (now.getHours() >= 9) {
-              overdueDate.setDate(overdueDate.getDate() + 1); // Tomorrow at 9 AM
+            if (now.getHours() >= notificationSettings.notificationTime) {
+              overdueDate.setDate(overdueDate.getDate() + 1); // Tomorrow at scheduled time
             }
-            overdueDate.setHours(9, 0, 0, 0);
+            overdueDate.setHours(
+              notificationSettings.notificationTime,
+              0,
+              0,
+              0
+            );
 
             await Notifications.scheduleNotificationAsync({
               identifier: `${taskId}_overdue`,
               content: {
-                title: "Manutenção Atrasada",
-                body: `${taskTitle} para ${vehicleName} está atrasada há ${Math.abs(
-                  daysUntil
-                )} dias!`,
+                title: t("notifications.maintenance_overdue_title"),
+                body: t("notifications.maintenance_overdue_body", {
+                  taskTitle,
+                  vehicleName,
+                  days: Math.abs(daysUntil),
+                }),
                 data: { taskId, vehicleName, type: "overdue" },
                 sound: true,
               },
@@ -191,7 +215,12 @@ export const [NotificationProvider, useNotifications] = createContextHook(
             for (const interval of intervalsToSchedule) {
               const reminderDate = new Date(dueDate);
               reminderDate.setDate(reminderDate.getDate() + interval);
-              reminderDate.setHours(9, 0, 0, 0);
+              reminderDate.setHours(
+                notificationSettings.notificationTime,
+                0,
+                0,
+                0
+              );
 
               // Only schedule if it's in the future
               if (reminderDate.getTime() > now.getTime()) {
@@ -216,16 +245,19 @@ export const [NotificationProvider, useNotifications] = createContextHook(
               }
             }
           } else if (daysUntil === 0) {
-            // Today - notify at 9 AM if not passed yet
+            // Today - notify at scheduled time if not passed yet
             const todayDate = new Date();
-            todayDate.setHours(9, 0, 0, 0);
+            todayDate.setHours(notificationSettings.notificationTime, 0, 0, 0);
 
             if (now.getTime() < todayDate.getTime()) {
               await Notifications.scheduleNotificationAsync({
                 identifier: `${taskId}_today`,
                 content: {
-                  title: "Manutenção Hoje",
-                  body: `${taskTitle} para ${vehicleName} deve ser feita hoje!`,
+                  title: t("notifications.maintenance_today_title"),
+                  body: t("notifications.maintenance_today_body", {
+                    taskTitle,
+                    vehicleName,
+                  }),
                   data: { taskId, vehicleName, type: "today" },
                   sound: true,
                 },
@@ -242,14 +274,22 @@ export const [NotificationProvider, useNotifications] = createContextHook(
             if (daysUntil >= 7) {
               const sevenDayDate = new Date();
               sevenDayDate.setDate(sevenDayDate.getDate() + daysUntil - 7);
-              sevenDayDate.setHours(9, 0, 0, 0);
+              sevenDayDate.setHours(
+                notificationSettings.notificationTime,
+                0,
+                0,
+                0
+              );
 
               if (sevenDayDate.getTime() > now.getTime()) {
                 await Notifications.scheduleNotificationAsync({
                   identifier: `${taskId}_7d`,
                   content: {
-                    title: "Lembrete de Manutenção",
-                    body: `${taskTitle} para ${vehicleName} em 7 dias`,
+                    title: t("notifications.maintenance_reminder_title"),
+                    body: t("notifications.maintenance_7days_body", {
+                      taskTitle,
+                      vehicleName,
+                    }),
                     data: { taskId, vehicleName, type: "7days" },
                     sound: true,
                   },
@@ -265,14 +305,22 @@ export const [NotificationProvider, useNotifications] = createContextHook(
             if (daysUntil >= 3) {
               const threeDayDate = new Date();
               threeDayDate.setDate(threeDayDate.getDate() + daysUntil - 3);
-              threeDayDate.setHours(9, 0, 0, 0);
+              threeDayDate.setHours(
+                notificationSettings.notificationTime,
+                0,
+                0,
+                0
+              );
 
               if (threeDayDate.getTime() > now.getTime()) {
                 await Notifications.scheduleNotificationAsync({
                   identifier: `${taskId}_3d`,
                   content: {
-                    title: "Manutenção Próxima",
-                    body: `${taskTitle} para ${vehicleName} em 3 dias`,
+                    title: t("notifications.maintenance_3days_title"),
+                    body: t("notifications.maintenance_3days_body", {
+                      taskTitle,
+                      vehicleName,
+                    }),
                     data: { taskId, vehicleName, type: "3days" },
                     sound: true,
                   },
@@ -288,14 +336,22 @@ export const [NotificationProvider, useNotifications] = createContextHook(
             if (daysUntil >= 1) {
               const oneDayDate = new Date();
               oneDayDate.setDate(oneDayDate.getDate() + daysUntil - 1);
-              oneDayDate.setHours(9, 0, 0, 0);
+              oneDayDate.setHours(
+                notificationSettings.notificationTime,
+                0,
+                0,
+                0
+              );
 
               if (oneDayDate.getTime() > now.getTime()) {
                 await Notifications.scheduleNotificationAsync({
                   identifier: `${taskId}_1d`,
                   content: {
-                    title: "Manutenção Amanhã",
-                    body: `Não se esqueça: ${taskTitle} para ${vehicleName} é amanhã!`,
+                    title: t("notifications.maintenance_tomorrow_title"),
+                    body: t("notifications.maintenance_tomorrow_body", {
+                      taskTitle,
+                      vehicleName,
+                    }),
                     data: { taskId, vehicleName, type: "1day" },
                     sound: true,
                   },
@@ -381,8 +437,8 @@ export const [NotificationProvider, useNotifications] = createContextHook(
           await Notifications.scheduleNotificationAsync({
             identifier: `${taskId}_snoozed`,
             content: {
-              title: "Lembrete Adiado",
-              body: `${taskTitle} para ${vehicleName}`,
+              title: t("notifications.snoozed_title"),
+              body: `${taskTitle} - ${vehicleName}`,
               data: { taskId, vehicleName, type: "snoozed", maintenanceType },
               sound: getSoundForType(maintenanceType),
             },

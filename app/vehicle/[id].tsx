@@ -24,6 +24,7 @@ import { VehicleHeader } from "@/components/vehicle-details/VehicleHeader";
 import { MaintenanceOverview } from "@/components/vehicle-details/MaintenanceOverview";
 import { MaintenanceHistory } from "@/components/vehicle-details/MaintenanceHistory";
 import { FuelLogSection } from "@/components/vehicle-details/FuelLogSection";
+import { QuickReminders } from "@/components/vehicle-details/QuickReminders";
 
 export default function VehicleDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -182,6 +183,9 @@ export default function VehicleDetailScreen() {
           <View style={styles.curvedCard}>
             {/* Vehicle Info inside curved card */}
             <VehicleHeader vehicle={vehicle} />
+
+            {/* Quick Reminders "Nagging" Section */}
+            <QuickReminders vehicleId={vehicleId} />
 
             {/* Maintenance sections */}
             <MaintenanceOverview vehicleId={vehicleId} />

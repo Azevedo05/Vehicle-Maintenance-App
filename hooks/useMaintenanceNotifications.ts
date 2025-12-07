@@ -12,48 +12,60 @@ export function useMaintenanceNotifications() {
   const { scheduleMaintenanceNotification, notificationsEnabled } =
     useNotifications();
   const { notificationSettings } = usePreferences();
-  const { tasks, vehicles } = useVehicles();
+  const { tasks, vehicles, isLoading: isVehiclesLoading } = useVehicles();
 
   useEffect(() => {
-    if (!notificationsEnabled) {
+    if (!notificationsEnabled || isVehiclesLoading) {
       return;
     }
 
-    const scheduleNotificationsForTasks = async () => {
-      for (const task of tasks) {
-        if (task.isCompleted) {
-          continue;
+    // Defer execution to avoid blocking startup/navigation
+    const timer = setTimeout(() => {
+      const scheduleNotificationsForTasks = async () => {
+        try {
+          const promises = tasks.map(async (task) => {
+            if (task.isCompleted) {
+              return;
+            }
+
+            const vehicle = vehicles.find((v) => v.id === task.vehicleId);
+            if (!vehicle) {
+              return;
+            }
+
+            const vehicleName = `${vehicle.make} ${vehicle.model}`;
+
+            if (task.intervalType === "date" && task.nextDueDate) {
+              const daysUntil = Math.ceil(
+                (new Date(task.nextDueDate).getTime() - Date.now()) /
+                  (1000 * 60 * 60 * 24)
+              );
+              await scheduleMaintenanceNotification(
+                task.id,
+                task.title,
+                vehicleName,
+                daysUntil,
+                notificationSettings.overdueIntervals,
+                notificationSettings.overdueFrequency
+              );
+            }
+          });
+
+          await Promise.all(promises);
+        } catch (error) {
+          console.error("Error scheduling notifications:", error);
         }
+      };
 
-        const vehicle = vehicles.find((v) => v.id === task.vehicleId);
-        if (!vehicle) {
-          continue;
-        }
+      scheduleNotificationsForTasks();
+    }, 2000); // 2 second delay to let app settle
 
-        const vehicleName = `${vehicle.make} ${vehicle.model}`;
-
-        if (task.intervalType === "date" && task.nextDueDate) {
-          const daysUntil = Math.ceil(
-            (new Date(task.nextDueDate).getTime() - Date.now()) /
-              (1000 * 60 * 60 * 24)
-          );
-          await scheduleMaintenanceNotification(
-            task.id,
-            task.title,
-            vehicleName,
-            daysUntil,
-            notificationSettings.overdueIntervals,
-            notificationSettings.overdueFrequency
-          );
-        }
-      }
-    };
-
-    scheduleNotificationsForTasks();
+    return () => clearTimeout(timer);
   }, [
     tasks,
     vehicles,
     notificationsEnabled,
+    isVehiclesLoading,
     scheduleMaintenanceNotification,
     notificationSettings,
   ]);

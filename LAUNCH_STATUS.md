@@ -50,6 +50,8 @@
 - [x] **License Plate API**: Research APIs to fetch vehicle details from license plate (Portugal/EU focus). See [Research Results](research/license_plate_apis.md) and [Free Options Analysis](research/free_license_plate_options.md).
 - [ ] **Gemini AI Integration**: Implement Google Gemini API for AI-powered assistance within the app.
 
-## 8. New Page 
+## 8. New Page
 
-- [ ] **Quick Reminders & Nagging**: Implement a "To-Do" list for small checks (Oil, Tires) with frequent local notifications (e.g., "Remind me every 2h") to ensure they get done.
+- [x] **Quick Reminders & Nagging**: Implement a "To-Do" list for small checks (Oil, Tires) with frequent local notifications (e.g., "Remind me every 2h") to ensure they get done.
+- [x] **Review Visuals**: Review and refine the visual design of Quick Reminder cards.
+- [x] **UI Component Library**: Implement `react-native-paper` to modernize vehicle cards and other components in the vehicle list.

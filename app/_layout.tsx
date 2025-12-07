@@ -3,6 +3,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { PaperProvider } from "react-native-paper";
 
 import { AnimatedSplashScreen } from "@/components/AnimatedSplashScreen";
 
@@ -125,22 +126,24 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <LocalizationProvider>
         <ThemeProvider>
-          <PreferencesProvider>
-            <NotificationProvider>
-              <VehicleProvider>
-                <AlertProvider>
-                  <GestureHandlerRootView style={{ flex: 1 }}>
-                    {!isSplashAnimationFinished && (
-                      <AnimatedSplashScreen
-                        onFinish={() => setSplashAnimationFinished(true)}
-                      />
-                    )}
-                    <RootLayoutNav />
-                  </GestureHandlerRootView>
-                </AlertProvider>
-              </VehicleProvider>
-            </NotificationProvider>
-          </PreferencesProvider>
+          <PaperProvider>
+            <PreferencesProvider>
+              <NotificationProvider>
+                <VehicleProvider>
+                  <AlertProvider>
+                    <GestureHandlerRootView style={{ flex: 1 }}>
+                      {!isSplashAnimationFinished && (
+                        <AnimatedSplashScreen
+                          onFinish={() => setSplashAnimationFinished(true)}
+                        />
+                      )}
+                      <RootLayoutNav />
+                    </GestureHandlerRootView>
+                  </AlertProvider>
+                </VehicleProvider>
+              </NotificationProvider>
+            </PreferencesProvider>
+          </PaperProvider>
         </ThemeProvider>
       </LocalizationProvider>
     </QueryClientProvider>

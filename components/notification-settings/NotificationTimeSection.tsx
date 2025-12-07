@@ -4,6 +4,7 @@ import { Clock } from "lucide-react-native";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { createNotificationSettingsStyles } from "./NotificationSettingsStyles";
+import { TimePicker } from "@/components/ui/TimePicker";
 
 interface NotificationTimeSectionProps {
   selectedTime: number;
@@ -17,13 +18,30 @@ export const NotificationTimeSection = ({
   const { colors } = useTheme();
   const { t } = useLocalization();
   const styles = createNotificationSettingsStyles(colors);
+  // Convert current hour (number) to Date for TimePicker
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [tempDate, setTempDate] = useState(() => {
+    const d = new Date();
+    d.setHours(Math.floor(selectedTime), (selectedTime % 1) * 60, 0, 0);
+    return d;
+  });
 
-  const formatTime = (hour: number) => {
-    return `${hour.toString().padStart(2, "0")}:00`;
+  const handleTimeChange = (date: Date) => {
+    setTempDate(date);
+    // We can update immediately or wait for save?
+    // The prop onTimeChange expects a number (hour).
+    // If we want to support minutes, we might need to send hour + minute/60.
+    // For now, let's assume we want to support minutes if the user is using the specific picker.
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    onTimeChange(hours + minutes / 60);
   };
 
-  const hours = Array.from({ length: 24 }, (_, i) => i);
+  const formatTime = (time: number) => {
+    const h = Math.floor(time);
+    const m = Math.round((time - h) * 60);
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+  };
 
   return (
     <>
@@ -40,7 +58,13 @@ export const NotificationTimeSection = ({
 
         <TouchableOpacity
           style={styles.timePickerButton}
-          onPress={() => setShowTimePicker(true)}
+          onPress={() => {
+            // Reset temp date to current selectedTime
+            const d = new Date();
+            d.setHours(Math.floor(selectedTime), (selectedTime % 1) * 60, 0, 0);
+            setTempDate(d);
+            setShowTimePicker(true);
+          }}
         >
           <Clock size={24} color={colors.primary} />
           <Text style={styles.timePickerText}>{formatTime(selectedTime)}</Text>
@@ -63,41 +87,40 @@ export const NotificationTimeSection = ({
               {t("settings.select_notification_time")}
             </Text>
 
-            <FlatList
-              data={hours}
-              keyExtractor={(item) => item.toString()}
-              style={styles.timeList}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.timeListItem,
-                    selectedTime === item && styles.timeListItemActive,
-                  ]}
-                  onPress={() => {
-                    onTimeChange(item);
-                    setShowTimePicker(false);
+            {/* Reusing the TimePicker from QuickReminders */}
+            <TimePicker value={tempDate} onChange={setTempDate} />
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "flex-end",
+                marginTop: 20,
+                gap: 15,
+              }}
+            >
+              <TouchableOpacity onPress={() => setShowTimePicker(false)}>
+                <Text style={{ color: colors.textSecondary, fontSize: 16 }}>
+                  {t("common.cancel")}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  handleTimeChange(tempDate);
+                  setShowTimePicker(false);
+                }}
+              >
+                <Text
+                  style={{
+                    color: colors.primary,
+                    fontSize: 16,
+                    fontWeight: "bold",
                   }}
                 >
-                  <Text
-                    style={[
-                      styles.timeListItemText,
-                      selectedTime === item && styles.timeListItemTextActive,
-                    ]}
-                  >
-                    {formatTime(item)}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            />
-
-            <TouchableOpacity
-              style={styles.timePickerCancelButton}
-              onPress={() => setShowTimePicker(false)}
-            >
-              <Text style={styles.timePickerCancelButtonText}>
-                {t("common.cancel")}
-              </Text>
-            </TouchableOpacity>
+                  {t("common.confirm")}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>

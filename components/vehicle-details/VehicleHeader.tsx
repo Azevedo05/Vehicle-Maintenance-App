@@ -157,15 +157,17 @@ const createStyles = (colors: any) =>
       flexWrap: "wrap",
     },
     yearBadge: {
-      backgroundColor: colors.primary,
+      backgroundColor: colors.surface,
       borderRadius: 50,
       paddingHorizontal: 14,
       paddingVertical: 6,
+      borderWidth: 1,
+      borderColor: colors.border,
     },
     yearBadgeText: {
       fontSize: 13,
-      color: "#FFFFFF",
-      fontWeight: "700",
+      color: colors.textSecondary,
+      fontWeight: "600",
     },
     pillBadge: {
       backgroundColor: colors.surface,
