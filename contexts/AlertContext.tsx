@@ -14,6 +14,8 @@ import {
   Animated,
   Easing,
   PanResponder,
+  Alert,
+  Platform,
 } from "react-native";
 import { BlurView } from "expo-blur";
 
@@ -78,6 +80,19 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({
         config.buttons && config.buttons.length > 0
           ? config.buttons
           : [{ text: t("common.ok") }];
+
+      if (Platform.OS === "ios") {
+        Alert.alert(
+          config.title,
+          config.message,
+          buttons.map((btn) => ({
+            text: btn.text,
+            onPress: btn.onPress,
+            style: btn.style,
+          }))
+        );
+        return;
+      }
 
       setCurrent({ ...config, buttons });
       setVisible(true);

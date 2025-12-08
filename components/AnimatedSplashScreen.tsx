@@ -103,7 +103,7 @@ export const AnimatedSplashScreen = ({
       <View style={styles.overlay}>
         <View style={styles.titleContainer}>
           <Animated.Image
-            source={require("@/assets/splash-title.png")}
+            source={require("@/assets/images/splash-title.png")}
             style={[
               styles.appLogo,
               {

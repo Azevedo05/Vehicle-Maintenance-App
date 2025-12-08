@@ -58,7 +58,6 @@ export const createStyles = (colors: any) =>
     },
     vehicleCard: {
       flexDirection: "column",
-      overflow: "hidden",
     },
     vehicleImage: {
       width: "100%",

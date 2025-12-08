@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Check, Trash2 } from "lucide-react-native";
@@ -199,29 +200,37 @@ export default function AddFuelLogScreen() {
       <Stack.Screen
         options={{
           title: isEditing ? t("fuel.edit_log") : t("fuel.add_log"),
-          headerRight: () =>
-            isSubmitting ? (
-              <ActivityIndicator color={colors.primary} />
-            ) : (
-              <View
-                style={{ flexDirection: "row", gap: 16, alignItems: "center" }}
-              >
-                <TouchableOpacity
-                  onPress={handleSubmit}
-                  disabled={isSubmitting}
-                >
-                  <Check size={20} color={colors.primary} />
-                </TouchableOpacity>
-                {isEditing && (
+          headerRight: () => (
+            <View
+              style={{
+                flexDirection: "row",
+                gap: 16,
+                alignItems: "center",
+                marginRight: Platform.OS === "ios" ? -16 : 0,
+              }}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator color={colors.primary} />
+              ) : (
+                <>
                   <TouchableOpacity
-                    onPress={handleDelete}
+                    onPress={handleSubmit}
                     disabled={isSubmitting}
                   >
-                    <Trash2 size={20} color={colors.error} />
+                    <Check size={20} color={colors.primary} />
                   </TouchableOpacity>
-                )}
-              </View>
-            ),
+                  {isEditing && (
+                    <TouchableOpacity
+                      onPress={handleDelete}
+                      disabled={isSubmitting}
+                    >
+                      <Trash2 size={20} color={colors.error} />
+                    </TouchableOpacity>
+                  )}
+                </>
+              )}
+            </View>
+          ),
         }}
       />
       <SuccessAnimation

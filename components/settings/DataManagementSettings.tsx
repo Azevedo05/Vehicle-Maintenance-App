@@ -273,21 +273,6 @@ export const DataManagementSettings = () => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.optionButton}
-            onPress={handleLoadSampleData}
-            activeOpacity={0.7}
-          >
-            <Car size={20} color={colors.text} />
-            <View style={styles.notificationContent}>
-              <Text style={styles.optionText}>{t("settings.load_sample")}</Text>
-              <Text style={styles.optionDescription}>
-                {t("settings.load_sample_description")}
-              </Text>
-            </View>
-            <ChevronRight size={20} color={colors.textSecondary} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
             style={[styles.optionButton, styles.optionButtonLast]}
             onPress={handleClearData}
             activeOpacity={0.7}

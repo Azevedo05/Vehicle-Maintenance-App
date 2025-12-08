@@ -55,3 +55,18 @@
 - [x] **Quick Reminders & Nagging**: Implement a "To-Do" list for small checks (Oil, Tires) with frequent local notifications (e.g., "Remind me every 2h") to ensure they get done.
 - [x] **Review Visuals**: Review and refine the visual design of Quick Reminder cards.
 - [x] **UI Component Library**: Implement `react-native-paper` to modernize vehicle cards and other components in the vehicle list.
+
+## 9.
+
+- [x] **Feed the app with data**: Update the data with a few vehicles and maintenance tasks to ensure the app works as expected.
+
+## 11. IOS Critical Fixes (Deferred to v1.1)
+
+- [ ] **Header Buttons Misalignment**: Fix "Confirm" and "Save" buttons alignment in headers.
+- [ ] **Delete Button Visibility**: Fix "Trash" icon not appearing in headers.
+- [ ] **Page Cut-off / Safe Area**: Fix "Edit Vehicle" and form pages being cut off at the top.
+- [ ] **Form Layout**: Ensure forms use correct Safe Area constraints.
+
+## 12. Version 2.0 (Planned)
+
+- [ ] **Biometric Authentication**: Add FaceID/TouchID support.

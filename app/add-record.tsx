@@ -215,7 +215,12 @@ export default function AddRecordScreen() {
         options={{
           headerRight: () => (
             <View
-              style={{ flexDirection: "row", gap: 16, alignItems: "center" }}
+              style={{
+                flexDirection: "row",
+                gap: 16,
+                alignItems: "center",
+                marginRight: Platform.OS === "ios" ? -16 : 0,
+              }}
             >
               <TouchableOpacity
                 onPress={handleSubmit}

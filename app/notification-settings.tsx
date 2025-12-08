@@ -1,7 +1,15 @@
 import { Stack, router } from "expo-router";
 import React, { useState } from "react";
-import { ScrollView, Text, TouchableOpacity } from "react-native";
+import {
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  Platform,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Check } from "lucide-react-native";
 
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
@@ -35,6 +43,7 @@ export default function NotificationSettingsScreen() {
   >(notificationSettings.overdueFrequency || "custom");
 
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const addDateInterval = (value: number) => {
     const updated = [...dateIntervals, value].sort((a, b) => b - a);
@@ -75,6 +84,7 @@ export default function NotificationSettingsScreen() {
         return;
       }
 
+      setIsSaving(true);
       await setNotificationSettings({
         notificationTime: selectedTime,
         dateIntervals,
@@ -88,6 +98,8 @@ export default function NotificationSettingsScreen() {
         title: t("common.error"),
         message: t("settings.settings_error"),
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -98,6 +110,26 @@ export default function NotificationSettingsScreen() {
           title: t("settings.notification_settings"),
           headerStyle: { backgroundColor: colors.background },
           headerTintColor: colors.text,
+          headerRight: () => (
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginRight: Platform.OS === "ios" ? 0 : -16,
+              }}
+            >
+              {isSaving ? (
+                <ActivityIndicator color={colors.primary} />
+              ) : (
+                <TouchableOpacity
+                  onPress={handleSaveSettings}
+                  disabled={isSaving}
+                >
+                  <Check size={24} color={colors.primary} />
+                </TouchableOpacity>
+              )}
+            </View>
+          ),
         }}
       />
       <SuccessAnimation
@@ -130,13 +162,6 @@ export default function NotificationSettingsScreen() {
             onAddInterval={addOverdueInterval}
             onRemoveInterval={removeOverdueInterval}
           />
-
-          <TouchableOpacity
-            style={styles.saveButton}
-            onPress={handleSaveSettings}
-          >
-            <Text style={styles.saveButtonText}>{t("common.save")}</Text>
-          </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
     </>

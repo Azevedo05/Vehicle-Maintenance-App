@@ -15,6 +15,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -121,12 +122,20 @@ export default function RecordDetailScreen() {
         options={{
           title: t("maintenance.details"),
           headerRight: () => (
-            <TouchableOpacity
-              onPress={handleDeleteRecord}
-              style={styles.headerButton}
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginRight: Platform.OS === "ios" ? -16 : 0,
+              }}
             >
-              <Trash2 size={20} color={colors.error} />
-            </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleDeleteRecord}
+                style={styles.headerButton}
+              >
+                <Trash2 size={20} color={colors.error} />
+              </TouchableOpacity>
+            </View>
           ),
         }}
       />

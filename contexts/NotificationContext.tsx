@@ -227,8 +227,12 @@ export const [NotificationProvider, useNotifications] = createContextHook(
                 await Notifications.scheduleNotificationAsync({
                   identifier: `${taskId}_overdue_${interval}d`,
                   content: {
-                    title: "Manutenção Atrasada",
-                    body: `${taskTitle} para ${vehicleName} está atrasada há ${interval} dias!`,
+                    title: t("notifications.maintenance_overdue_title"),
+                    body: t("notifications.maintenance_overdue_body", {
+                      taskTitle,
+                      vehicleName,
+                      days: interval,
+                    }),
                     data: {
                       taskId,
                       vehicleName,

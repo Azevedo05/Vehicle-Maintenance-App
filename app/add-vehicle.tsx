@@ -11,6 +11,7 @@ import {
   View,
   ActivityIndicator,
   Modal,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
@@ -170,14 +171,26 @@ export default function AddVehicleScreen() {
       <Stack.Screen
         options={{
           title: t("vehicles.add_vehicle"),
-          headerRight: () =>
-            isSubmitting ? (
-              <ActivityIndicator color={colors.primary} />
-            ) : (
-              <TouchableOpacity onPress={handleSubmit} disabled={isSubmitting}>
-                <Check size={24} color={colors.primary} />
-              </TouchableOpacity>
-            ),
+          headerRight: () => (
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginRight: Platform.OS === "ios" ? -16 : 0,
+              }}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator color={colors.primary} />
+              ) : (
+                <TouchableOpacity
+                  onPress={handleSubmit}
+                  disabled={isSubmitting}
+                >
+                  <Check size={24} color={colors.primary} />
+                </TouchableOpacity>
+              )}
+            </View>
+          ),
         }}
       />
       <SuccessAnimation

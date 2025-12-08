@@ -380,14 +380,14 @@ export default function MaintenanceScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <SafeAreaView style={styles.container} edges={["top"]}>
         <MaintenanceListSkeleton />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+    <SafeAreaView style={styles.container} edges={["top"]}>
       <FlatList
         data={listData}
         renderItem={renderTaskItem}

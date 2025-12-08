@@ -247,7 +247,7 @@ export default function VehiclesScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <SafeAreaView style={styles.container} edges={["top"]}>
         <View style={styles.scrollContent}>
           <VehicleListHeader
             showArchived={showArchived}
@@ -263,7 +263,7 @@ export default function VehiclesScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+    <SafeAreaView style={styles.container} edges={["top"]}>
       {isReorderMode ? (
         <FlatList
           data={filteredVehicles}

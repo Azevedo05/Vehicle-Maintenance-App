@@ -119,7 +119,9 @@ export const MaintenanceHistory = ({ vehicleId }: MaintenanceHistoryProps) => {
             >
               <View style={styles.recordInfo}>
                 <Text style={styles.recordTitle} numberOfLines={1}>
-                  {record.title}
+                  {record.type === "other"
+                    ? record.title
+                    : getMaintenanceTypeLabel(record.type, t)}
                 </Text>
                 <Text style={styles.recordDate} numberOfLines={1}>
                   {formatDate(record.date)} • {record.mileage.toLocaleString()}{" "}
