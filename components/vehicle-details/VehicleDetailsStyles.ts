@@ -54,54 +54,9 @@ export const createVehicleDetailsStyles = (colors: any) =>
       justifyContent: "space-between",
       borderWidth: 1,
       borderColor: colors.border,
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.05,
-      shadowRadius: 4,
-      elevation: 2,
     },
-    dueTaskCard: {
-      borderColor: colors.warning,
-      backgroundColor: colors.card,
-    },
-    inspectionOverdueCard: {
-      borderColor: colors.error,
-      backgroundColor: colors.card,
-    },
-    taskInfo: {
-      flex: 1,
-      marginRight: 12,
-    },
-    taskTitle: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: colors.text,
-      marginBottom: 4,
-    },
-    taskDue: {
-      fontSize: 14,
-      fontWeight: "500",
-    },
-    taskOverdue: {
-      color: colors.error,
-      fontWeight: "700",
-    },
-    taskScheduled: {
-      color: colors.textSecondary,
-    },
-    completeButton: {
-      backgroundColor: colors.primary + "15",
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 8,
-      borderWidth: 1,
-      borderColor: colors.primary + "30",
-    },
-    completeButtonText: {
-      color: colors.primary,
-      fontSize: 12,
-      fontWeight: "600",
-    },
+    // ... (rest unchanged)
+
     // Record/History Styles
     recordCard: {
       backgroundColor: colors.card,
@@ -114,33 +69,8 @@ export const createVehicleDetailsStyles = (colors: any) =>
       borderWidth: 1,
       borderColor: colors.border,
     },
-    recordInfo: {
-      flex: 1,
-      marginRight: 12,
-    },
-    recordTitle: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: colors.text,
-      marginBottom: 4,
-    },
-    recordDate: {
-      fontSize: 13,
-      color: colors.textSecondary,
-      marginBottom: 2,
-    },
-    recordCost: {
-      fontSize: 14,
-      fontWeight: "600",
-      color: colors.primary,
-      marginTop: 2,
-    },
-    recordNotes: {
-      fontSize: 13,
-      color: colors.textSecondary,
-      fontStyle: "italic",
-      marginTop: 4,
-    },
+    // ...
+
     // Fuel Styles
     fuelCard: {
       backgroundColor: colors.card,
@@ -163,10 +93,90 @@ export const createVehicleDetailsStyles = (colors: any) =>
       fontSize: 14,
       fontWeight: "700",
       color: colors.text,
+      marginLeft: 8,
+      flexShrink: 0,
     },
     fuelPricePerUnit: {
       fontSize: 12,
       color: colors.textSecondary,
       marginTop: 2,
+    },
+    // Common Record Styles (Used in multiple sections)
+    recordInfo: {
+      flex: 1,
+      marginRight: 12,
+    },
+    recordTitle: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.text,
+      flexShrink: 1,
+    },
+    recordDate: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginBottom: 2,
+    },
+    recordNotes: {
+      fontSize: 12,
+      color: colors.textSecondary,
+      fontStyle: "italic",
+      marginTop: 2,
+    },
+    recordCost: {
+      fontSize: 14,
+      fontWeight: "700",
+      color: colors.text,
+      marginTop: 4,
+    },
+
+    // Task Specific Styles
+    taskInfo: {
+      flex: 1,
+      marginRight: 12,
+    },
+    taskTitle: {
+      fontSize: 16,
+      fontWeight: "700",
+      color: colors.text,
+      marginBottom: 4,
+    },
+    taskDue: {
+      fontSize: 14,
+      fontWeight: "500",
+      color: colors.textSecondary,
+    },
+    taskOverdue: {
+      color: colors.error,
+      fontWeight: "700",
+    },
+    taskWarning: {
+      color: colors.warning,
+      fontWeight: "700",
+    },
+    taskScheduled: {
+      color: colors.textSecondary,
+    },
+    dueTaskCard: {
+      borderColor: colors.warning,
+      borderWidth: 1,
+    },
+    inspectionOverdueCard: {
+      borderColor: colors.error,
+      borderWidth: 1,
+      backgroundColor: colors.error + "10", // Slight reddish tint
+    },
+    completeButton: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 20,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    completeButtonText: {
+      color: "#FFFFFF",
+      fontSize: 13,
+      fontWeight: "600",
     },
   });

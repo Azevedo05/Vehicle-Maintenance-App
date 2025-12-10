@@ -25,6 +25,7 @@ import { useLocalization } from "@/contexts/LocalizationContext";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { getMaintenanceTypeLabel } from "@/types/maintenance";
 import { useAppAlert } from "@/contexts/AlertContext";
+import { ThemedBackground } from "@/components/ThemedBackground";
 
 export default function RecordDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -117,7 +118,7 @@ export default function RecordDetailScreen() {
   };
 
   return (
-    <>
+    <ThemedBackground>
       <Stack.Screen
         options={{
           title: t("maintenance.details"),
@@ -139,7 +140,10 @@ export default function RecordDetailScreen() {
           ),
         }}
       />
-      <SafeAreaView style={styles.container} edges={["bottom"]}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: "transparent" }]}
+        edges={["bottom"]}
+      >
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -227,7 +231,7 @@ export default function RecordDetailScreen() {
           </View>
         </ScrollView>
       </SafeAreaView>
-    </>
+    </ThemedBackground>
   );
 }
 

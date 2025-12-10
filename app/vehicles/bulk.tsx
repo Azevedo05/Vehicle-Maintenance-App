@@ -14,6 +14,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useVehicles } from "@/contexts/VehicleContext";
 import { useAppAlert } from "@/contexts/AlertContext";
 import { exportVehiclesByIds } from "@/utils/dataManagement";
+import { ThemedBackground } from "@/components/ThemedBackground";
 
 export default function BulkOperationsScreen() {
   const { colors } = useTheme();
@@ -147,153 +148,160 @@ export default function BulkOperationsScreen() {
   }, [vehicles]);
 
   return (
-    <SafeAreaView style={styles.container} edges={["bottom"]}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+    <ThemedBackground>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: "transparent" }]}
+        edges={["bottom"]}
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>{t("vehicles.bulk_operations")}</Text>
-          <Text style={styles.subtitle}>{t("vehicles.bulk_description")}</Text>
-        </View>
-
-        <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>{t("vehicles.total")}</Text>
-            <Text style={styles.statValue}>{stats.total}</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>{t("vehicles.active")}</Text>
-            <Text style={styles.statValue}>{stats.active}</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>
-              {t("vehicles.filter_archived")}
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.header}>
+            <Text style={styles.title}>{t("vehicles.bulk_operations")}</Text>
+            <Text style={styles.subtitle}>
+              {t("vehicles.bulk_description")}
             </Text>
-            <Text style={styles.statValue}>{stats.archived}</Text>
           </View>
-        </View>
 
-        <View style={styles.selectionBar}>
-          <Text style={styles.selectionText}>
-            {t("vehicles.selected_count", { count: selectedIds.length })}
-          </Text>
-          <View style={styles.selectionActions}>
-            <TouchableOpacity onPress={selectAll} activeOpacity={0.8}>
-              <Text style={styles.selectionActionText}>
-                {t("vehicles.select_all")}
+          <View style={styles.statsRow}>
+            <View style={styles.statCard}>
+              <Text style={styles.statLabel}>{t("vehicles.total")}</Text>
+              <Text style={styles.statValue}>{stats.total}</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statLabel}>{t("vehicles.active")}</Text>
+              <Text style={styles.statValue}>{stats.active}</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statLabel}>
+                {t("vehicles.filter_archived")}
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={deselectAll} activeOpacity={0.8}>
-              <Text style={styles.selectionActionText}>
-                {t("vehicles.deselect_all")}
-              </Text>
-            </TouchableOpacity>
+              <Text style={styles.statValue}>{stats.archived}</Text>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.listCard}>
-          {vehicles.map((vehicle) => (
-            <TouchableOpacity
-              key={vehicle.id}
-              style={[
-                styles.listItem,
-                selectedIds.includes(vehicle.id) && styles.listItemSelected,
-                vehicle.archived && styles.listItemArchived,
-              ]}
-              onPress={() => handleToggle(vehicle.id)}
-              activeOpacity={0.8}
-            >
-              <View
+          <View style={styles.selectionBar}>
+            <Text style={styles.selectionText}>
+              {t("vehicles.selected_count", { count: selectedIds.length })}
+            </Text>
+            <View style={styles.selectionActions}>
+              <TouchableOpacity onPress={selectAll} activeOpacity={0.8}>
+                <Text style={styles.selectionActionText}>
+                  {t("vehicles.select_all")}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={deselectAll} activeOpacity={0.8}>
+                <Text style={styles.selectionActionText}>
+                  {t("vehicles.deselect_all")}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.listCard}>
+            {vehicles.map((vehicle) => (
+              <TouchableOpacity
+                key={vehicle.id}
                 style={[
-                  styles.checkbox,
-                  selectedIds.includes(vehicle.id) && styles.checkboxActive,
+                  styles.listItem,
+                  selectedIds.includes(vehicle.id) && styles.listItemSelected,
+                  vehicle.archived && styles.listItemArchived,
                 ]}
+                onPress={() => handleToggle(vehicle.id)}
+                activeOpacity={0.8}
               >
-                {selectedIds.includes(vehicle.id) && (
-                  <Check size={16} color="#FFFFFF" />
-                )}
-              </View>
-              <View style={styles.itemContent}>
-                <View style={styles.itemHeader}>
-                  <Text style={styles.itemTitle} numberOfLines={1}>
-                    {vehicle.make} {vehicle.model}
-                  </Text>
-                  {vehicle.archived && (
-                    <Text style={styles.archivedTag}>
-                      {t("vehicles.archived")}
-                    </Text>
+                <View
+                  style={[
+                    styles.checkbox,
+                    selectedIds.includes(vehicle.id) && styles.checkboxActive,
+                  ]}
+                >
+                  {selectedIds.includes(vehicle.id) && (
+                    <Check size={16} color="#FFFFFF" />
                   )}
                 </View>
-                <Text style={styles.itemSubtitle} numberOfLines={1}>
-                  {vehicle.make} {vehicle.model} •{" "}
-                  {vehicle.currentMileage.toLocaleString()} km
-                </Text>
-              </View>
+                <View style={styles.itemContent}>
+                  <View style={styles.itemHeader}>
+                    <Text style={styles.itemTitle} numberOfLines={1}>
+                      {vehicle.make} {vehicle.model}
+                    </Text>
+                    {vehicle.archived && (
+                      <Text style={styles.archivedTag}>
+                        {t("vehicles.archived")}
+                      </Text>
+                    )}
+                  </View>
+                  <Text style={styles.itemSubtitle} numberOfLines={1}>
+                    {vehicle.make} {vehicle.model} •{" "}
+                    {vehicle.currentMileage.toLocaleString()} km
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <View style={styles.actionsSection}>
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                (!hasSelection || isProcessing) && styles.actionButtonDisabled,
+              ]}
+              onPress={() => handleArchive(true)}
+              disabled={!hasSelection || isProcessing}
+            >
+              <Archive size={18} color="#FFFFFF" />
+              <Text style={styles.actionButtonText}>
+                {t("vehicles.archive_selected")}
+              </Text>
             </TouchableOpacity>
-          ))}
-        </View>
 
-        <View style={styles.actionsSection}>
-          <TouchableOpacity
-            style={[
-              styles.actionButton,
-              (!hasSelection || isProcessing) && styles.actionButtonDisabled,
-            ]}
-            onPress={() => handleArchive(true)}
-            disabled={!hasSelection || isProcessing}
-          >
-            <Archive size={18} color="#FFFFFF" />
-            <Text style={styles.actionButtonText}>
-              {t("vehicles.archive_selected")}
-            </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.actionButtonSecondary,
+                (!hasSelection || isProcessing) && styles.actionButtonDisabled,
+              ]}
+              onPress={() => handleArchive(false)}
+              disabled={!hasSelection || isProcessing}
+            >
+              <Undo2 size={18} color={colors.primary} />
+              <Text style={styles.actionButtonSecondaryText}>
+                {t("vehicles.unarchive_selected")}
+              </Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[
-              styles.actionButtonSecondary,
-              (!hasSelection || isProcessing) && styles.actionButtonDisabled,
-            ]}
-            onPress={() => handleArchive(false)}
-            disabled={!hasSelection || isProcessing}
-          >
-            <Undo2 size={18} color={colors.primary} />
-            <Text style={styles.actionButtonSecondaryText}>
-              {t("vehicles.unarchive_selected")}
-            </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.actionButtonSecondary,
+                (!hasSelection || isExporting) && styles.actionButtonDisabled,
+              ]}
+              onPress={handleExport}
+              disabled={!hasSelection || isExporting}
+            >
+              <Download size={18} color={colors.primary} />
+              <Text style={styles.actionButtonSecondaryText}>
+                {t("vehicles.export_selected")}
+              </Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[
-              styles.actionButtonSecondary,
-              (!hasSelection || isExporting) && styles.actionButtonDisabled,
-            ]}
-            onPress={handleExport}
-            disabled={!hasSelection || isExporting}
-          >
-            <Download size={18} color={colors.primary} />
-            <Text style={styles.actionButtonSecondaryText}>
-              {t("vehicles.export_selected")}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.deleteButton,
-              (!hasSelection || isProcessing) && styles.actionButtonDisabled,
-            ]}
-            onPress={handleDelete}
-            disabled={!hasSelection || isProcessing}
-          >
-            <Trash2 size={18} color="#FFFFFF" />
-            <Text style={styles.deleteButtonText}>
-              {t("vehicles.delete_selected")}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+            <TouchableOpacity
+              style={[
+                styles.deleteButton,
+                (!hasSelection || isProcessing) && styles.actionButtonDisabled,
+              ]}
+              onPress={handleDelete}
+              disabled={!hasSelection || isProcessing}
+            >
+              <Trash2 size={18} color="#FFFFFF" />
+              <Text style={styles.deleteButtonText}>
+                {t("vehicles.delete_selected")}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </ThemedBackground>
   );
 }
 

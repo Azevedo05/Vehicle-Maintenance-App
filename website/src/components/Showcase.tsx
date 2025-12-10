@@ -6,21 +6,28 @@ const features = [
     description:
       "Effortlessly manage your entire fleet from a single, intuitive interface. Whether it's personal cars or work vehicles, get a comprehensive snapshot of your automotive life in seconds.",
     image: "/mockups/dashboard.jpg",
-    color: "from-blue-500/20 to-cyan-500/20",
+    color: "from-blue-600/40 to-blue-600/40",
   },
   {
     title: "Precision Vehicle Insights",
     description:
       "Dive deep into every detail. From tracking real-time mileage to managing specific fuel types, access a granular view of your vehicle's health and specifications with elegance and ease.",
     image: "/mockups/details.jpg",
-    color: "from-purple-500/20 to-indigo-500/20",
+    color: "from-purple-600/40 to-indigo-500/40",
   },
   {
     title: "Intelligent Care Reminders",
     description:
       "Shift transforms maintenance from a chore into a seamless habit. Our proactive alert system ensures you're always ahead of essential services, extending the lifespan of your investment.",
-    image: "/mockups/maintenance.jpg",
-    color: "from-emerald-500/20 to-teal-500/20",
+    image: "/mockups/customization_notifications.jpg",
+    color: "from-orange-600/40 to-amber-500/40",
+  },
+  {
+    title: "Financial Analytics & Trends",
+    description:
+      "Take control of your budget with deep insights. Visualize spending habits, track costs per kilometer, and get a clear breakdown of expenses across your entire fleet.",
+    image: "/mockups/statistics.jpg",
+    color: "from-rose-600/40 to-red-500/40",
   },
 ];
 
@@ -47,7 +54,7 @@ const FeatureItem = ({
       >
         <div className="relative z-10">
           <div
-            className={`relative w-[280px] md:w-[320px] aspect-[9/19] rounded-[0.5rem] border-[6px] border-neutral-800 bg-black overflow-hidden shadow-2xl`}
+            className={`relative w-[280px] md:w-[320px] aspect-[9/19] rounded-[0.5rem] border-[6px] border-neutral-800 bg-black overflow-hidden shadow-2xl group-hover:-translate-y-2 transition-transform duration-500`}
           >
             {/* Screen Content */}
             <img
@@ -72,7 +79,7 @@ const FeatureItem = ({
 
         {/* Elegant Atmospheric Glow */}
         <div
-          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[80%] bg-gradient-to-r ${feature.color} blur-[100px] -z-10 opacity-20`}
+          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[700px] bg-gradient-to-r ${feature.color} blur-[128px] z-0 opacity-60 rounded-[2rem]`}
         />
       </motion.div>
 
@@ -84,7 +91,7 @@ const FeatureItem = ({
         viewport={{ once: true, margin: "-20%" }}
         transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
       >
-        <h3 className="text-3xl md:text-5xl font-bold text-white mb-8 tracking-tight">
+        <h3 className="text-3xl md:text-5xl font-bold text-white mb-8 tracking-tight pb-2">
           {feature.title}
         </h3>
         <p className="text-lg md:text-xl text-neutral-400 leading-relaxed font-light">
@@ -97,7 +104,10 @@ const FeatureItem = ({
 
 export const Showcase = () => {
   return (
-    <section className="py-32 bg-black relative overflow-hidden" id="showcase">
+    <section
+      className="py-32 bg-transparent relative overflow-hidden"
+      id="showcase"
+    >
       <div className="container mx-auto px-6 md:px-12">
         <motion.div
           className="text-center mb-40"
@@ -106,7 +116,7 @@ export const Showcase = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.7, ease: "easeOut" }}
         >
-          <h2 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50 mb-8 tracking-tight">
+          <h2 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50 mb-8 tracking-tight pb-4">
             Designed for Simplicity
           </h2>
           <p className="text-xl text-neutral-400 max-w-2xl mx-auto leading-relaxed">

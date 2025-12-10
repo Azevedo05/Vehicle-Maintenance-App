@@ -25,10 +25,19 @@ export interface NotificationSettings {
   overdueFrequency: "custom" | "daily" | "weekly" | "monthly";
 }
 
+export interface VehicleLayout {
+  showQuickReminders: boolean;
+  showMaintenanceOverview: boolean;
+  showMaintenanceHistory: boolean;
+  showFuelLogs: boolean;
+}
+
 interface Preferences {
   distanceUnit: DistanceUnit;
   currency: Currency;
   notificationSettings: NotificationSettings;
+  vehicleLayout: VehicleLayout;
+  isOnboardingCompleted: boolean;
 }
 
 const PREFERENCES_STORAGE_KEY = "@preferences";
@@ -42,6 +51,13 @@ const DEFAULT_PREFERENCES: Preferences = {
     overdueIntervals: [1, 3, 7], // 1, 3, and 7 days after
     overdueFrequency: "custom",
   },
+  vehicleLayout: {
+    showQuickReminders: true,
+    showMaintenanceOverview: true,
+    showMaintenanceHistory: true,
+    showFuelLogs: true,
+  },
+  isOnboardingCompleted: false,
 };
 
 export const CURRENCY_SYMBOLS: Record<Currency, string> = {
@@ -76,6 +92,7 @@ export const [PreferencesProvider, usePreferences] = createContextHook(() => {
         const parsed = JSON.parse(stored);
         // Force distanceUnit to km for now as the feature is disabled
         parsed.distanceUnit = "km";
+
         setPreferences({ ...DEFAULT_PREFERENCES, ...parsed });
       }
     } catch (error) {
@@ -118,6 +135,10 @@ export const [PreferencesProvider, usePreferences] = createContextHook(() => {
     [preferences, savePreferences]
   );
 
+  const completeOnboarding = useCallback(async () => {
+    await savePreferences({ ...preferences, isOnboardingCompleted: true });
+  }, [preferences, savePreferences]);
+
   // Helper functions for conversion
   const convertDistance = useCallback(
     (value: number, fromUnit: DistanceUnit = "km"): number => {
@@ -148,6 +169,13 @@ export const [PreferencesProvider, usePreferences] = createContextHook(() => {
     [preferences.currency]
   );
 
+  const setVehicleLayout = useCallback(
+    async (layout: VehicleLayout) => {
+      await savePreferences({ ...preferences, vehicleLayout: layout });
+    },
+    [preferences, savePreferences]
+  );
+
   return {
     preferences,
     isLoading,
@@ -155,9 +183,13 @@ export const [PreferencesProvider, usePreferences] = createContextHook(() => {
     currency: preferences.currency,
     currencySymbol: CURRENCY_SYMBOLS[preferences.currency],
     notificationSettings: preferences.notificationSettings,
+    vehicleLayout: preferences.vehicleLayout,
+    isOnboardingCompleted: preferences.isOnboardingCompleted,
     setDistanceUnit,
     setCurrency,
     setNotificationSettings,
+    setVehicleLayout,
+    completeOnboarding,
     convertDistance,
     formatDistance,
     formatCurrency,

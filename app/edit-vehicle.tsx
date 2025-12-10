@@ -1,6 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import { Camera, X, Check } from "lucide-react-native";
+import { Camera, X, Check, Plus, Trash2 } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -21,7 +21,9 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useVehicles } from "@/contexts/VehicleContext";
 import { useAppAlert } from "@/contexts/AlertContext";
 import { VehicleCategory, VEHICLE_CATEGORY_INFO } from "@/types/vehicle";
+import Link from "expo-router"; // Unused but keeping context if needed, actually just add the import
 import MaskInput from "react-native-mask-input";
+import { ThemedBackground } from "@/components/ThemedBackground";
 
 export default function EditVehicleScreen() {
   const { id } = useLocalSearchParams();
@@ -40,6 +42,9 @@ export default function EditVehicleScreen() {
     vehicle?.currentMileage.toString() || ""
   );
   const [photo, setPhoto] = useState<string | undefined>(vehicle?.photo);
+  const [photos, setPhotos] = useState<string[]>(
+    vehicle?.photos || (vehicle?.photo ? [vehicle.photo] : [])
+  );
   const [category, setCategory] = useState<VehicleCategory | undefined>(
     vehicle?.category
   );
@@ -69,12 +74,16 @@ export default function EditVehicleScreen() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect: [16, 9],
       quality: 0.8,
     });
 
     if (!result.canceled) {
-      setPhoto(result.assets[0].uri);
+      const newUri = result.assets[0].uri;
+      setPhotos((prev) => [...prev, newUri]);
+      if (!photo) {
+        setPhoto(newUri);
+      }
     }
   };
 
@@ -124,6 +133,7 @@ export default function EditVehicleScreen() {
         licensePlate: licensePlate.trim() || undefined,
         currentMileage: mileageNum,
         photo,
+        photos,
         category,
       });
 
@@ -152,152 +162,205 @@ export default function EditVehicleScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["bottom"]}>
-      <Stack.Screen
-        options={{
-          title: t("vehicles.edit_vehicle"),
-          headerRight: () => (
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginRight: Platform.OS === "ios" ? -16 : 0,
-              }}
-            >
-              {isSubmitting ? (
-                <ActivityIndicator color={colors.primary} />
-              ) : (
-                <TouchableOpacity
-                  onPress={handleSubmit}
-                  disabled={isSubmitting}
+    <ThemedBackground>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: "transparent" }]}
+        edges={["bottom"]}
+      >
+        <Stack.Screen
+          options={{
+            title: t("vehicles.edit_vehicle"),
+            headerRight: () => (
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginRight: Platform.OS === "ios" ? -16 : 0,
+                }}
+              >
+                {isSubmitting ? (
+                  <ActivityIndicator color={colors.primary} />
+                ) : (
+                  <TouchableOpacity
+                    onPress={handleSubmit}
+                    disabled={isSubmitting}
+                  >
+                    <Check size={24} color={colors.primary} />
+                  </TouchableOpacity>
+                )}
+              </View>
+            ),
+          }}
+        />
+        <KeyboardAvoidingView
+          behavior="padding"
+          style={styles.keyboardView}
+          keyboardVerticalOffset={100}
+        >
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.photoSection}>
+              <TouchableOpacity
+                style={styles.mainPhotoContainer}
+                onPress={pickImage}
+                activeOpacity={0.7}
+              >
+                {photo ? (
+                  <View style={styles.photoWrapper}>
+                    <Image
+                      source={{ uri: photo }}
+                      style={styles.photo}
+                      contentFit="cover"
+                    />
+                    <View style={styles.mainLabel}>
+                      <Text style={styles.mainLabelText}>
+                        {t("vehicles.main_photo")}
+                      </Text>
+                    </View>
+                  </View>
+                ) : (
+                  <View style={styles.photoPlaceholder}>
+                    <Camera size={32} color={colors.textSecondary} />
+                    <Text style={styles.photoPlaceholderText}>
+                      {t("vehicles.add_photo")}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+
+              {/* Gallery Strip */}
+              {photos.length > 0 && (
+                <ScrollView
+                  horizontal
+                  style={styles.galleryScroll}
+                  contentContainerStyle={styles.galleryContent}
+                  showsHorizontalScrollIndicator={false}
                 >
-                  <Check size={24} color={colors.primary} />
-                </TouchableOpacity>
+                  {photos.map((uri, index) => (
+                    <View key={index} style={styles.galleryItemContainer}>
+                      <TouchableOpacity
+                        onPress={() => setPhoto(uri)}
+                        activeOpacity={0.7}
+                        style={[
+                          styles.galleryItem,
+                          photo === uri && styles.galleryItemSelected,
+                        ]}
+                      >
+                        <Image
+                          source={{ uri }}
+                          style={styles.galleryImage}
+                          contentFit="cover"
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.removeThumbButton}
+                        onPress={() => {
+                          const newPhotos = photos.filter((p) => p !== uri);
+                          setPhotos(newPhotos);
+                          if (photo === uri) {
+                            setPhoto(
+                              newPhotos.length > 0 ? newPhotos[0] : undefined
+                            );
+                          }
+                        }}
+                      >
+                        <X size={12} color="#FFFFFF" />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                  <TouchableOpacity
+                    style={styles.addMoreButton}
+                    onPress={pickImage}
+                  >
+                    <Plus size={24} color={colors.primary} />
+                  </TouchableOpacity>
+                </ScrollView>
               )}
             </View>
-          ),
-        }}
-      />
-      <KeyboardAvoidingView
-        behavior="padding"
-        style={styles.keyboardView}
-        keyboardVerticalOffset={100}
-      >
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
-          <TouchableOpacity
-            style={styles.photoSection}
-            onPress={pickImage}
-            activeOpacity={0.7}
-          >
-            {photo ? (
-              <View style={styles.photoContainer}>
-                <Image
-                  source={{ uri: photo }}
-                  style={styles.photo}
-                  contentFit="cover"
-                />
-                <TouchableOpacity
-                  style={styles.removePhotoButton}
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    setPhoto(undefined);
-                  }}
-                >
-                  <X size={20} color="#FFFFFF" />
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.photoPlaceholder}>
-                <Camera size={32} color={colors.textSecondary} />
-                <Text style={styles.photoPlaceholderText}>
-                  {t("vehicles.add_photo")}
+
+            <View style={styles.form}>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>
+                  {t("vehicles.make")} <Text style={styles.required}>*</Text>
                 </Text>
+                <TextInput
+                  style={styles.input}
+                  value={make}
+                  onChangeText={setMake}
+                  placeholder={t("vehicles.make_placeholder")}
+                  placeholderTextColor={colors.placeholder}
+                />
               </View>
-            )}
-          </TouchableOpacity>
 
-          <View style={styles.form}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>
-                {t("vehicles.make")} <Text style={styles.required}>*</Text>
-              </Text>
-              <TextInput
-                style={styles.input}
-                value={make}
-                onChangeText={setMake}
-                placeholder={t("vehicles.make_placeholder")}
-                placeholderTextColor={colors.placeholder}
-              />
-            </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>
+                  {t("vehicles.model")} <Text style={styles.required}>*</Text>
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  value={model}
+                  onChangeText={setModel}
+                  placeholder={t("vehicles.model_placeholder")}
+                  placeholderTextColor={colors.placeholder}
+                />
+              </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>
-                {t("vehicles.model")} <Text style={styles.required}>*</Text>
-              </Text>
-              <TextInput
-                style={styles.input}
-                value={model}
-                onChangeText={setModel}
-                placeholder={t("vehicles.model_placeholder")}
-                placeholderTextColor={colors.placeholder}
-              />
-            </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>
+                  {t("vehicles.year")} <Text style={styles.required}>*</Text>
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  value={year}
+                  onChangeText={setYear}
+                  placeholder={t("vehicles.year_placeholder")}
+                  placeholderTextColor={colors.placeholder}
+                  keyboardType="numeric"
+                />
+              </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>
-                {t("vehicles.year")} <Text style={styles.required}>*</Text>
-              </Text>
-              <TextInput
-                style={styles.input}
-                value={year}
-                onChangeText={setYear}
-                placeholder={t("vehicles.year_placeholder")}
-                placeholderTextColor={colors.placeholder}
-                keyboardType="numeric"
-              />
-            </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>{t("vehicles.license_plate")}</Text>
+                <MaskInput
+                  style={styles.input}
+                  value={licensePlate}
+                  onChangeText={(masked, unmasked) =>
+                    setLicensePlate(masked.toUpperCase())
+                  }
+                  mask={[/\w/, /\w/, "-", /\w/, /\w/, "-", /\w/, /\w/]}
+                  placeholder={t("vehicles.license_placeholder")}
+                  placeholderTextColor={colors.placeholder}
+                  autoCapitalize="characters"
+                />
+              </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>{t("vehicles.license_plate")}</Text>
-              <MaskInput
-                style={styles.input}
-                value={licensePlate}
-                onChangeText={(masked, unmasked) =>
-                  setLicensePlate(masked.toUpperCase())
-                }
-                mask={[/\w/, /\w/, "-", /\w/, /\w/, "-", /\w/, /\w/]}
-                placeholder={t("vehicles.license_placeholder")}
-                placeholderTextColor={colors.placeholder}
-                autoCapitalize="characters"
-              />
-            </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>
+                  {t("vehicles.current_mileage")} ({t("vehicles.km")}){" "}
+                  <Text style={styles.required}>*</Text>
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  value={currentMileage}
+                  onChangeText={setCurrentMileage}
+                  placeholder={t("vehicles.mileage_placeholder")}
+                  placeholderTextColor={colors.placeholder}
+                  keyboardType="numeric"
+                />
+              </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>
-                {t("vehicles.current_mileage")} ({t("vehicles.km")}){" "}
-                <Text style={styles.required}>*</Text>
-              </Text>
-              <TextInput
-                style={styles.input}
-                value={currentMileage}
-                onChangeText={setCurrentMileage}
-                placeholder={t("vehicles.mileage_placeholder")}
-                placeholderTextColor={colors.placeholder}
-                keyboardType="numeric"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>
-                {t("vehicles.category")} <Text style={styles.required}>*</Text>
-              </Text>
-              <View style={styles.categoryGrid}>
-                {(Object.keys(VEHICLE_CATEGORY_INFO) as VehicleCategory[]).map(
-                  (cat) => {
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>
+                  {t("vehicles.category")}{" "}
+                  <Text style={styles.required}>*</Text>
+                </Text>
+                <View style={styles.categoryGrid}>
+                  {(
+                    Object.keys(VEHICLE_CATEGORY_INFO) as VehicleCategory[]
+                  ).map((cat) => {
                     const info = VEHICLE_CATEGORY_INFO[cat];
                     const IconComponent = info.Icon;
                     return (
@@ -331,14 +394,14 @@ export default function EditVehicleScreen() {
                         </Text>
                       </TouchableOpacity>
                     );
-                  }
-                )}
+                  })}
+                </View>
               </View>
             </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </ThemedBackground>
   );
 }
 
@@ -370,39 +433,101 @@ const createStyles = (colors: any) =>
       padding: 16,
     },
     photoSection: {
-      alignItems: "center",
+      width: "100%",
       marginBottom: 24,
+      gap: 16,
     },
-    photoContainer: {
+    mainPhotoContainer: {
+      width: "100%",
+      aspectRatio: 16 / 9,
+      borderRadius: 16,
+      overflow: "hidden",
+    },
+    photoWrapper: {
+      width: "100%",
+      height: "100%",
       position: "relative" as const,
     },
     photo: {
-      width: 200,
-      height: 150,
-      borderRadius: 12,
+      width: "100%",
+      height: "100%",
       backgroundColor: colors.border,
     },
-    removePhotoButton: {
-      position: "absolute" as const,
-      top: 8,
-      right: 8,
-      width: 32,
-      height: 32,
-      borderRadius: 16,
-      backgroundColor: "rgba(0, 0, 0, 0.6)",
-      justifyContent: "center" as const,
-      alignItems: "center" as const,
+    mainLabel: {
+      position: "absolute",
+      bottom: 12,
+      left: 12,
+      backgroundColor: "rgba(0,0,0,0.6)",
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 8,
+    },
+    mainLabelText: {
+      color: "#FFFFFF",
+      fontSize: 12,
+      fontWeight: "600" as const,
     },
     photoPlaceholder: {
-      width: 200,
-      height: 150,
-      borderRadius: 12,
+      width: "100%",
+      height: "100%",
+      borderRadius: 16,
       backgroundColor: colors.surface,
       borderWidth: 2,
       borderColor: colors.border,
       borderStyle: "dashed" as const,
       justifyContent: "center" as const,
       alignItems: "center" as const,
+    },
+    galleryScroll: {
+      maxHeight: 110, // Increased to accommodate padding
+    },
+    galleryContent: {
+      gap: 16, // Increased gap
+      paddingHorizontal: 12, // Increased padding
+      paddingVertical: 12, // Added vertical padding for the buttons
+    },
+    galleryItemContainer: {
+      position: "relative" as const,
+    },
+    galleryItem: {
+      width: 80,
+      height: 80,
+      borderRadius: 12,
+      overflow: "hidden",
+      borderWidth: 2,
+      borderColor: colors.border,
+    },
+    galleryItemSelected: {
+      borderColor: colors.primary,
+      borderWidth: 3,
+    },
+    galleryImage: {
+      width: "100%",
+      height: "100%",
+    },
+    removeThumbButton: {
+      position: "absolute" as const,
+      top: -6,
+      right: -6,
+      backgroundColor: colors.error,
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      justifyContent: "center",
+      alignItems: "center",
+      borderWidth: 1.5,
+      borderColor: colors.background,
+    },
+    addMoreButton: {
+      width: 80,
+      height: 80,
+      borderRadius: 12,
+      backgroundColor: colors.surface,
+      borderWidth: 2,
+      borderColor: colors.border,
+      borderStyle: "dashed" as const,
+      justifyContent: "center",
+      alignItems: "center",
     },
     photoPlaceholderText: {
       marginTop: 8,

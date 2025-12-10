@@ -2,6 +2,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import createContextHook from "@nkzw/create-context-hook";
 import { useCallback, useEffect, useState } from "react";
 import { useColorScheme } from "react-native";
+import {
+  MD3LightTheme,
+  MD3DarkTheme,
+  configureFonts,
+  MD3Theme,
+} from "react-native-paper";
 
 type ThemeMode = "light" | "dark" | "system";
 type ActiveTheme = "light" | "dark";
@@ -62,6 +68,26 @@ const darkColors: Colors = {
 
 const THEME_STORAGE_KEY = "@theme_mode";
 
+// Valid Font Config for MD3
+const fontConfig = {
+  fontFamily: "Inter_400Regular", // Default font
+  displayLarge: { fontFamily: "Inter_800ExtraBold" },
+  displayMedium: { fontFamily: "Inter_800ExtraBold" },
+  displaySmall: { fontFamily: "Inter_700Bold" },
+  headlineLarge: { fontFamily: "Inter_700Bold" },
+  headlineMedium: { fontFamily: "Inter_700Bold" },
+  headlineSmall: { fontFamily: "Inter_600SemiBold" },
+  titleLarge: { fontFamily: "Inter_600SemiBold" },
+  titleMedium: { fontFamily: "Inter_600SemiBold" },
+  titleSmall: { fontFamily: "Inter_500Medium" },
+  labelLarge: { fontFamily: "Inter_600SemiBold" },
+  labelMedium: { fontFamily: "Inter_500Medium" },
+  labelSmall: { fontFamily: "Inter_500Medium" },
+  bodyLarge: { fontFamily: "Inter_400Regular" },
+  bodyMedium: { fontFamily: "Inter_400Regular" },
+  bodySmall: { fontFamily: "Inter_400Regular" },
+};
+
 export const [ThemeProvider, useTheme] = createContextHook(() => {
   const systemColorScheme = useColorScheme();
   const [themeMode, setThemeMode] = useState<ThemeMode>("system");
@@ -105,11 +131,55 @@ export const [ThemeProvider, useTheme] = createContextHook(() => {
 
   const colors = activeTheme === "dark" ? darkColors : lightColors;
 
+  // Create Paper Theme derived from our colors
+  const basePaperTheme = activeTheme === "dark" ? MD3DarkTheme : MD3LightTheme;
+
+  const paperTheme: MD3Theme = {
+    ...basePaperTheme,
+    fonts: configureFonts({ config: fontConfig }),
+    colors: {
+      ...basePaperTheme.colors,
+      primary: colors.primary,
+      onPrimary: "#FFFFFF",
+      primaryContainer: activeTheme === "dark" ? "#003366" : "#DBEAFE", // Darker blue / Light blue
+      onPrimaryContainer: activeTheme === "dark" ? "#DBEAFE" : "#003366",
+      secondary: colors.textSecondary,
+      secondaryContainer: activeTheme === "dark" ? "#333333" : "#E5E7EB",
+      onSecondaryContainer: activeTheme === "dark" ? "#E5E7EB" : "#1A1A1A",
+
+      // Tertiary: Use a neutral or complementary. Going with a cool gray/blue mix to stay consistent.
+      tertiary: activeTheme === "dark" ? "#60A5FA" : "#3B82F6",
+      onTertiary: "#FFFFFF",
+      tertiaryContainer: activeTheme === "dark" ? "#1E3A8A" : "#DBEAFE",
+      onTertiaryContainer: activeTheme === "dark" ? "#DBEAFE" : "#1E3A8A",
+
+      background: colors.background,
+      surface: colors.surface,
+      surfaceVariant: colors.card,
+      onSurface: colors.text,
+      onSurfaceVariant: colors.textSecondary,
+
+      error: colors.error,
+      onError: "#FFFFFF",
+      errorContainer: activeTheme === "dark" ? "#991B1B" : "#FEE2E2",
+      onErrorContainer: activeTheme === "dark" ? "#FEE2E2" : "#991B1B",
+
+      outline: colors.border,
+      outlineVariant: activeTheme === "dark" ? "#444447" : "#D1D5DB",
+    },
+  };
+
+  const toggleTheme = useCallback(() => {
+    saveThemeMode(activeTheme === "light" ? "dark" : "light");
+  }, [activeTheme, saveThemeMode]);
+
   return {
     themeMode,
     activeTheme,
     colors,
+    paperTheme,
     setThemeMode: saveThemeMode,
+    toggleTheme,
     isLoading,
     isDark: activeTheme === "dark",
   };

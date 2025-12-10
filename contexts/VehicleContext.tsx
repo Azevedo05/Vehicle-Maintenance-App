@@ -444,7 +444,7 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
 
           if (task.intervalType === "date" && task.nextDueDate) {
             const daysMs = task.nextDueDate - now;
-            daysUntilDue = Math.floor(daysMs / (24 * 60 * 60 * 1000));
+            daysUntilDue = Math.ceil(daysMs / (24 * 60 * 60 * 1000));
             isDue = daysUntilDue <= 7;
           } else if (task.intervalType === "mileage" && task.nextDueMileage) {
             milesUntilDue = task.nextDueMileage - vehicle.currentMileage;

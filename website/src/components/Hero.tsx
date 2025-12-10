@@ -51,27 +51,9 @@ export const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-6">
               <div className="flex flex-wrap gap-4">
-                <button
-                  className="flex items-center gap-3 rounded-lg bg-white px-6 py-3 text-black transition-transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed"
-                  disabled
-                >
-                  <svg
-                    viewBox="0 0 384 512"
-                    fill="currentColor"
-                    className="h-6 w-6"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 52.3-11.4 69.5-34.3z" />
-                  </svg>
-                  <div className="flex flex-col items-start leading-none">
-                    <span className="text-[10px] uppercase">
-                      Download on the
-                    </span>
-                    <span className="font-bold text-lg">App Store</span>
-                  </div>
-                </button>
+                {/* Google Play Button Only */}
                 <button
                   className="flex items-center gap-3 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-white transition-transform hover:scale-105 hover:bg-white/10 disabled:opacity-70 disabled:cursor-not-allowed"
                   disabled
@@ -90,9 +72,18 @@ export const Hero = () => {
                   </div>
                 </button>
               </div>
-              <p className="text-sm text-yellow-400/80 bg-yellow-400/10 px-3 py-1.5 rounded-md self-start border border-yellow-400/20 backdrop-blur-sm">
-                🚧 Coming Soon - App currently in private beta
-              </p>
+
+              {/* Consolidated Status Badge */}
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-white/10 bg-white/5 w-fit backdrop-blur-sm">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                <span className="text-xs font-medium text-gray-300">
+                  Android Private Beta{" "}
+                  <span className="text-gray-600 mx-2">|</span> iOS Coming Soon
+                </span>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -105,7 +96,7 @@ export const Hero = () => {
           className="relative order-2 lg:order-2 flex justify-center"
         >
           <div className="relative">
-            <div className="relative w-[280px] md:w-[320px] aspect-[9/19] border-[6px] border-neutral-800 rounded-[0.5rem] bg-black shadow-2xl overflow-hidden z-10">
+            <div className="relative w-[280px] md:w-[320px] aspect-[9/19] border-[6px] border-neutral-800 rounded-[0.5rem] bg-black shadow-[0_0_50px_-12px_rgba(59,130,246,0.5)] overflow-hidden z-10">
               <div className="w-full h-full bg-neutral-900">
                 <img
                   src="/hero-app.jpg"
@@ -113,11 +104,20 @@ export const Hero = () => {
                   className="w-full h-full object-cover"
                 />
               </div>
+
+              {/* Shimmer Effect */}
+              <motion.div
+                className="absolute inset-0 z-20 bg-gradient-to-tr from-transparent via-white/10 to-transparent -skew-x-12"
+                initial={{ x: "-100%" }}
+                animate={{ x: "200%" }}
+                transition={{ duration: 1.5, ease: "easeInOut", delay: 0.5 }}
+              />
+
               {/* Gloss */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
             </div>
             {/* Glow Effect behind phone */}
-            <div className="absolute -inset-4 bg-blue-500/30 blur-3xl -z-10 rounded-full opacity-50"></div>
+            <div className="absolute -inset-10 bg-blue-500/20 blur-[80px] -z-10 rounded-full opacity-40"></div>
           </div>
         </motion.div>
       </div>

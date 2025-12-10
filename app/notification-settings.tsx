@@ -20,6 +20,7 @@ import { createNotificationSettingsStyles } from "@/components/notification-sett
 import { NotificationTimeSection } from "@/components/notification-settings/NotificationTimeSection";
 import { DateIntervalsSection } from "@/components/notification-settings/DateIntervalsSection";
 import { OverdueIntervalsSection } from "@/components/notification-settings/OverdueIntervalsSection";
+import { ThemedBackground } from "@/components/ThemedBackground";
 
 export default function NotificationSettingsScreen() {
   const { colors } = useTheme();
@@ -104,7 +105,7 @@ export default function NotificationSettingsScreen() {
   };
 
   return (
-    <>
+    <ThemedBackground>
       <Stack.Screen
         options={{
           title: t("settings.notification_settings"),
@@ -115,7 +116,7 @@ export default function NotificationSettingsScreen() {
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                marginRight: Platform.OS === "ios" ? 0 : -16,
+                marginRight: Platform.OS === "ios" ? -16 : 0,
               }}
             >
               {isSaving ? (
@@ -124,6 +125,7 @@ export default function NotificationSettingsScreen() {
                 <TouchableOpacity
                   onPress={handleSaveSettings}
                   disabled={isSaving}
+                  hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
                 >
                   <Check size={24} color={colors.primary} />
                 </TouchableOpacity>
@@ -139,7 +141,10 @@ export default function NotificationSettingsScreen() {
           router.back();
         }}
       />
-      <SafeAreaView style={styles.container} edges={["bottom"]}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: "transparent" }]}
+        edges={["bottom"]}
+      >
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -164,6 +169,6 @@ export default function NotificationSettingsScreen() {
           />
         </ScrollView>
       </SafeAreaView>
-    </>
+    </ThemedBackground>
   );
 }

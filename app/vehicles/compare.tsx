@@ -15,6 +15,7 @@ import { useVehicles } from "@/contexts/VehicleContext";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { useAppAlert } from "@/contexts/AlertContext";
 import { VEHICLE_CATEGORY_INFO } from "@/types/vehicle";
+import { ThemedBackground } from "@/components/ThemedBackground";
 
 const MAX_SELECTION = 4;
 
@@ -105,174 +106,181 @@ export default function CompareVehiclesScreen() {
   });
 
   return (
-    <SafeAreaView style={styles.container} edges={["bottom"]}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+    <ThemedBackground>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: "transparent" }]}
+        edges={["bottom"]}
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>{t("vehicles.compare_vehicles")}</Text>
-          <Text style={styles.subtitle}>{t("vehicles.select_to_compare")}</Text>
-        </View>
-
-        <View style={styles.selectionInfo}>
-          <Text style={styles.selectionText}>{selectedCountLabel}</Text>
-          <TouchableOpacity
-            style={[
-              styles.clearButton,
-              selectedIds.length === 0 && styles.clearButtonDisabled,
-            ]}
-            onPress={() => setSelectedIds([])}
-            disabled={selectedIds.length === 0}
-          >
-            <Text
-              style={[
-                styles.clearButtonText,
-                selectedIds.length === 0 && styles.clearButtonTextDisabled,
-              ]}
-            >
-              {t("vehicles.clear_selection")}
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.header}>
+            <Text style={styles.title}>{t("vehicles.compare_vehicles")}</Text>
+            <Text style={styles.subtitle}>
+              {t("vehicles.select_to_compare")}
             </Text>
-          </TouchableOpacity>
-        </View>
+          </View>
 
-        <View style={styles.listCard}>
-          {vehicles.length === 0 ? (
-            <View style={styles.emptyList}>
-              <Car size={48} color={colors.placeholder} />
-              <Text style={styles.emptyListText}>
-                {t("vehicles.empty_text")}
+          <View style={styles.selectionInfo}>
+            <Text style={styles.selectionText}>{selectedCountLabel}</Text>
+            <TouchableOpacity
+              style={[
+                styles.clearButton,
+                selectedIds.length === 0 && styles.clearButtonDisabled,
+              ]}
+              onPress={() => setSelectedIds([])}
+              disabled={selectedIds.length === 0}
+            >
+              <Text
+                style={[
+                  styles.clearButtonText,
+                  selectedIds.length === 0 && styles.clearButtonTextDisabled,
+                ]}
+              >
+                {t("vehicles.clear_selection")}
               </Text>
-            </View>
-          ) : (
-            vehicles.map((vehicle) => {
-              const isSelected = selectedIds.includes(vehicle.id);
-              const categoryInfo =
-                vehicle.category && VEHICLE_CATEGORY_INFO[vehicle.category];
+            </TouchableOpacity>
+          </View>
 
-              return (
-                <TouchableOpacity
-                  key={vehicle.id}
-                  style={[
-                    styles.listItem,
-                    isSelected && styles.listItemSelected,
-                    vehicle.archived && styles.listItemArchived,
-                  ]}
-                  onPress={() => toggleSelection(vehicle.id)}
-                  activeOpacity={0.8}
-                >
-                  <View
+          <View style={styles.listCard}>
+            {vehicles.length === 0 ? (
+              <View style={styles.emptyList}>
+                <Car size={48} color={colors.placeholder} />
+                <Text style={styles.emptyListText}>
+                  {t("vehicles.empty_text")}
+                </Text>
+              </View>
+            ) : (
+              vehicles.map((vehicle) => {
+                const isSelected = selectedIds.includes(vehicle.id);
+                const categoryInfo =
+                  vehicle.category && VEHICLE_CATEGORY_INFO[vehicle.category];
+
+                return (
+                  <TouchableOpacity
+                    key={vehicle.id}
                     style={[
-                      styles.checkbox,
-                      isSelected && styles.checkboxActive,
+                      styles.listItem,
+                      isSelected && styles.listItemSelected,
+                      vehicle.archived && styles.listItemArchived,
                     ]}
+                    onPress={() => toggleSelection(vehicle.id)}
+                    activeOpacity={0.8}
                   >
-                    {isSelected && <Check size={16} color="#FFFFFF" />}
-                  </View>
-                  <View style={styles.itemInfo}>
-                    <View style={styles.itemHeader}>
-                      <Text style={styles.itemTitle} numberOfLines={1}>
-                        {vehicle.make} {vehicle.model}
+                    <View
+                      style={[
+                        styles.checkbox,
+                        isSelected && styles.checkboxActive,
+                      ]}
+                    >
+                      {isSelected && <Check size={16} color="#FFFFFF" />}
+                    </View>
+                    <View style={styles.itemInfo}>
+                      <View style={styles.itemHeader}>
+                        <Text style={styles.itemTitle} numberOfLines={1}>
+                          {vehicle.make} {vehicle.model}
+                        </Text>
+                        {vehicle.archived && (
+                          <Text style={styles.archivedTag}>
+                            {t("vehicles.archived")}
+                          </Text>
+                        )}
+                      </View>
+                      <Text style={styles.itemSubtitle} numberOfLines={1}>
+                        {vehicle.make} {vehicle.model} •{" "}
+                        {vehicle.currentMileage.toLocaleString()} km
                       </Text>
-                      {vehicle.archived && (
-                        <Text style={styles.archivedTag}>
-                          {t("vehicles.archived")}
+                      {categoryInfo && (
+                        <Text style={styles.itemCategory}>
+                          {t(`vehicles.category_${vehicle.category}`)}
                         </Text>
                       )}
                     </View>
-                    <Text style={styles.itemSubtitle} numberOfLines={1}>
-                      {vehicle.make} {vehicle.model} •{" "}
-                      {vehicle.currentMileage.toLocaleString()} km
+                  </TouchableOpacity>
+                );
+              })
+            )}
+          </View>
+
+          <View style={styles.comparisonSection}>
+            <Text style={styles.sectionTitle}>{t("vehicles.comparison")}</Text>
+
+            {comparisonData.length < 2 ? (
+              <View style={styles.comparisonEmpty}>
+                <Text style={styles.comparisonEmptyText}>
+                  {t("vehicles.select_two_prompt")}
+                </Text>
+              </View>
+            ) : (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.comparisonCards}
+              >
+                {comparisonData.map((vehicle) => (
+                  <View key={vehicle.id} style={styles.comparisonCard}>
+                    <Text style={styles.cardName} numberOfLines={1}>
+                      {vehicle.make} {vehicle.model}
                     </Text>
-                    {categoryInfo && (
-                      <Text style={styles.itemCategory}>
-                        {t(`vehicles.category_${vehicle.category}`)}
+                    <View style={styles.metricRow}>
+                      <Text style={styles.metricLabel}>
+                        {t("statistics.total_spent")}
                       </Text>
-                    )}
+                      <Text style={styles.metricValue}>
+                        {currencySymbol}
+                        {vehicle.totalSpent.toFixed(2)}
+                      </Text>
+                    </View>
+                    <View style={styles.metricRow}>
+                      <Text style={styles.metricLabel}>
+                        {t("statistics.total_maintenance")}
+                      </Text>
+                      <Text style={styles.metricValue}>
+                        {vehicle.maintenanceCount}
+                      </Text>
+                    </View>
+                    <View style={styles.metricRow}>
+                      <Text style={styles.metricLabel}>
+                        {t("vehicles.last_maintenance")}
+                      </Text>
+                      <Text style={styles.metricValue}>
+                        {formatDate(vehicle.lastMaintenance)}
+                      </Text>
+                    </View>
+                    <View style={styles.metricRow}>
+                      <Text style={styles.metricLabel}>
+                        {t("vehicles.overdue_tasks")}
+                      </Text>
+                      <Text style={styles.metricValue}>
+                        {vehicle.overdueTasks}
+                      </Text>
+                    </View>
+                    <View style={styles.metricRow}>
+                      <Text style={styles.metricLabel}>
+                        {t("vehicles.upcoming_tasks")}
+                      </Text>
+                      <Text style={styles.metricValue}>
+                        {vehicle.upcomingTasks}
+                      </Text>
+                    </View>
+                    <View style={styles.metricRow}>
+                      <Text style={styles.metricLabel}>
+                        {t("vehicles.current_mileage")}
+                      </Text>
+                      <Text style={styles.metricValue}>
+                        {vehicle.currentMileage.toLocaleString()} km
+                      </Text>
+                    </View>
                   </View>
-                </TouchableOpacity>
-              );
-            })
-          )}
-        </View>
-
-        <View style={styles.comparisonSection}>
-          <Text style={styles.sectionTitle}>{t("vehicles.comparison")}</Text>
-
-          {comparisonData.length < 2 ? (
-            <View style={styles.comparisonEmpty}>
-              <Text style={styles.comparisonEmptyText}>
-                {t("vehicles.select_two_prompt")}
-              </Text>
-            </View>
-          ) : (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.comparisonCards}
-            >
-              {comparisonData.map((vehicle) => (
-                <View key={vehicle.id} style={styles.comparisonCard}>
-                  <Text style={styles.cardName} numberOfLines={1}>
-                    {vehicle.make} {vehicle.model}
-                  </Text>
-                  <View style={styles.metricRow}>
-                    <Text style={styles.metricLabel}>
-                      {t("statistics.total_spent")}
-                    </Text>
-                    <Text style={styles.metricValue}>
-                      {currencySymbol}
-                      {vehicle.totalSpent.toFixed(2)}
-                    </Text>
-                  </View>
-                  <View style={styles.metricRow}>
-                    <Text style={styles.metricLabel}>
-                      {t("statistics.total_maintenance")}
-                    </Text>
-                    <Text style={styles.metricValue}>
-                      {vehicle.maintenanceCount}
-                    </Text>
-                  </View>
-                  <View style={styles.metricRow}>
-                    <Text style={styles.metricLabel}>
-                      {t("vehicles.last_maintenance")}
-                    </Text>
-                    <Text style={styles.metricValue}>
-                      {formatDate(vehicle.lastMaintenance)}
-                    </Text>
-                  </View>
-                  <View style={styles.metricRow}>
-                    <Text style={styles.metricLabel}>
-                      {t("vehicles.overdue_tasks")}
-                    </Text>
-                    <Text style={styles.metricValue}>
-                      {vehicle.overdueTasks}
-                    </Text>
-                  </View>
-                  <View style={styles.metricRow}>
-                    <Text style={styles.metricLabel}>
-                      {t("vehicles.upcoming_tasks")}
-                    </Text>
-                    <Text style={styles.metricValue}>
-                      {vehicle.upcomingTasks}
-                    </Text>
-                  </View>
-                  <View style={styles.metricRow}>
-                    <Text style={styles.metricLabel}>
-                      {t("vehicles.current_mileage")}
-                    </Text>
-                    <Text style={styles.metricValue}>
-                      {vehicle.currentMileage.toLocaleString()} km
-                    </Text>
-                  </View>
-                </View>
-              ))}
-            </ScrollView>
-          )}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+                ))}
+              </ScrollView>
+            )}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </ThemedBackground>
   );
 }
 

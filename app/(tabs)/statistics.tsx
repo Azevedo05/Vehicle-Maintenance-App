@@ -13,6 +13,7 @@ import {
   calculateCategoryStats,
 } from "@/utils/statistics";
 import { createStyles } from "@/components/styles/statistics.styles";
+import { ThemedBackground } from "@/components/ThemedBackground";
 
 import { StatisticsOverview } from "@/components/statistics/StatisticsOverview";
 import { StatisticsByVehicle } from "@/components/statistics/StatisticsByVehicle";
@@ -37,44 +38,49 @@ export default function StatisticsScreen() {
   const categoryStats = calculateCategoryStats(vehicles, records);
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+    <ThemedBackground>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: "transparent" }]}
+        edges={["top"]}
       >
-        <View style={styles.header}>
-          <Text style={styles.screenTitle}>{t("statistics.title")}</Text>
-        </View>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.header}>
+            <Text style={styles.screenTitle}>{t("statistics.title")}</Text>
+          </View>
 
-        <StatisticsOverview
-          overallStats={overallStats}
-          currencySymbol={currencySymbol}
-        />
+          <StatisticsOverview
+            overallStats={overallStats}
+            currencySymbol={currencySymbol}
+          />
 
-        <StatisticsByVehicle
-          vehicleStats={vehicleStats}
-          currencySymbol={currencySymbol}
-        />
+          <StatisticsByVehicle
+            vehicleStats={vehicleStats}
+            currencySymbol={currencySymbol}
+          />
 
-        <StatisticsByType
-          typeStats={typeStats}
-          currencySymbol={currencySymbol}
-        />
+          <StatisticsByType
+            typeStats={typeStats}
+            currencySymbol={currencySymbol}
+          />
 
-        <StatisticsByCategory
-          categoryStats={categoryStats}
-          currencySymbol={currencySymbol}
-        />
+          <StatisticsByCategory
+            categoryStats={categoryStats}
+            currencySymbol={currencySymbol}
+          />
 
-        <StatisticsFuel
-          fuelLogs={fuelLogs}
-          vehicles={vehicles}
-          currencySymbol={currencySymbol}
-        />
+          <StatisticsFuel
+            fuelLogs={fuelLogs}
+            vehicles={vehicles}
+            currencySymbol={currencySymbol}
+          />
 
-        <StatisticsEmpty hasData={records.length > 0} />
-      </ScrollView>
-    </SafeAreaView>
+          <StatisticsEmpty hasData={records.length > 0} />
+        </ScrollView>
+      </SafeAreaView>
+    </ThemedBackground>
   );
 }

@@ -153,7 +153,8 @@ export const BottomSheet = ({
     handleContainer: {
       width: "100%",
       alignItems: "center",
-      paddingVertical: 10,
+      paddingTop: 22, // Added 12px from previous parent padding + 10px original
+      paddingBottom: 10,
       marginBottom: 10,
     },
     handle: {
@@ -190,15 +191,13 @@ export const BottomSheet = ({
                 },
               ]}
             >
-              <View style={styles.contentContainer}>
-                <View
-                  style={styles.handleContainer}
-                  {...panResponder.panHandlers}
-                >
-                  <View style={styles.handle} />
-                </View>
-                {children}
+              <View
+                style={styles.handleContainer}
+                {...panResponder.panHandlers}
+              >
+                <View style={styles.handle} />
               </View>
+              <View style={styles.contentContainer}>{children}</View>
               {/* Add a filler view to cover the bottom when dragging up */}
               <View
                 style={{

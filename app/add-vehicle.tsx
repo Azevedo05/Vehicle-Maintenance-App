@@ -1,6 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { router, Stack } from "expo-router";
-import { Camera, X, Check, Images } from "lucide-react-native";
+import { Camera, X, Check, Images, Plus, Trash2 } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -31,6 +31,7 @@ import MaskInput from "react-native-mask-input";
 import { Input } from "@/components/ui/Input";
 import { Chip } from "@/components/ui/Chip";
 import { SuccessAnimation } from "@/components/ui/SuccessAnimation";
+import { ThemedBackground } from "@/components/ThemedBackground";
 
 export default function AddVehicleScreen() {
   const { addVehicle, restoreLastSnapshot } = useVehicles();
@@ -43,9 +44,10 @@ export default function AddVehicleScreen() {
   const [licensePlate, setLicensePlate] = useState("");
   const [currentMileage, setCurrentMileage] = useState("");
   const [photo, setPhoto] = useState<string | undefined>(undefined);
+  const [photos, setPhotos] = useState<string[]>([]);
   const [fuelType, setFuelType] = useState<FuelType | undefined>(undefined);
   const [category, setCategory] = useState<VehicleCategory | undefined>(
-    "personal"
+    undefined
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -87,7 +89,7 @@ export default function AddVehicleScreen() {
     const options: ImagePicker.ImagePickerOptions = {
       mediaTypes: ["images"],
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect: [16, 9],
       quality: 0.8,
     };
 
@@ -98,7 +100,11 @@ export default function AddVehicleScreen() {
     }
 
     if (!result.canceled) {
-      setPhoto(result.assets[0].uri);
+      const newUri = result.assets[0].uri;
+      setPhotos((prev) => [...prev, newUri]);
+      if (!photo) {
+        setPhoto(newUri);
+      }
     }
   };
 
@@ -149,6 +155,7 @@ export default function AddVehicleScreen() {
         licensePlate: licensePlate.trim() || undefined,
         currentMileage: mileageNum,
         photo,
+        photos,
         category,
         fuelType,
       });
@@ -166,178 +173,231 @@ export default function AddVehicleScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["bottom"]}>
-      {/* ... (Stack.Screen and SuccessAnimation) ... */}
-      <Stack.Screen
-        options={{
-          title: t("vehicles.add_vehicle"),
-          headerRight: () => (
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginRight: Platform.OS === "ios" ? -16 : 0,
-              }}
-            >
-              {isSubmitting ? (
-                <ActivityIndicator color={colors.primary} />
-              ) : (
-                <TouchableOpacity
-                  onPress={handleSubmit}
-                  disabled={isSubmitting}
-                >
-                  <Check size={24} color={colors.primary} />
-                </TouchableOpacity>
-              )}
-            </View>
-          ),
-        }}
-      />
-      <SuccessAnimation
-        visible={showSuccess}
-        onAnimationFinish={() => {
-          setShowSuccess(false);
-          router.back();
-        }}
-      />
-      <KeyboardAvoidingView
-        behavior="padding"
-        style={styles.keyboardView}
-        keyboardVerticalOffset={100}
+    <ThemedBackground>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: "transparent" }]}
+        edges={["bottom"]}
       >
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
-          <TouchableOpacity
-            style={styles.photoSection}
-            onPress={handleImageSelection}
-            activeOpacity={0.7}
-          >
-            {photo ? (
-              <View style={styles.photoContainer}>
-                <Image
-                  source={{ uri: photo }}
-                  style={styles.photo}
-                  contentFit="cover"
-                />
-                <TouchableOpacity
-                  style={styles.removePhotoButton}
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    setPhoto(undefined);
-                  }}
-                >
-                  <X size={20} color="#FFFFFF" />
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.photoPlaceholder}>
-                <Camera size={48} color={colors.textSecondary} />
-                <Text style={styles.photoPlaceholderText}>
-                  {t("vehicles.add_photo")}
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
-
-          <View style={styles.form}>
-            {/* ... form inputs ... */}
-            <Input
-              label={t("vehicles.make")}
-              value={make}
-              onChangeText={setMake}
-              placeholder={t("vehicles.make_placeholder")}
-              required
-            />
-
-            <Input
-              label={t("vehicles.model")}
-              value={model}
-              onChangeText={setModel}
-              placeholder={t("vehicles.model_placeholder")}
-              required
-            />
-
-            <Input
-              label={t("vehicles.year")}
-              value={year}
-              onChangeText={(text) => {
-                setYear(text);
-                validate("year", text, [rules.required, rules.year]);
-              }}
-              onBlur={() => {
-                handleBlur("year");
-                validate("year", year, [rules.required, rules.year]);
-              }}
-              placeholder={t("vehicles.year_placeholder")}
-              keyboardType="numeric"
-              required
-              error={touched.year ? (errors.year as string) : undefined}
-            />
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>{t("vehicles.license_plate")}</Text>
-              <MaskInput
-                style={styles.input}
-                value={licensePlate}
-                onChangeText={(masked, unmasked) =>
-                  setLicensePlate(masked.toUpperCase())
-                }
-                mask={[/\w/, /\w/, "-", /\w/, /\w/, "-", /\w/, /\w/]}
-                placeholder={t("vehicles.license_placeholder")}
-                placeholderTextColor={colors.placeholder}
-                autoCapitalize="characters"
-              />
-            </View>
-
-            <Input
-              label={`${t("vehicles.current_mileage")} (${t("vehicles.km")})`}
-              value={currentMileage}
-              onChangeText={(text) => {
-                setCurrentMileage(text);
-                validate("mileage", text, [rules.required, rules.mileage]);
-              }}
-              onBlur={() => {
-                handleBlur("mileage");
-                validate("mileage", currentMileage, [
-                  rules.required,
-                  rules.mileage,
-                ]);
-              }}
-              placeholder={t("vehicles.mileage_placeholder")}
-              keyboardType="numeric"
-              required
-              error={touched.mileage ? (errors.mileage as string) : undefined}
-            />
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>
-                {t("fuel.type_label")} <Text style={styles.required}>*</Text>
-              </Text>
-              <View style={styles.categoryGrid}>
-                {(["gasoline", "diesel", "gpl", "electric"] as const).map(
-                  (type) => (
-                    <Chip
-                      key={type}
-                      label={t(`fuel.type_${type}`)}
-                      active={fuelType === type}
-                      onPress={() => setFuelType(type)}
-                      style={styles.categoryChip}
-                    />
-                  )
+        {/* ... (Stack.Screen and SuccessAnimation) ... */}
+        <Stack.Screen
+          options={{
+            title: t("vehicles.add_vehicle"),
+            headerRight: () => (
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginRight: Platform.OS === "ios" ? -16 : 0,
+                }}
+              >
+                {isSubmitting ? (
+                  <ActivityIndicator color={colors.primary} />
+                ) : (
+                  <TouchableOpacity
+                    onPress={handleSubmit}
+                    disabled={isSubmitting}
+                  >
+                    <Check size={24} color={colors.primary} />
+                  </TouchableOpacity>
                 )}
               </View>
+            ),
+          }}
+        />
+        <SuccessAnimation
+          visible={showSuccess}
+          onAnimationFinish={() => {
+            setShowSuccess(false);
+            router.back();
+          }}
+        />
+        <KeyboardAvoidingView
+          behavior="padding"
+          style={styles.keyboardView}
+          keyboardVerticalOffset={100}
+        >
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.photoSection}>
+              <TouchableOpacity
+                style={styles.mainPhotoContainer}
+                onPress={handleImageSelection}
+                activeOpacity={0.7}
+              >
+                {photo ? (
+                  <View style={styles.photoWrapper}>
+                    <Image
+                      source={{ uri: photo }}
+                      style={styles.photo}
+                      contentFit="cover"
+                    />
+                    <View style={styles.mainLabel}>
+                      <Text style={styles.mainLabelText}>
+                        {t("vehicles.main_photo")}
+                      </Text>
+                    </View>
+                  </View>
+                ) : (
+                  <View style={styles.photoPlaceholder}>
+                    <Camera size={48} color={colors.textSecondary} />
+                    <Text style={styles.photoPlaceholderText}>
+                      {t("vehicles.add_photo")}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+
+              {/* Gallery Strip */}
+              {photos.length > 0 && (
+                <ScrollView
+                  horizontal
+                  style={styles.galleryScroll}
+                  contentContainerStyle={styles.galleryContent}
+                  showsHorizontalScrollIndicator={false}
+                >
+                  {photos.map((uri, index) => (
+                    <View key={index} style={styles.galleryItemContainer}>
+                      <TouchableOpacity
+                        onPress={() => setPhoto(uri)}
+                        activeOpacity={0.7}
+                        style={[
+                          styles.galleryItem,
+                          photo === uri && styles.galleryItemSelected,
+                        ]}
+                      >
+                        <Image
+                          source={{ uri }}
+                          style={styles.galleryImage}
+                          contentFit="cover"
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.removeThumbButton}
+                        onPress={() => {
+                          const newPhotos = photos.filter((p) => p !== uri);
+                          setPhotos(newPhotos);
+                          if (photo === uri) {
+                            setPhoto(
+                              newPhotos.length > 0 ? newPhotos[0] : undefined
+                            );
+                          }
+                        }}
+                      >
+                        <X size={12} color="#FFFFFF" />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                  <TouchableOpacity
+                    style={styles.addMoreButton}
+                    onPress={handleImageSelection}
+                  >
+                    <Plus size={24} color={colors.primary} />
+                  </TouchableOpacity>
+                </ScrollView>
+              )}
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>
-                {t("vehicles.category")} <Text style={styles.required}>*</Text>
-              </Text>
-              <View style={styles.categoryGrid}>
-                {(Object.keys(VEHICLE_CATEGORY_INFO) as VehicleCategory[]).map(
-                  (cat) => {
+            <View style={styles.form}>
+              {/* ... form inputs ... */}
+              <Input
+                label={t("vehicles.make")}
+                value={make}
+                onChangeText={setMake}
+                placeholder={t("vehicles.make_placeholder")}
+                required
+              />
+
+              <Input
+                label={t("vehicles.model")}
+                value={model}
+                onChangeText={setModel}
+                placeholder={t("vehicles.model_placeholder")}
+                required
+              />
+
+              <Input
+                label={t("vehicles.year")}
+                value={year}
+                onChangeText={(text) => {
+                  setYear(text);
+                  validate("year", text, [rules.required, rules.year]);
+                }}
+                onBlur={() => {
+                  handleBlur("year");
+                  validate("year", year, [rules.required, rules.year]);
+                }}
+                placeholder={t("vehicles.year_placeholder")}
+                keyboardType="numeric"
+                required
+                error={touched.year ? (errors.year as string) : undefined}
+              />
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>{t("vehicles.license_plate")}</Text>
+                <MaskInput
+                  style={styles.input}
+                  value={licensePlate}
+                  onChangeText={(masked, unmasked) =>
+                    setLicensePlate(masked.toUpperCase())
+                  }
+                  mask={[/\w/, /\w/, "-", /\w/, /\w/, "-", /\w/, /\w/]}
+                  placeholder={t("vehicles.license_placeholder")}
+                  placeholderTextColor={colors.placeholder}
+                  autoCapitalize="characters"
+                />
+              </View>
+
+              <Input
+                label={`${t("vehicles.current_mileage")} (${t("vehicles.km")})`}
+                value={currentMileage}
+                onChangeText={(text) => {
+                  setCurrentMileage(text);
+                  validate("mileage", text, [rules.required, rules.mileage]);
+                }}
+                onBlur={() => {
+                  handleBlur("mileage");
+                  validate("mileage", currentMileage, [
+                    rules.required,
+                    rules.mileage,
+                  ]);
+                }}
+                placeholder={t("vehicles.mileage_placeholder")}
+                keyboardType="numeric"
+                required
+                error={touched.mileage ? (errors.mileage as string) : undefined}
+              />
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>
+                  {t("fuel.type_label")} <Text style={styles.required}>*</Text>
+                </Text>
+                <View style={styles.categoryGrid}>
+                  {(["gasoline", "diesel", "gpl", "electric"] as const).map(
+                    (type) => (
+                      <Chip
+                        key={type}
+                        label={t(`fuel.type_${type}`)}
+                        active={fuelType === type}
+                        onPress={() => setFuelType(type)}
+                        style={styles.categoryChip}
+                      />
+                    )
+                  )}
+                </View>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>
+                  {t("vehicles.category")}{" "}
+                  <Text style={styles.required}>*</Text>
+                </Text>
+                <View style={styles.categoryGrid}>
+                  {(
+                    Object.keys(VEHICLE_CATEGORY_INFO) as VehicleCategory[]
+                  ).map((cat) => {
                     const info = VEHICLE_CATEGORY_INFO[cat];
                     return (
                       <Chip
@@ -352,67 +412,67 @@ export default function AddVehicleScreen() {
                         style={styles.categoryChip}
                       />
                     );
-                  }
-                )}
+                  })}
+                </View>
               </View>
             </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-      <Modal
-        transparent
-        visible={showPhotoOptions}
-        animationType="fade"
-        onRequestClose={() => setShowPhotoOptions(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowPhotoOptions(false)}
+          </ScrollView>
+        </KeyboardAvoidingView>
+        <Modal
+          transparent
+          visible={showPhotoOptions}
+          animationType="fade"
+          onRequestClose={() => setShowPhotoOptions(false)}
         >
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
-              {t("vehicles.choose_photo_source")}
-            </Text>
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setShowPhotoOptions(false)}
+          >
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>
+                {t("vehicles.choose_photo_source")}
+              </Text>
 
-            <View style={styles.modalOptions}>
-              <TouchableOpacity
-                style={styles.modalOption}
-                onPress={() => pickImage("camera")}
-                activeOpacity={0.7}
-              >
-                <View style={styles.modalIconContainer}>
-                  <Camera size={28} color={colors.primary} />
-                </View>
-                <Text style={styles.modalOptionText}>
-                  {t("vehicles.camera")}
-                </Text>
-              </TouchableOpacity>
+              <View style={styles.modalOptions}>
+                <TouchableOpacity
+                  style={styles.modalOption}
+                  onPress={() => pickImage("camera")}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.modalIconContainer}>
+                    <Camera size={28} color={colors.primary} />
+                  </View>
+                  <Text style={styles.modalOptionText}>
+                    {t("vehicles.camera")}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.modalOption}
+                  onPress={() => pickImage("library")}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.modalIconContainer}>
+                    <Images size={28} color={colors.primary} />
+                  </View>
+                  <Text style={styles.modalOptionText}>
+                    {t("vehicles.gallery")}
+                  </Text>
+                </TouchableOpacity>
+              </View>
 
               <TouchableOpacity
-                style={styles.modalOption}
-                onPress={() => pickImage("library")}
-                activeOpacity={0.7}
+                style={styles.modalCancelButton}
+                onPress={() => setShowPhotoOptions(false)}
               >
-                <View style={styles.modalIconContainer}>
-                  <Images size={28} color={colors.primary} />
-                </View>
-                <Text style={styles.modalOptionText}>
-                  {t("vehicles.gallery")}
-                </Text>
+                <Text style={styles.modalCancelText}>{t("common.cancel")}</Text>
               </TouchableOpacity>
             </View>
-
-            <TouchableOpacity
-              style={styles.modalCancelButton}
-              onPress={() => setShowPhotoOptions(false)}
-            >
-              <Text style={styles.modalCancelText}>{t("common.cancel")}</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      </Modal>
-    </SafeAreaView>
+          </TouchableOpacity>
+        </Modal>
+      </SafeAreaView>
+    </ThemedBackground>
   );
 }
 
@@ -432,35 +492,43 @@ const createStyles = (colors: any) =>
       padding: 16,
     },
     photoSection: {
-      alignItems: "center",
-      marginBottom: 24,
       width: "100%",
+      marginBottom: 24,
+      gap: 16,
     },
-    photoContainer: {
-      position: "relative" as const,
+    mainPhotoContainer: {
       width: "100%",
       aspectRatio: 16 / 9,
+      borderRadius: 16,
+      overflow: "hidden",
+    },
+    photoWrapper: {
+      width: "100%",
+      height: "100%",
+      position: "relative" as const,
     },
     photo: {
       width: "100%",
       height: "100%",
-      borderRadius: 16,
       backgroundColor: colors.border,
     },
-    removePhotoButton: {
-      position: "absolute" as const,
-      top: 12,
-      right: 12,
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      backgroundColor: "rgba(0, 0, 0, 0.6)",
-      justifyContent: "center" as const,
-      alignItems: "center" as const,
+    mainLabel: {
+      position: "absolute",
+      bottom: 12,
+      left: 12,
+      backgroundColor: "rgba(0,0,0,0.6)",
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 8,
+    },
+    mainLabelText: {
+      color: "#FFFFFF",
+      fontSize: 12,
+      fontWeight: "600" as const,
     },
     photoPlaceholder: {
       width: "100%",
-      aspectRatio: 16 / 9,
+      height: "100%",
       borderRadius: 16,
       backgroundColor: colors.surface,
       borderWidth: 2,
@@ -474,6 +542,57 @@ const createStyles = (colors: any) =>
       fontSize: 16,
       color: colors.textSecondary,
       fontWeight: "600" as const,
+    },
+    galleryScroll: {
+      maxHeight: 110, // Increased to accommodate padding
+    },
+    galleryContent: {
+      gap: 16, // Increased gap
+      paddingHorizontal: 12, // Increased padding
+      paddingVertical: 12, // Added vertical padding for the buttons
+    },
+    galleryItemContainer: {
+      position: "relative" as const,
+    },
+    galleryItem: {
+      width: 80,
+      height: 80,
+      borderRadius: 12,
+      overflow: "hidden",
+      borderWidth: 2,
+      borderColor: colors.border,
+    },
+    galleryItemSelected: {
+      borderColor: colors.primary,
+      borderWidth: 3,
+    },
+    galleryImage: {
+      width: "100%",
+      height: "100%",
+    },
+    removeThumbButton: {
+      position: "absolute" as const,
+      top: -6,
+      right: -6,
+      backgroundColor: colors.error,
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      justifyContent: "center",
+      alignItems: "center",
+      borderWidth: 1.5,
+      borderColor: colors.background,
+    },
+    addMoreButton: {
+      width: 80,
+      height: 80,
+      borderRadius: 12,
+      backgroundColor: colors.surface,
+      borderWidth: 2,
+      borderColor: colors.border,
+      borderStyle: "dashed" as const,
+      justifyContent: "center",
+      alignItems: "center",
     },
     form: {
       gap: 16,

@@ -23,6 +23,7 @@ import { VehicleListSkeleton } from "@/components/vehicles/VehicleListSkeleton";
 import { VehicleListFooter } from "@/components/vehicles/VehicleListFooter";
 import { AnimatedItem } from "@/components/ui/AnimatedItem";
 import { SwipeableRow } from "@/components/ui/SwipeableRow";
+import { ThemedBackground } from "@/components/ThemedBackground";
 
 export default function VehiclesScreen() {
   const { colors } = useTheme();
@@ -247,224 +248,244 @@ export default function VehiclesScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={["top"]}>
-        <View style={styles.scrollContent}>
-          <VehicleListHeader
-            showArchived={showArchived}
-            onToggleArchived={() => setShowArchived((prev) => !prev)}
-            onOpenFilter={() => setFilterMenuVisible(true)}
-            onOpenActions={() => setActionsMenuVisible(true)}
-          />
-          <View style={{ height: 16 }} />
-          <VehicleListSkeleton />
-        </View>
-      </SafeAreaView>
+      <ThemedBackground>
+        <SafeAreaView
+          style={[styles.container, { backgroundColor: "transparent" }]}
+          edges={["top"]}
+        >
+          <View style={styles.scrollContent}>
+            <VehicleListHeader
+              showArchived={showArchived}
+              onToggleArchived={() => setShowArchived((prev) => !prev)}
+              onOpenFilter={() => setFilterMenuVisible(true)}
+              onOpenActions={() => setActionsMenuVisible(true)}
+            />
+            <View style={{ height: 16 }} />
+            <VehicleListSkeleton />
+          </View>
+        </SafeAreaView>
+      </ThemedBackground>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      {isReorderMode ? (
-        <FlatList
-          data={filteredVehicles}
-          renderItem={({ item, index }) => (
-            <AnimatedItem index={index} key={item.id}>
-              <View
-                style={{
-                  marginBottom: 12,
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <View style={{ marginRight: 12, gap: 8 }}>
-                  <TouchableOpacity
-                    onPress={() => moveItemUp(index)}
-                    disabled={index === 0}
-                    style={{
-                      backgroundColor: colors.card,
-                      borderRadius: 8,
-                      padding: 10,
-                      opacity: index === 0 ? 0.4 : 1,
-                      borderWidth: 1,
-                      borderColor: index === 0 ? colors.border : colors.primary,
-                    }}
-                  >
-                    <ChevronUp
-                      size={20}
-                      color={
-                        index === 0 ? colors.textSecondary : colors.primary
-                      }
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => moveItemDown(index)}
-                    disabled={index === filteredVehicles.length - 1}
-                    style={{
-                      backgroundColor: colors.card,
-                      borderRadius: 8,
-                      padding: 10,
-                      opacity: index === filteredVehicles.length - 1 ? 0.4 : 1,
-                      borderWidth: 1,
-                      borderColor:
-                        index === filteredVehicles.length - 1
-                          ? colors.border
-                          : colors.primary,
-                    }}
-                  >
-                    <ChevronDown
-                      size={20}
-                      color={
-                        index === filteredVehicles.length - 1
-                          ? colors.textSecondary
-                          : colors.primary
-                      }
-                    />
-                  </TouchableOpacity>
-                </View>
-                <TouchableOpacity
-                  onPress={() =>
-                    !isReorderMode && router.push(`/vehicle/${item.id}`)
-                  }
-                  disabled={isReorderMode}
-                  activeOpacity={isReorderMode ? 1 : 0.7}
+    <ThemedBackground>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: "transparent" }]}
+        edges={["top"]}
+      >
+        {isReorderMode ? (
+          <FlatList
+            data={filteredVehicles}
+            renderItem={({ item, index }) => (
+              <AnimatedItem index={index} key={item.id}>
+                <View
                   style={{
-                    flex: 1,
-                    backgroundColor: colors.card,
-                    borderRadius: 12,
-                    padding: 16,
+                    marginBottom: 12,
                     flexDirection: "row",
                     alignItems: "center",
-                    opacity: isReorderMode ? 0.8 : 1,
                   }}
                 >
-                  <View
+                  <View style={{ marginRight: 12, gap: 8 }}>
+                    <TouchableOpacity
+                      onPress={() => moveItemUp(index)}
+                      disabled={index === 0}
+                      style={{
+                        width: 44,
+                        height: 44,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        backgroundColor: colors.card,
+                        borderRadius: 8,
+                        opacity: index === 0 ? 0.4 : 1,
+                        borderWidth: 1,
+                        borderColor:
+                          index === 0 ? colors.border : colors.primary,
+                      }}
+                    >
+                      <ChevronUp
+                        size={20}
+                        color={
+                          index === 0 ? colors.textSecondary : colors.primary
+                        }
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => moveItemDown(index)}
+                      disabled={index === filteredVehicles.length - 1}
+                      style={{
+                        width: 44,
+                        height: 44,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        backgroundColor: colors.card,
+                        borderRadius: 8,
+                        opacity:
+                          index === filteredVehicles.length - 1 ? 0.4 : 1,
+                        borderWidth: 1,
+                        borderColor:
+                          index === filteredVehicles.length - 1
+                            ? colors.border
+                            : colors.primary,
+                      }}
+                    >
+                      <ChevronDown
+                        size={20}
+                        color={
+                          index === filteredVehicles.length - 1
+                            ? colors.textSecondary
+                            : colors.primary
+                        }
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() =>
+                      !isReorderMode && router.push(`/vehicle/${item.id}`)
+                    }
+                    disabled={isReorderMode}
+                    activeOpacity={isReorderMode ? 1 : 0.7}
                     style={{
-                      marginRight: 12,
-                      width: 60,
-                      height: 60,
-                      borderRadius: 8,
-                      backgroundColor: colors.background,
-                      justifyContent: "center",
+                      flex: 1,
+                      backgroundColor: colors.card,
+                      borderRadius: 12,
+                      padding: 16,
+                      flexDirection: "row",
                       alignItems: "center",
+                      opacity: isReorderMode ? 0.8 : 1,
                     }}
                   >
-                    <Car size={32} color={colors.textSecondary} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text
+                    <View
                       style={{
-                        color: colors.text,
-                        fontSize: 16,
-                        fontWeight: "600",
-                        marginBottom: 4,
+                        marginRight: 12,
+                        width: 60,
+                        height: 60,
+                        borderRadius: 8,
+                        backgroundColor: colors.background,
+                        justifyContent: "center",
+                        alignItems: "center",
                       }}
                     >
-                      {item.make} {item.model}
-                    </Text>
-                    <Text
-                      style={{
-                        color: colors.textSecondary,
-                        fontSize: 14,
-                        marginBottom: 2,
-                      }}
-                    >
-                      {item.make} {item.model} {item.year}
-                    </Text>
-                    <Text style={{ color: colors.textSecondary, fontSize: 12 }}>
-                      {formatDistance(item.currentMileage)}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </AnimatedItem>
-          )}
-          keyExtractor={(item) => item.id}
-          ListHeaderComponent={renderListHeader}
-          ListEmptyComponent={
-            <VehicleListEmpty hasVehicles={vehicles.length > 0} />
-          }
-          contentContainerStyle={styles.scrollContent}
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={false}
+                      <Car size={32} color={colors.textSecondary} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text
+                        style={{
+                          color: colors.text,
+                          fontSize: 16,
+                          fontWeight: "600",
+                          marginBottom: 4,
+                        }}
+                      >
+                        {item.make} {item.model}
+                      </Text>
+                      <Text
+                        style={{
+                          color: colors.textSecondary,
+                          fontSize: 14,
+                          marginBottom: 2,
+                        }}
+                      >
+                        {item.make} {item.model} {item.year}
+                      </Text>
+                      <Text
+                        style={{ color: colors.textSecondary, fontSize: 12 }}
+                      >
+                        {formatDistance(item.currentMileage)}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </AnimatedItem>
+            )}
+            keyExtractor={(item) => item.id}
+            ListHeaderComponent={renderListHeader}
+            ListEmptyComponent={
+              <VehicleListEmpty hasVehicles={vehicles.length > 0} />
+            }
+            contentContainerStyle={styles.scrollContent}
+            style={styles.scrollView}
+            showsVerticalScrollIndicator={false}
+          />
+        ) : (
+          <FlatList
+            ref={flatListRef}
+            data={filteredVehicles}
+            renderItem={renderNormalItem}
+            keyExtractor={(item) => item.id}
+            ItemSeparatorComponent={renderItemSeparator}
+            ListHeaderComponent={renderListHeader}
+            ListFooterComponent={
+              <VehicleListFooter
+                visible={filteredVehicles.length > 2}
+                onScrollToTop={handleScrollToTop}
+              />
+            }
+            ListEmptyComponent={
+              <VehicleListEmpty hasVehicles={vehicles.length > 0} />
+            }
+            contentContainerStyle={styles.scrollContent}
+            style={styles.scrollView}
+            showsVerticalScrollIndicator={false}
+            initialNumToRender={10}
+            maxToRenderPerBatch={10}
+            windowSize={10}
+            removeClippedSubviews={true}
+          />
+        )}
+
+        {!isKeyboardVisible && !isReorderMode && (
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => router.push("/add-vehicle")}
+            activeOpacity={0.8}
+          >
+            <Plus size={28} color="#FFFFFF" />
+          </TouchableOpacity>
+        )}
+
+        <VehicleFilters
+          visible={isFilterMenuVisible}
+          onClose={() => setFilterMenuVisible(false)}
+          selectedCategories={selectedCategories}
+          onSelectCategory={(category) => {
+            setSelectedCategories((prev) =>
+              prev.includes(category)
+                ? prev.filter((c) => c !== category)
+                : [...prev, category]
+            );
+          }}
+          sortOption={sortOption}
+          onSelectSort={setSortOption}
+          onClearFilters={() => {
+            setSelectedCategories([]);
+            setShowArchived(false);
+            setSortOption("custom");
+          }}
         />
-      ) : (
-        <FlatList
-          ref={flatListRef}
-          data={filteredVehicles}
-          renderItem={renderNormalItem}
-          keyExtractor={(item) => item.id}
-          ItemSeparatorComponent={renderItemSeparator}
-          ListHeaderComponent={renderListHeader}
-          ListFooterComponent={
-            <VehicleListFooter
-              visible={filteredVehicles.length > 2}
-              onScrollToTop={handleScrollToTop}
-            />
-          }
-          ListEmptyComponent={
-            <VehicleListEmpty hasVehicles={vehicles.length > 0} />
-          }
-          contentContainerStyle={styles.scrollContent}
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={false}
-          initialNumToRender={10}
-          maxToRenderPerBatch={10}
-          windowSize={10}
-          removeClippedSubviews={true}
+
+        <VehicleActions
+          visible={isActionsMenuVisible}
+          onClose={() => setActionsMenuVisible(false)}
+          onCompare={() => {
+            setActionsMenuVisible(false);
+            router.push("/vehicles/compare");
+          }}
+          onBulkOperations={() => {
+            setActionsMenuVisible(false);
+            router.push("/vehicles/bulk");
+          }}
         />
-      )}
 
-      {!isKeyboardVisible && !isReorderMode && (
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => router.push("/add-vehicle")}
-          activeOpacity={0.8}
-        >
-          <Plus size={28} color="#FFFFFF" />
-        </TouchableOpacity>
-      )}
-
-      <VehicleFilters
-        visible={isFilterMenuVisible}
-        onClose={() => setFilterMenuVisible(false)}
-        selectedCategories={selectedCategories}
-        onSelectCategory={(category) => {
-          setSelectedCategories((prev) =>
-            prev.includes(category)
-              ? prev.filter((c) => c !== category)
-              : [...prev, category]
-          );
-        }}
-        sortOption={sortOption}
-        onSelectSort={setSortOption}
-        onClearFilters={() => {
-          setSelectedCategories([]);
-          setShowArchived(false);
-          setSortOption("custom");
-        }}
-      />
-
-      <VehicleActions
-        visible={isActionsMenuVisible}
-        onClose={() => setActionsMenuVisible(false)}
-        onCompare={() => {
-          setActionsMenuVisible(false);
-          router.push("/vehicles/compare");
-        }}
-        onBulkOperations={() => {
-          setActionsMenuVisible(false);
-          router.push("/vehicles/bulk");
-        }}
-      />
-
-      <VehicleQuickActions
-        visible={isQuickActionsMenuVisible}
-        onClose={() => {
-          setQuickActionsModalVisible(false);
-          setActionVehicleId(null);
-        }}
-        vehicleId={actionVehicleId}
-      />
-    </SafeAreaView>
+        <VehicleQuickActions
+          visible={isQuickActionsMenuVisible}
+          onClose={() => {
+            setQuickActionsModalVisible(false);
+            setActionVehicleId(null);
+          }}
+          vehicleId={actionVehicleId}
+        />
+      </SafeAreaView>
+    </ThemedBackground>
   );
 }

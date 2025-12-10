@@ -30,6 +30,7 @@ import { MaintenanceFilters } from "@/components/maintenance/MaintenanceFilters"
 import { AnimatedItem } from "@/components/ui/AnimatedItem";
 import { SwipeableRow } from "@/components/ui/SwipeableRow";
 import { createStyles } from "@/components/styles/maintenance.styles";
+import { ThemedBackground } from "@/components/ThemedBackground";
 
 type MaintenanceSortOption =
   | "due_date_overdue"
@@ -380,58 +381,68 @@ export default function MaintenanceScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={["top"]}>
-        <MaintenanceListSkeleton />
-      </SafeAreaView>
+      <ThemedBackground>
+        <SafeAreaView
+          style={[styles.container, { backgroundColor: "transparent" }]}
+          edges={["top"]}
+        >
+          <MaintenanceListSkeleton />
+        </SafeAreaView>
+      </ThemedBackground>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <FlatList
-        data={listData}
-        renderItem={renderTaskItem}
-        keyExtractor={(item, index) =>
-          item.type === "header"
-            ? `header-${item.section}-${index}`
-            : `task-${item.item?.task.id}-${index}`
-        }
-        ItemSeparatorComponent={renderItemSeparator}
-        ListHeaderComponent={renderListHeader}
-        ListEmptyComponent={renderListEmpty}
-        contentContainerStyle={styles.scrollContent}
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-        initialNumToRender={10}
-        maxToRenderPerBatch={10}
-        windowSize={10}
-      />
+    <ThemedBackground>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: "transparent" }]}
+        edges={["top"]}
+      >
+        <FlatList
+          data={listData}
+          renderItem={renderTaskItem}
+          keyExtractor={(item, index) =>
+            item.type === "header"
+              ? `header-${item.section}-${index}`
+              : `task-${item.item?.task.id}-${index}`
+          }
+          ItemSeparatorComponent={renderItemSeparator}
+          ListHeaderComponent={renderListHeader}
+          ListEmptyComponent={renderListEmpty}
+          contentContainerStyle={styles.scrollContent}
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={10}
+        />
 
-      {/* Filter Modal */}
-      <MaintenanceFilters
-        visible={filterModalVisible}
-        onClose={() => setFilterModalVisible(false)}
-        selectedVehicleIds={selectedVehicleIds}
-        onSelectVehicle={(id) => {
-          setSelectedVehicleIds((prev) =>
-            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-          );
-        }}
-        selectedTypes={selectedTypes}
-        onSelectType={(type) => {
-          setSelectedTypes((prev) =>
-            prev.includes(type)
-              ? prev.filter((t) => t !== type)
-              : [...prev, type]
-          );
-        }}
-        onClearFilters={() => {
-          setSelectedVehicleIds([]);
-          setSelectedTypes([]);
-          setSortOption("due_date_overdue");
-        }}
-        vehicles={vehicles}
-      />
-    </SafeAreaView>
+        {/* Filter Modal */}
+        <MaintenanceFilters
+          visible={filterModalVisible}
+          onClose={() => setFilterModalVisible(false)}
+          selectedVehicleIds={selectedVehicleIds}
+          onSelectVehicle={(id) => {
+            setSelectedVehicleIds((prev) =>
+              prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+            );
+          }}
+          selectedTypes={selectedTypes}
+          onSelectType={(type) => {
+            setSelectedTypes((prev) =>
+              prev.includes(type)
+                ? prev.filter((t) => t !== type)
+                : [...prev, type]
+            );
+          }}
+          onClearFilters={() => {
+            setSelectedVehicleIds([]);
+            setSelectedTypes([]);
+            setSortOption("due_date_overdue");
+          }}
+          vehicles={vehicles}
+        />
+      </SafeAreaView>
+    </ThemedBackground>
   );
 }

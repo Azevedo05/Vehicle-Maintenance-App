@@ -1,3 +1,4 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { AlertCircle } from "lucide-react-native";
 import React, { useState } from "react";
@@ -9,35 +10,182 @@ import {
   TouchableOpacity,
   View,
   Platform,
+  Pressable,
+  Dimensions,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  useSafeAreaInsets,
+  SafeAreaView,
+} from "react-native-safe-area-context";
+import Animated, {
+  Extrapolation,
+  interpolate,
+  interpolateColor,
+  SharedValue,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  Keyframe,
+} from "react-native-reanimated";
 
 import { useVehicles } from "@/contexts/VehicleContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useAppAlert } from "@/contexts/AlertContext";
 import { Image } from "expo-image";
-import { Car, ChevronLeft, Edit, Trash2 } from "lucide-react-native";
+import {
+  Car,
+  ChevronLeft,
+  Edit,
+  Trash2,
+  MoreVertical,
+  Eye,
+} from "lucide-react-native";
 import { BlurView } from "expo-blur";
+import { ThemedBackground } from "@/components/ThemedBackground";
 
 import { VehicleHeader } from "@/components/vehicle-details/VehicleHeader";
 import { MaintenanceOverview } from "@/components/vehicle-details/MaintenanceOverview";
 import { MaintenanceHistory } from "@/components/vehicle-details/MaintenanceHistory";
 import { FuelLogSection } from "@/components/vehicle-details/FuelLogSection";
+
 import { QuickReminders } from "@/components/vehicle-details/QuickReminders";
+
+import { ImageViewerModal } from "@/components/vehicle-details/ImageViewerModal";
+import { VehicleViewSettingsModal } from "@/components/vehicle-details/VehicleViewSettingsModal";
+import { usePreferences } from "@/contexts/PreferencesContext";
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+
+const PaginationDot = ({
+  index,
+  scrollX,
+  activeColor,
+  inactiveColor,
+}: {
+  index: number;
+  scrollX: SharedValue<number>;
+  activeColor: string;
+  inactiveColor: string;
+}) => {
+  const animatedStyle = useAnimatedStyle(() => {
+    // Calculate the input range based on the scroll position
+    // Each page is SCREEN_WIDTH wide
+    const inputRange = [
+      (index - 1) * SCREEN_WIDTH,
+      index * SCREEN_WIDTH,
+      (index + 1) * SCREEN_WIDTH,
+    ];
+
+    // Interpolate width (scale effect) - subtle expansion
+    const width = interpolate(
+      scrollX.value,
+      inputRange,
+      [8, 24, 8], // Increased active width for better visibility
+      Extrapolation.CLAMP
+    );
+
+    // Interpolate opacity/color
+    const opacity = interpolate(
+      scrollX.value,
+      inputRange,
+      [0.4, 1, 0.4], // Slightly reduced inactive opacity for contrast
+      Extrapolation.CLAMP
+    );
+
+    // Interpolate background color
+    const backgroundColor = interpolateColor(scrollX.value, inputRange, [
+      inactiveColor,
+      activeColor,
+      inactiveColor,
+    ]);
+
+    return {
+      width,
+      backgroundColor,
+      opacity,
+    };
+  });
+
+  return (
+    <Animated.View
+      style={[
+        {
+          height: 8,
+          borderRadius: 4,
+          marginHorizontal: 3, // Reduced spacing (too far apart previously)
+        },
+        animatedStyle,
+      ]}
+    />
+  );
+};
 
 export default function VehicleDetailScreen() {
   const { id } = useLocalSearchParams();
   const vehicleId = id as string;
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [fullscreenImage, setFullscreenImage] = useState<string | undefined>(
+    undefined
+  );
+
+  const insets = useSafeAreaInsets();
+  const scrollY = useSharedValue(0);
+  const scrollX = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+    scrollY.value = event.contentOffset.y;
+  });
+
+  const scrollHandlerHorizontal = useAnimatedScrollHandler((event) => {
+    scrollX.value = event.contentOffset.x;
+  });
+
+  const headerAnimatedStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      scrollY.value,
+      [0, 200], // Fade in between 0 and 200px scroll
+      [0, 1],
+      Extrapolation.CLAMP
+    );
+
+    return {
+      opacity,
+      backgroundColor: "#000000", // Solid black background
+    };
+  });
 
   const { getVehicleById, deleteVehicle, restoreLastSnapshot } = useVehicles();
   const { colors } = useTheme();
+  const { preferences } = usePreferences();
+  const { vehicleLayout } = preferences;
+  const isMinimalist =
+    !vehicleLayout.showQuickReminders &&
+    !vehicleLayout.showMaintenanceOverview &&
+    !vehicleLayout.showMaintenanceHistory &&
+    !vehicleLayout.showFuelLogs;
+
   const { t } = useLocalization();
   const { showAlert, showToast } = useAppAlert();
 
+  const [isViewSettingsVisible, setIsViewSettingsVisible] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const vehicle = getVehicleById(vehicleId);
-  const styles = createStyles(colors);
+  const styles = createStyles(colors, insets, isMinimalist);
+
+  const displayPhotos =
+    vehicle?.photos && vehicle.photos.length > 0
+      ? vehicle.photos
+      : vehicle?.photo
+      ? [vehicle.photo]
+      : [];
+
+  const handleImagePress = (uri: string) => {
+    setFullscreenImage(uri);
+    setIsModalVisible(true);
+  };
 
   const handleDelete = () => {
     if (!vehicle || isDeleting) {
@@ -63,7 +211,6 @@ export default function VehicleDetailScreen() {
             try {
               await deleteVehicle(vehicleId);
               router.back();
-
               setTimeout(() => {
                 showToast({
                   message: t("vehicles.delete_success", { name: vehicleName }),
@@ -113,92 +260,232 @@ export default function VehicleDetailScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Stack.Screen options={{ headerShown: false }} />
+    <ThemedBackground>
+      <View style={[styles.container, { backgroundColor: "transparent" }]}>
+        <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Content */}
-      <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Image - Goes behind the curved card */}
-          <View style={styles.heroSection}>
-            {vehicle.photo ? (
-              <Image
-                source={{ uri: vehicle.photo }}
-                style={styles.vehicleImage}
-                contentFit="cover"
-              />
-            ) : (
-              <View style={styles.noImagePlaceholder}>
-                <Car size={80} color={colors.placeholder} />
+        {/* Dynamic Status Bar Background */}
+        <Animated.View
+          style={[
+            {
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: insets.top, // Only cover specific status bar area, or maybe a bit more if we want a "header" bar
+              zIndex: 100,
+            },
+            headerAnimatedStyle,
+          ]}
+        />
+
+        {/* Content */}
+        <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
+          <Animated.ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            onScroll={scrollHandler}
+            scrollEventThrottle={16}
+          >
+            {/* Image - Goes behind the curved card */}
+            <View style={styles.heroSection}>
+              {displayPhotos.length > 0 ? (
+                <View>
+                  <Animated.ScrollView
+                    horizontal
+                    pagingEnabled
+                    showsHorizontalScrollIndicator={false}
+                    onScroll={scrollHandlerHorizontal}
+                    scrollEventThrottle={16}
+                  >
+                    {displayPhotos.map((uri, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        activeOpacity={1}
+                        onPress={() => handleImagePress(uri)}
+                      >
+                        <Image
+                          source={{ uri }}
+                          style={styles.vehicleImage}
+                          contentFit="cover"
+                        />
+                      </TouchableOpacity>
+                    ))}
+                  </Animated.ScrollView>
+                </View>
+              ) : (
+                <View style={styles.noImagePlaceholder}>
+                  <Car size={80} color={colors.placeholder} />
+                </View>
+              )}
+
+              {/* Floating Back Button */}
+              <View style={styles.floatingBackButtonContainer}>
+                <TouchableOpacity
+                  onPress={() => router.back()}
+                  activeOpacity={0.8}
+                >
+                  <BlurView
+                    intensity={60}
+                    tint="dark"
+                    style={styles.floatingButtonBlur}
+                  >
+                    <ChevronLeft size={24} color="#FFFFFF" />
+                  </BlurView>
+                </TouchableOpacity>
               </View>
-            )}
 
-            {/* Floating Back Button */}
-            <View style={styles.floatingBackButtonContainer}>
-              <TouchableOpacity
-                onPress={() => router.back()}
-                activeOpacity={0.8}
-              >
-                <BlurView
-                  intensity={30}
-                  tint="dark"
-                  style={styles.floatingButtonBlur}
+              {/* Floating Action Buttons */}
+              <View style={styles.floatingActions}>
+                <TouchableOpacity
+                  onPress={() => setIsMenuOpen(!isMenuOpen)}
+                  activeOpacity={0.8}
                 >
-                  <ChevronLeft size={24} color="#FFFFFF" />
-                </BlurView>
-              </TouchableOpacity>
+                  <BlurView
+                    intensity={60}
+                    tint="dark"
+                    style={styles.floatingButtonBlur}
+                  >
+                    <MoreVertical size={20} color="#FFFFFF" />
+                  </BlurView>
+                </TouchableOpacity>
+
+                {/* Dropdown Menu */}
+                {isMenuOpen && (
+                  <>
+                    <Pressable
+                      style={styles.menuBackdrop}
+                      onPress={() => setIsMenuOpen(false)}
+                    />
+                    <Animated.View
+                      style={styles.menuContainer}
+                      entering={new Keyframe({
+                        0: { opacity: 0, transform: [{ translateY: 20 }] },
+                        100: { opacity: 1, transform: [{ translateY: 0 }] },
+                      }).duration(200)}
+                      exiting={new Keyframe({
+                        0: { opacity: 1, transform: [{ translateY: 0 }] },
+                        100: { opacity: 0, transform: [{ translateY: -20 }] },
+                      }).duration(200)}
+                    >
+                      <BlurView
+                        intensity={80}
+                        tint="dark"
+                        style={styles.menuBlur}
+                      >
+                        <TouchableOpacity
+                          style={styles.menuItem}
+                          onPress={() => {
+                            setIsMenuOpen(false);
+                            setIsViewSettingsVisible(true);
+                          }}
+                        >
+                          <Eye size={18} color="#FFFFFF" />
+                          <Text style={styles.menuItemText}>
+                            {t(
+                              "vehicle_details.customize_view",
+                              "Customize View"
+                            )}
+                          </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={styles.menuItem}
+                          onPress={() => {
+                            setIsMenuOpen(false);
+                            router.push(`/edit-vehicle?id=${vehicle.id}`);
+                          }}
+                        >
+                          <Edit size={18} color="#FFFFFF" />
+                          <Text style={styles.menuItemText}>
+                            {t("common.edit")}
+                          </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={[styles.menuItem]}
+                          onPress={() => {
+                            setIsMenuOpen(false);
+                            handleDelete();
+                          }}
+                        >
+                          <Trash2 size={18} color="#FF453A" />
+                          <Text
+                            style={[styles.menuItemText, { color: "#FF453A" }]}
+                          >
+                            {t("common.delete")}
+                          </Text>
+                        </TouchableOpacity>
+                      </BlurView>
+                    </Animated.View>
+                  </>
+                )}
+              </View>
             </View>
 
-            {/* Floating Action Buttons */}
-            <View style={styles.floatingActions}>
-              <TouchableOpacity
-                onPress={() => router.push(`/edit-vehicle?id=${vehicle.id}`)}
-                activeOpacity={0.8}
-              >
-                <BlurView
-                  intensity={30}
-                  tint="dark"
-                  style={styles.floatingButtonBlur}
-                >
-                  <Edit size={20} color="#FFFFFF" />
-                </BlurView>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleDelete} activeOpacity={0.8}>
-                <BlurView
-                  intensity={30}
-                  tint="dark"
-                  style={styles.floatingButtonBlur}
-                >
-                  <Trash2 size={20} color="#FFFFFF" />
-                </BlurView>
-              </TouchableOpacity>
-            </View>
-          </View>
+            {/* Curved Content Card - Overlays the image */}
+            <LinearGradient
+              colors={[colors.background, colors.card, colors.background]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.curvedCard}
+            >
+              {/* Dots Pagination */}
+              {displayPhotos.length > 1 && (
+                <View style={styles.paginationContainer}>
+                  {displayPhotos.map((_, index) => (
+                    <PaginationDot
+                      key={index}
+                      index={index}
+                      scrollX={scrollX}
+                      activeColor={colors.primary}
+                      inactiveColor={colors.border}
+                    />
+                  ))}
+                </View>
+              )}
 
-          {/* Curved Content Card - Overlays the image */}
-          <View style={styles.curvedCard}>
-            {/* Vehicle Info inside curved card */}
-            <VehicleHeader vehicle={vehicle} />
+              {/* Vehicle Info inside curved card */}
+              <VehicleHeader vehicle={vehicle} />
 
-            {/* Quick Reminders "Nagging" Section */}
-            <QuickReminders vehicleId={vehicleId} />
+              {/* Quick Reminders "Nagging" Section */}
+              {vehicleLayout.showQuickReminders && (
+                <QuickReminders vehicleId={vehicleId} />
+              )}
 
-            {/* Maintenance sections */}
-            <MaintenanceOverview vehicleId={vehicleId} />
-            <MaintenanceHistory vehicleId={vehicleId} />
-            <FuelLogSection vehicleId={vehicleId} />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </View>
+              {/* Maintenance sections */}
+              {vehicleLayout.showMaintenanceOverview && (
+                <MaintenanceOverview vehicleId={vehicleId} />
+              )}
+              {vehicleLayout.showMaintenanceHistory && (
+                <MaintenanceHistory vehicleId={vehicleId} />
+              )}
+              {vehicleLayout.showFuelLogs && (
+                <FuelLogSection vehicleId={vehicleId} />
+              )}
+            </LinearGradient>
+          </Animated.ScrollView>
+        </SafeAreaView>
+        <ImageViewerModal
+          visible={isModalVisible}
+          imageUri={fullscreenImage}
+          onClose={() => setIsModalVisible(false)}
+        />
+        <VehicleViewSettingsModal
+          visible={isViewSettingsVisible}
+          onClose={() => setIsViewSettingsVisible(false)}
+        />
+      </View>
+    </ThemedBackground>
   );
 }
 
-const createStyles = (colors: any) =>
+const createStyles = (
+  colors: any,
+  insets: any,
+  isMinimalist: boolean = false
+) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -233,16 +520,34 @@ const createStyles = (colors: any) =>
       position: "relative",
     },
     vehicleImage: {
-      width: "100%",
-      height: 400,
+      width: SCREEN_WIDTH,
+      height: isMinimalist ? SCREEN_HEIGHT * 0.6 : 400, // Taller image in minimalist mode
       backgroundColor: colors.border,
     },
     noImagePlaceholder: {
       width: "100%",
-      height: 400,
+      height: isMinimalist ? SCREEN_HEIGHT * 0.6 : 400,
       backgroundColor: colors.primary + "15",
       justifyContent: "center",
       alignItems: "center",
+    },
+    paginationContainer: {
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: 8,
+      marginTop: 8,
+      marginBottom: 16,
+    },
+    paginationDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+    },
+    paginationDotActive: {
+      width: 24,
+      height: 8,
+      borderRadius: 4,
     },
     floatingBackButtonContainer: {
       position: "absolute",
@@ -254,9 +559,48 @@ const createStyles = (colors: any) =>
       position: "absolute",
       top: Platform.OS === "ios" ? 50 : 30,
       right: 20,
-      flexDirection: "row",
-      gap: 12,
+      alignItems: "flex-end", // Align items to the right
       zIndex: 10,
+    },
+    menuContainer: {
+      position: "absolute",
+      top: 56, // Button height (44) + gap (12)
+      right: 0,
+      borderRadius: 12,
+      overflow: "hidden",
+      minWidth: 180,
+      zIndex: 20, // Ensure it sits above other elements
+    },
+    menuBackdrop: {
+      position: "absolute",
+      top: -100, // Cover top status bar area
+      right: -20, // Undo parent padding
+      width: SCREEN_WIDTH,
+      height: SCREEN_HEIGHT,
+      zIndex: 15, // Below menu (20) but above content
+    },
+    menuBlur: {
+      paddingVertical: 4,
+      backgroundColor: "rgba(0, 0, 0, 0.9)", // Maximum contrast
+      borderWidth: 1,
+      borderColor: "rgba(255, 255, 255, 0.2)",
+    },
+    menuItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      gap: 12,
+    },
+    menuItemText: {
+      fontSize: 14,
+      fontFamily: "Inter_600SemiBold",
+      color: "#FFFFFF",
+    },
+    menuDivider: {
+      height: 1,
+      backgroundColor: "rgba(255, 255, 255, 0.1)", // Consistent glass divider
+      marginHorizontal: 16,
     },
     floatingButtonBlur: {
       width: 44,
@@ -264,7 +608,7 @@ const createStyles = (colors: any) =>
       borderRadius: 22,
       justifyContent: "center",
       alignItems: "center",
-      backgroundColor: "rgba(0, 0, 0, 0.3)",
+      backgroundColor: "rgba(0, 0, 0, 0.8)",
       overflow: "hidden",
     },
     safeArea: {
@@ -274,7 +618,7 @@ const createStyles = (colors: any) =>
       flex: 1,
     },
     scrollContent: {
-      paddingBottom: 32,
+      paddingBottom: 0,
     },
     curvedCard: {
       backgroundColor: colors.background,
@@ -285,8 +629,16 @@ const createStyles = (colors: any) =>
       paddingHorizontal: 0,
       shadowColor: "#000",
       shadowOffset: { width: 0, height: -10 },
-      shadowOpacity: 0.15,
-      shadowRadius: 20,
-      elevation: 15,
+      shadowOpacity: 0.1, // Reduced from 0.15 for softer feel
+      shadowRadius: 24, // Increased radius
+      elevation: 10,
+      minHeight:
+        SCREEN_HEIGHT -
+        (isMinimalist ? SCREEN_HEIGHT * 0.6 : 400) +
+        80 -
+        insets.bottom,
+      // Calcs: Screen - ImageHeight + Overlap(80) - Insets.
+      // This ensures it fills EXACTLY the remaining space.
+      paddingBottom: 32,
     },
   });

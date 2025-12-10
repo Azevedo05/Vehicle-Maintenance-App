@@ -26,6 +26,7 @@ import LoadingOverlay from "@/components/LoadingOverlay";
 import { Input } from "@/components/ui/Input";
 import { Chip } from "@/components/ui/Chip";
 import { SuccessAnimation } from "@/components/ui/SuccessAnimation";
+import { ThemedBackground } from "@/components/ThemedBackground";
 
 export default function AddFuelLogScreen() {
   const { vehicleId, fuelLogId } = useLocalSearchParams();
@@ -196,171 +197,176 @@ export default function AddFuelLogScreen() {
   const styles = createStyles(colors);
 
   return (
-    <SafeAreaView style={styles.container} edges={["bottom"]}>
-      <Stack.Screen
-        options={{
-          title: isEditing ? t("fuel.edit_log") : t("fuel.add_log"),
-          headerRight: () => (
-            <View
-              style={{
-                flexDirection: "row",
-                gap: 16,
-                alignItems: "center",
-                marginRight: Platform.OS === "ios" ? -16 : 0,
-              }}
-            >
-              {isSubmitting ? (
-                <ActivityIndicator color={colors.primary} />
-              ) : (
-                <>
-                  <TouchableOpacity
-                    onPress={handleSubmit}
-                    disabled={isSubmitting}
-                  >
-                    <Check size={20} color={colors.primary} />
-                  </TouchableOpacity>
-                  {isEditing && (
+    <ThemedBackground>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: "transparent" }]}
+        edges={["bottom"]}
+      >
+        <Stack.Screen
+          options={{
+            title: isEditing ? t("fuel.edit_log") : t("fuel.add_log"),
+            headerRight: () => (
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 16,
+                  alignItems: "center",
+                  marginRight: Platform.OS === "ios" ? -16 : 0,
+                }}
+              >
+                {isSubmitting ? (
+                  <ActivityIndicator color={colors.primary} />
+                ) : (
+                  <>
                     <TouchableOpacity
-                      onPress={handleDelete}
+                      onPress={handleSubmit}
                       disabled={isSubmitting}
                     >
-                      <Trash2 size={20} color={colors.error} />
+                      <Check size={20} color={colors.primary} />
                     </TouchableOpacity>
-                  )}
-                </>
-              )}
-            </View>
-          ),
-        }}
-      />
-      <SuccessAnimation
-        visible={showSuccess}
-        onAnimationFinish={() => {
-          setShowSuccess(false);
-          router.back();
-        }}
-      />
-      <KeyboardAvoidingView
-        behavior="padding"
-        style={styles.keyboardView}
-        keyboardVerticalOffset={100}
-      >
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
+                    {isEditing && (
+                      <TouchableOpacity
+                        onPress={handleDelete}
+                        disabled={isSubmitting}
+                      >
+                        <Trash2 size={20} color={colors.error} />
+                      </TouchableOpacity>
+                    )}
+                  </>
+                )}
+              </View>
+            ),
+          }}
+        />
+        <SuccessAnimation
+          visible={showSuccess}
+          onAnimationFinish={() => {
+            setShowSuccess(false);
+            router.back();
+          }}
+        />
+        <KeyboardAvoidingView
+          behavior="padding"
+          style={styles.keyboardView}
+          keyboardVerticalOffset={100}
         >
-          <View style={styles.form}>
-            <DatePickerInput
-              label={t("fuel.date_label")}
-              value={date}
-              onChange={setDate}
-              mode="date"
-              maximumDate={new Date()}
-              required
-            />
-
-            {/* Fuel type chips - only show if vehicle doesn't have a type set */}
-            {!vehicle?.fuelType && (
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>{t("fuel.type_label")}</Text>
-                <View style={styles.typeRow}>
-                  {(
-                    ["gasoline", "diesel", "gpl", "electric"] as FuelType[]
-                  ).map((type) => (
-                    <Chip
-                      key={type}
-                      label={t(`fuel.type_${type}`)}
-                      active={fuelType === type}
-                      onPress={() => setFuelType(type)}
-                      style={styles.typeChip}
-                    />
-                  ))}
-                </View>
-              </View>
-            )}
-
-            <View style={styles.row}>
-              <View style={styles.rowItem}>
-                <Input
-                  label={t("fuel.volume_label", {
-                    unit: t("fuel.volume_unit"),
-                  })}
-                  value={volume}
-                  onChangeText={setVolume}
-                  placeholder={t("fuel.volume_placeholder")}
-                  keyboardType="decimal-pad"
-                  required
-                />
-              </View>
-              <View style={styles.rowItem}>
-                <Input
-                  label={t("fuel.total_cost_label", {
-                    currency: currencySymbol,
-                  })}
-                  value={totalCost}
-                  onChangeText={setTotalCost}
-                  placeholder="70.00"
-                  keyboardType="decimal-pad"
-                  required
-                />
-              </View>
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>{t("fuel.station_label")}</Text>
-              <TextInput
-                style={styles.input}
-                value={station}
-                onChangeText={(text) => {
-                  setStation(text);
-                  setShowSuggestions(true);
-                }}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => {
-                  // Delay hiding to allow press on suggestion
-                  setTimeout(() => setShowSuggestions(false), 200);
-                }}
-                placeholder={t("fuel.station_placeholder")}
-                placeholderTextColor={colors.placeholder}
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.form}>
+              <DatePickerInput
+                label={t("fuel.date_label")}
+                value={date}
+                onChange={setDate}
+                mode="date"
+                maximumDate={new Date()}
+                required
               />
-              {showSuggestions && filteredStations.length > 0 && (
-                <View style={styles.suggestionsContainer}>
-                  {filteredStations.map((item) => (
-                    <TouchableOpacity
-                      key={item}
-                      style={styles.suggestionItem}
-                      onPress={() => {
-                        setStation(item);
-                        setShowSuggestions(false);
-                      }}
-                    >
-                      <Text style={styles.suggestionText}>{item}</Text>
-                    </TouchableOpacity>
-                  ))}
+
+              {/* Fuel type chips - only show if vehicle doesn't have a type set */}
+              {!vehicle?.fuelType && (
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>{t("fuel.type_label")}</Text>
+                  <View style={styles.typeRow}>
+                    {(
+                      ["gasoline", "diesel", "gpl", "electric"] as FuelType[]
+                    ).map((type) => (
+                      <Chip
+                        key={type}
+                        label={t(`fuel.type_${type}`)}
+                        active={fuelType === type}
+                        onPress={() => setFuelType(type)}
+                        style={styles.typeChip}
+                      />
+                    ))}
+                  </View>
                 </View>
               )}
+
+              <View style={styles.row}>
+                <View style={styles.rowItem}>
+                  <Input
+                    label={t("fuel.volume_label", {
+                      unit: t("fuel.volume_unit"),
+                    })}
+                    value={volume}
+                    onChangeText={setVolume}
+                    placeholder={t("fuel.volume_placeholder")}
+                    keyboardType="decimal-pad"
+                    required
+                  />
+                </View>
+                <View style={styles.rowItem}>
+                  <Input
+                    label={t("fuel.total_cost_label", {
+                      currency: currencySymbol,
+                    })}
+                    value={totalCost}
+                    onChangeText={setTotalCost}
+                    placeholder="70.00"
+                    keyboardType="decimal-pad"
+                    required
+                  />
+                </View>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>{t("fuel.station_label")}</Text>
+                <TextInput
+                  style={styles.input}
+                  value={station}
+                  onChangeText={(text) => {
+                    setStation(text);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => {
+                    // Delay hiding to allow press on suggestion
+                    setTimeout(() => setShowSuggestions(false), 200);
+                  }}
+                  placeholder={t("fuel.station_placeholder")}
+                  placeholderTextColor={colors.placeholder}
+                />
+                {showSuggestions && filteredStations.length > 0 && (
+                  <View style={styles.suggestionsContainer}>
+                    {filteredStations.map((item) => (
+                      <TouchableOpacity
+                        key={item}
+                        style={styles.suggestionItem}
+                        onPress={() => {
+                          setStation(item);
+                          setShowSuggestions(false);
+                        }}
+                      >
+                        <Text style={styles.suggestionText}>{item}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </View>
+
+              <Input
+                label={t("fuel.notes_label")}
+                value={notes}
+                onChangeText={setNotes}
+                placeholder={t("fuel.notes_placeholder")}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+                style={styles.textArea}
+              />
             </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
 
-            <Input
-              label={t("fuel.notes_label")}
-              value={notes}
-              onChangeText={setNotes}
-              placeholder={t("fuel.notes_placeholder")}
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-              style={styles.textArea}
-            />
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-
-      <LoadingOverlay
-        visible={isSubmitting}
-        text={isEditing ? t("common.saving") : t("fuel.saving")}
-      />
-    </SafeAreaView>
+        <LoadingOverlay
+          visible={isSubmitting}
+          text={isEditing ? t("common.saving") : t("fuel.saving")}
+        />
+      </SafeAreaView>
+    </ThemedBackground>
   );
 }
 

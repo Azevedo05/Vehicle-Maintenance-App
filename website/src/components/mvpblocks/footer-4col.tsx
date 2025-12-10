@@ -40,7 +40,7 @@ const companyLinks = [
 ];
 export default function Footer4Col() {
   return (
-    <footer className="bg-secondary dark:bg-secondary/20 mt-16 w-full place-self-end rounded-t-xl">
+    <footer className="bg-black border-t border-white/10 mt-16 w-full place-self-end rounded-t-xl">
       <div className="mx-auto max-w-screen-xl px-4 pt-16 pb-6 sm:px-6 lg:px-8 lg:pt-24">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div>
@@ -110,13 +110,16 @@ export default function Footer4Col() {
         </div>
 
         <div className="mt-12 border-t pt-6">
-          <div className="text-center sm:flex sm:justify-between sm:text-left">
-            <p className="text-sm">
-              <span className="block sm:inline">All rights reserved.</span>
-            </p>
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
+            <div className="flex flex-col sm:flex-row gap-2 text-sm text-secondary-foreground/70">
+              <p>&copy; 2025 {data.company.name}</p>
+              <span className="hidden sm:inline">&middot;</span>
+              <p>All rights reserved.</p>
+            </div>
 
-            <p className="text-secondary-foreground/70 mt-4 text-sm transition sm:order-first sm:mt-0">
-              &copy; 2025 {data.company.name}
+            <p className="text-xs text-secondary-foreground/40 sm:text-right">
+              Product images are for illustrative purposes only. Actual UI may
+              vary.
             </p>
           </div>
         </div>

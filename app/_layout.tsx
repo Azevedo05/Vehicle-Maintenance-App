@@ -1,10 +1,18 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import * as SystemUI from "expo-system-ui";
 import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
-
+import {
+  useFonts,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  Inter_800ExtraBold,
+} from "@expo-google-fonts/inter";
 import { AnimatedSplashScreen } from "@/components/AnimatedSplashScreen";
 
 import {
@@ -15,7 +23,10 @@ import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
 import { VehicleProvider } from "@/contexts/VehicleContext";
 import { AlertProvider } from "@/contexts/AlertContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
-import { PreferencesProvider } from "@/contexts/PreferencesContext";
+import {
+  PreferencesProvider,
+  usePreferences,
+} from "@/contexts/PreferencesContext";
 import { useMaintenanceNotifications } from "@/hooks/useMaintenanceNotifications";
 
 SplashScreen.preventAutoHideAsync();
@@ -109,41 +120,82 @@ function RootLayoutNav() {
           headerTintColor: colors.text,
         }}
       />
+      <Stack.Screen
+        name="onboarding"
+        options={{ headerShown: false, animation: "fade" }}
+      />
     </Stack>
   );
 }
 
-export default function RootLayout() {
+const RootLayoutContent = () => {
   const [isSplashAnimationFinished, setSplashAnimationFinished] =
     useState(false);
+  const { isOnboardingCompleted, isLoading } = usePreferences();
+  const router = useRouter();
+  const segments = useSegments();
+  const { colors } = useTheme();
+
+  const [fontsLoaded] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    Inter_800ExtraBold,
+  });
 
   useEffect(() => {
-    // Native splash screen hiding is now handled by AnimatedSplashScreen
-    // to ensure no flash of content occurs before the video is ready.
-  }, []);
+    if (isLoading || !isSplashAnimationFinished || !fontsLoaded) return;
 
+    const inOnboardingGroup = segments[0] === "onboarding";
+
+    if (!isOnboardingCompleted && !inOnboardingGroup) {
+      // Redirect to onboarding if not completed
+      router.replace("/onboarding");
+    } else if (isOnboardingCompleted && inOnboardingGroup) {
+      // Redirect to tabs if onboarding is already completed
+      router.replace("/");
+    }
+  }, [
+    isOnboardingCompleted,
+    isLoading,
+    isSplashAnimationFinished,
+    fontsLoaded,
+    segments,
+  ]);
+
+  if (isLoading || !isSplashAnimationFinished || !fontsLoaded) {
+    return (
+      <AnimatedSplashScreen onFinish={() => setSplashAnimationFinished(true)} />
+    );
+  }
+
+  return <RootLayoutNav />;
+};
+
+const ThemedPaperProvider = ({ children }: { children: React.ReactNode }) => {
+  const { paperTheme } = useTheme();
+  return <PaperProvider theme={paperTheme}>{children}</PaperProvider>;
+};
+
+export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <LocalizationProvider>
         <ThemeProvider>
-          <PaperProvider>
+          <ThemedPaperProvider>
             <PreferencesProvider>
               <NotificationProvider>
                 <VehicleProvider>
                   <AlertProvider>
                     <GestureHandlerRootView style={{ flex: 1 }}>
-                      {!isSplashAnimationFinished && (
-                        <AnimatedSplashScreen
-                          onFinish={() => setSplashAnimationFinished(true)}
-                        />
-                      )}
-                      <RootLayoutNav />
+                      <RootLayoutContent />
                     </GestureHandlerRootView>
                   </AlertProvider>
                 </VehicleProvider>
               </NotificationProvider>
             </PreferencesProvider>
-          </PaperProvider>
+          </ThemedPaperProvider>
         </ThemeProvider>
       </LocalizationProvider>
     </QueryClientProvider>

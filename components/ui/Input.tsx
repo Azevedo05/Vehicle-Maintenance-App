@@ -26,6 +26,7 @@ export const Input = ({
 }: InputProps) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
+  const [isFocused, setIsFocused] = React.useState(false);
 
   return (
     <View style={[styles.container, containerStyle]}>
@@ -37,10 +38,16 @@ export const Input = ({
       <TextInput
         style={[
           styles.input,
+          isFocused && {
+            borderColor: colors.primary,
+            backgroundColor: colors.primary + "05", // Very subtle tint
+          },
           error ? { borderColor: colors.error } : null,
           style,
         ]}
         placeholderTextColor={colors.placeholder}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         {...props}
       />
       {error && <Text style={styles.errorText}>{error}</Text>}

@@ -44,6 +44,7 @@
 - [x] **Make Fuel Logs clicabel**: Make fuel logs clickable to open the log details page.
 - [x] **Change the Inspection Overdue border color to red**
 - [x] **Ensure "Next maintenance" appears in "Add maintenance task" even when the recurring task is not activated**
+- [x] **Vehicle Card Status Indicators**: Split overdue/upcoming status into a unified status pill for better clarity.
 
 ## 7. New Features & Research
 
@@ -60,6 +61,14 @@
 
 - [x] **Feed the app with data**: Update the data with a few vehicles and maintenance tasks to ensure the app works as expected.
 
+## 10. Website (Marketing)
+
+- [x] **Hero Image**: Updated with actual app screenshot (S25 Ultra style).
+- [x] **Visual Effects**: Added "Glow" and "Shimmer" effects to Hero and Showcase mockups.
+- [x] **Showcase Polish**: Fixed text clipping and refined atmospheric lighting.
+- [x] **Platform Info**: Updated website to reflect Android-first focus (coming soon for iOS).
+- [ ] **Change the Mockups**: Change the mockups to be most updated app printscreen.
+
 ## 11. IOS Critical Fixes (Deferred to v1.1)
 
 - [ ] **Header Buttons Misalignment**: Fix "Confirm" and "Save" buttons alignment in headers.
@@ -70,3 +79,14 @@
 ## 12. Version 2.0 (Planned)
 
 - [ ] **Biometric Authentication**: Add FaceID/TouchID support.
+- [ ] **Visual Statistics**: Implement charts/graphs for spending and maintenance trends.
+- [ ] **Maintenance Calendar**: Calendar view to visualize upcoming maintenance dates.
+
+## 13. Final Polish & Data Injection
+
+- [x] **Empty State UX**: Improve "No Vehicles" state with an interactive arrow pointing to the FAB ("Add" button) to encourage action.
+- [x] **Typography Review**: Upgrade to "Inter" font for a more premium, modern look.
+- [x] **Vehicle Image Dots**: Review the pagination dots that indicate which vehicle image is being viewed ("pontinhos"), ensuring they distinguish the active image clearly.
+- [ ] **Material Design 3 Compliance**: Conduct a review against [M3 Design Guidelines](https://m3.material.io/get-started) to ensure adhering to best practices.
+- [x] **Data Injection**: Create realistic dummy data using the user-provided images (to be placed in `assets/temp_images`).
+- [ ] **Interactive Empty State**: Add an arrow pointing to the "Add" button when the list is empty.

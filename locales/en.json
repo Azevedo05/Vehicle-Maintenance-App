@@ -3,8 +3,10 @@
     "vehicles": "Vehicles",
     "reminders": "Reminders",
     "statistics": "Stats",
-    "settings": "Settings"
+    "settings": "Settings",
+    "preferences": "Preferences"
   },
+
   "validation": {
     "required": "This field is required",
     "number_required": "Please enter a valid number",
@@ -47,6 +49,7 @@
     "mileage_placeholder": "e.g., 50000",
     "photo": "Photo",
     "add_photo": "Add Photo",
+    "main_photo": "Main Photo",
     "choose_photo_source": "Choose photo source",
     "camera": "Camera",
     "gallery": "Gallery",
@@ -173,6 +176,7 @@
     "at_mileage": "at {{mileage}} km",
     "recommended_km_simple": "{{km}} km",
     "recommended_months_simple": "{{months}} months",
+    "recommended_days_simple": "{{days}} days",
     "date": "Date",
     "mileage": "Mileage",
     "cost": "Cost",
@@ -181,9 +185,9 @@
     "due_in_days": "Due in {{days}} days",
     "due_in_km": "Due in {{km}} km",
     "due_on_date": "On {{date}}",
-    "due_at_km": "At {{km}} km",
+    "due_at_km": "At {{km}}",
     "in_days": "In {{days}} days",
-    "in_km": "In {{km}} km",
+    "in_km": "In {{km}}",
     "overdue": "Overdue",
     "recurring": "Recurring",
     "due_now": "Pending",
@@ -440,6 +444,7 @@
     "feature_backup": "Data Security"
   },
   "common": {
+    "ready": "You're All Set",
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -463,6 +468,7 @@
     "reorder_hint": "Drag items to reorder",
     "ascending": "Ascending",
     "descending": "Descending",
+    "specifications": "Vehicle Specifications",
     "back_to_top": "Back to Top"
   },
   "quick_reminders": {
@@ -508,5 +514,32 @@
     "maintenance_tomorrow_title": "Maintenance Tomorrow",
     "maintenance_tomorrow_body": "Don't forget: {{taskTitle}} for {{vehicleName}} is tomorrow!",
     "snoozed_title": "Snoozed Reminder"
+  },
+  "onboarding": {
+    "welcome_pretitle": "Welcome to,",
+    "welcome_subtitle": "Track your vehicle's health,\nmaintenance, and fuel in one place.",
+    "features_title": "Everything you need",
+    "feature_vehicles": "Manage unlimited vehicles",
+    "feature_maintenance": "Smart maintenance reminders",
+    "feature_fuel": "Track fuel costs & efficiency",
+    "feature_statistics": "Detailed Statistics",
+    "feature_reminders": "Custom Reminders",
+    "slide_add_vehicle_title": "Add Your Vehicle",
+    "slide_add_vehicle_body": "Tap the '+' button to add your first car or bike. Enter the make, model, and current mileage.",
+    "slide_maintenance_title": "Track Maintenance",
+    "slide_maintenance_body": "Set up reminders for oil changes, inspections, and more. Never miss a service again.",
+    "preferences_subtitle": "Customize your experience.",
+    "ready_title": "You're All Set",
+    "ready_subtitle": "Start adding your vehicles and tracking your maintenance today."
+  },
+  "vehicle_details": {
+    "customize_view": "Customize View",
+    "customize_view_description": "Choose which sections to show on the vehicle page.",
+    "show_quick_reminders": "Quick Reminders",
+    "show_maintenance_overview": "Maintenance Overview",
+    "show_maintenance_history": "Maintenance History",
+    "show_fuel_logs": "Fuel Logs",
+    "all_sections_hidden": "Minimalist View",
+    "all_sections_hidden_hint": "Tap the eye icon at the top to reveal more vehicle details."
   }
 }

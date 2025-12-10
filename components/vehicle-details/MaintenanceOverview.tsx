@@ -46,6 +46,13 @@ export const MaintenanceOverview = ({
         </View>
       ) : (
         upcomingTasks.map((item) => {
+          const isStrictlyOverdue =
+            item.daysUntilDue !== undefined
+              ? item.daysUntilDue <= 0
+              : item.milesUntilDue !== undefined
+              ? item.milesUntilDue <= 0
+              : false;
+
           return (
             <View
               key={item.task.id}
@@ -64,7 +71,11 @@ export const MaintenanceOverview = ({
                 <Text
                   style={[
                     styles.taskDue,
-                    item.isDue ? styles.taskOverdue : styles.taskScheduled,
+                    isStrictlyOverdue
+                      ? styles.taskOverdue
+                      : item.isDue
+                      ? styles.taskWarning
+                      : styles.taskScheduled,
                   ]}
                 >
                   {item.daysUntilDue !== undefined

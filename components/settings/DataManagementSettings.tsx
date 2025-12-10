@@ -19,6 +19,7 @@ import {
   clearAllData,
   exportCategoryData,
   loadSampleData,
+  injectSeedData,
 } from "@/utils/dataManagement";
 import { VEHICLE_CATEGORY_INFO, VehicleCategory } from "@/types/vehicle";
 import LoadingOverlay from "@/components/LoadingOverlay";
@@ -42,6 +43,7 @@ export const DataManagementSettings = () => {
   const [isClearing, setIsClearing] = useState(false);
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
   const [isCategoryExporting, setIsCategoryExporting] = useState(false);
+  const [isInjecting, setIsInjecting] = useState(false);
 
   const styles = createSettingsStyles(colors);
   const localStyles = createLocalStyles(colors);
@@ -220,6 +222,24 @@ export const DataManagementSettings = () => {
     });
   };
 
+  const handleInjectData = async () => {
+    setIsInjecting(true);
+    const success = await injectSeedData();
+    if (success) {
+      await reloadVehicleData();
+      showAlert({
+        title: t("common.success"),
+        message: "Test data injected successfully",
+      });
+    } else {
+      showAlert({
+        title: t("common.error"),
+        message: "Failed to inject test data",
+      });
+    }
+    setIsInjecting(false);
+  };
+
   return (
     <>
       <View style={styles.section}>
@@ -273,7 +293,7 @@ export const DataManagementSettings = () => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.optionButton, styles.optionButtonLast]}
+            style={[styles.optionButton]}
             onPress={handleClearData}
             activeOpacity={0.7}
           >
@@ -287,13 +307,32 @@ export const DataManagementSettings = () => {
               </Text>
             </View>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.optionButton, styles.optionButtonLast]}
+            onPress={handleInjectData}
+            activeOpacity={0.7}
+          >
+            <Car size={20} color={colors.primary} />
+            <View style={styles.notificationContent}>
+              <Text style={styles.optionText}>Inject Test Data</Text>
+              <Text style={styles.optionDescription}>
+                Add realistic vehicle data for testing
+              </Text>
+            </View>
+            <ChevronRight size={20} color={colors.textSecondary} />
+          </TouchableOpacity>
         </View>
       </View>
 
       <LoadingOverlay
-        visible={isExporting || isImporting || isClearing}
+        visible={isExporting || isImporting || isClearing || isInjecting}
         text={
-          isExporting ? t("settings.export_data") : t("settings.import_data")
+          isExporting
+            ? t("settings.export_data")
+            : isInjecting
+            ? "Injecting data..."
+            : t("settings.import_data")
         }
       />
 

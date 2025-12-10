@@ -58,7 +58,9 @@ export const VehicleHeader = ({ vehicle }: VehicleHeaderProps) => {
         <View style={styles.nameContainer}>
           <Text style={styles.vehicleName}>
             {vehicle.make}{" "}
-            <Text style={{ fontWeight: "400" }}>{vehicle.model}</Text>
+            <Text style={{ fontWeight: "400", opacity: 0.9 }}>
+              {vehicle.model}
+            </Text>
           </Text>
           {/* License Plate as a secondary subtle element */}
           {vehicle.licensePlate && (
@@ -71,9 +73,9 @@ export const VehicleHeader = ({ vehicle }: VehicleHeaderProps) => {
           style={styles.archiveButton}
         >
           {vehicle.archived ? (
-            <ArchiveRestore size={22} color={colors.warning} />
+            <ArchiveRestore size={24} color={colors.warning} />
           ) : (
-            <Archive size={22} color={colors.primary} />
+            <Archive size={24} color={colors.text} />
           )}
         </TouchableOpacity>
       </View>
@@ -146,9 +148,8 @@ const createStyles = (colors: any) =>
       letterSpacing: 1,
     },
     archiveButton: {
-      padding: 8,
-      backgroundColor: colors.surface,
-      borderRadius: 12,
+      padding: 4,
+      // No background, matching list header style
     },
     badgeRow: {
       flexDirection: "row",

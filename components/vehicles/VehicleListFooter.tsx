@@ -72,9 +72,9 @@ const styles = StyleSheet.create({
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 8,
-    elevation: 3,
+    elevation: 8,
   },
   text: {
     fontSize: 14,

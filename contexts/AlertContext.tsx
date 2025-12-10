@@ -359,7 +359,9 @@ const createStyles = (colors: ReturnType<typeof useTheme>["colors"]) =>
     },
     buttonSingle: {
       marginTop: 8,
-      paddingVertical: 12,
+      paddingVertical: 16,
+      width: "100%",
+      alignItems: "center",
     },
     buttonCancel: {
       backgroundColor: "transparent",

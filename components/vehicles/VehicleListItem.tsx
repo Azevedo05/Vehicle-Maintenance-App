@@ -6,7 +6,7 @@ import {
   Paragraph,
   useTheme as usePaperTheme,
 } from "react-native-paper";
-import { ArchiveRestore, Car } from "lucide-react-native";
+import { ArchiveRestore, Car, Clock, AlertCircle } from "lucide-react-native";
 import { router } from "expo-router";
 import { BlurView } from "expo-blur";
 
@@ -129,53 +129,116 @@ const VehicleListItemComponent = ({
                 <ArchiveRestore size={18} color={colors.warning} />
               </BlurView>
             ))}
-          {dueTasks.length > 0 &&
-            (Platform.OS === "android" ? (
+          {/* Badge Logic: Unified Status Pill */}
+          {(() => {
+            const overdueTasks = dueTasks.filter((t) => {
+              const isOverdueDate =
+                t.daysUntilDue !== undefined && t.daysUntilDue <= 0;
+              const isOverdueMileage =
+                t.milesUntilDue !== undefined && t.milesUntilDue <= 0;
+              return isOverdueDate || isOverdueMileage;
+            });
+
+            const upcomingTasksCount = dueTasks.length - overdueTasks.length;
+            const overdueCount = overdueTasks.length;
+
+            if (overdueCount === 0 && upcomingTasksCount === 0) return null;
+
+            const content = (
+              <View
+                style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+              >
+                {/* Overdue Section */}
+                {overdueCount > 0 && (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    <AlertCircle
+                      size={14}
+                      color={colors.error}
+                      fill={colors.error}
+                    />
+                    <Text
+                      style={{
+                        color: "#FFFFFF",
+                        fontWeight: "700",
+                        fontSize: 13,
+                      }}
+                    >
+                      {overdueCount}
+                    </Text>
+                  </View>
+                )}
+
+                {/* Separator if both exist */}
+                {overdueCount > 0 && upcomingTasksCount > 0 && (
+                  <View
+                    style={{
+                      width: 1,
+                      height: 12,
+                      backgroundColor: "rgba(255,255,255,0.2)",
+                    }}
+                  />
+                )}
+
+                {/* Upcoming Section */}
+                {upcomingTasksCount > 0 && (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    <Clock size={14} color={colors.warning} />
+                    <Text
+                      style={{
+                        color: "#FFFFFF",
+                        fontWeight: "700",
+                        fontSize: 13,
+                      }}
+                    >
+                      {upcomingTasksCount}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            );
+
+            return Platform.OS === "android" ? (
               <View
                 style={{
                   paddingVertical: 6,
-                  paddingHorizontal: 12,
-                  borderRadius: 20,
-                  backgroundColor: colors.error, // Solid color for better visibility on Android fallback
+                  paddingHorizontal: 10,
+                  borderRadius: 16,
+                  backgroundColor: "rgba(0,0,0,0.7)",
                   justifyContent: "center",
                   alignItems: "center",
                 }}
               >
-                <Text
-                  style={{
-                    color: "#FFFFFF",
-                    fontWeight: "bold",
-                    fontSize: 14,
-                  }}
-                >
-                  {dueTasks.length}
-                </Text>
+                {content}
               </View>
             ) : (
               <BlurView
-                intensity={30}
-                tint="light" // Stand out more
+                intensity={40}
+                tint="systemThickMaterialDark"
                 style={{
                   paddingVertical: 6,
-                  paddingHorizontal: 12,
-                  borderRadius: 20,
+                  paddingHorizontal: 10,
+                  borderRadius: 16,
                   overflow: "hidden",
                   justifyContent: "center",
                   alignItems: "center",
-                  backgroundColor: colors.error + "80", // Semi-transparent red
                 }}
               >
-                <Text
-                  style={{
-                    color: "#FFFFFF",
-                    fontWeight: "bold",
-                    fontSize: 14,
-                  }}
-                >
-                  {dueTasks.length}
-                </Text>
+                {content}
               </BlurView>
-            ))}
+            );
+          })()}
         </View>
       </View>
 

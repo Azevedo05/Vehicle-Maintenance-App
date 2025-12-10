@@ -35,7 +35,11 @@ export const AddReminderModal = ({
   const [newReminderText, setNewReminderText] = useState("");
   const [isRecurring, setIsRecurring] = useState(false);
   const [selectedTime, setSelectedTime] = useState(() => {
-    return new Date();
+    // Default to 1 hour (01:00)
+    const d = new Date();
+    d.setHours(1);
+    d.setMinutes(0);
+    return d;
   });
 
   const handleAdd = () => {
@@ -128,7 +132,7 @@ export const AddReminderModal = ({
                 <Text style={styles.sectionLabel}>
                   {isRecurring
                     ? t("quick_reminders.repeat_every")
-                    : t("quick_reminders.remind_at")}
+                    : t("quick_reminders.remind_in")}
                 </Text>
 
                 {/* Time Picker */}

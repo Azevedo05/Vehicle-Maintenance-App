@@ -11,7 +11,7 @@ export const createStyles = (colors: any) =>
     },
     scrollContent: {
       paddingHorizontal: 16,
-      paddingBottom: 24,
+      paddingBottom: 100,
     },
     itemSeparator: {
       height: 12,
@@ -32,8 +32,9 @@ export const createStyles = (colors: any) =>
       marginBottom: 12,
     },
     screenTitle: {
+      fontFamily: "Inter_800ExtraBold",
       fontSize: 28,
-      fontWeight: "700",
+      fontWeight: "800",
       color: colors.text,
     },
     headerButtonsRow: {
@@ -43,18 +44,20 @@ export const createStyles = (colors: any) =>
     iconHeaderButton: {
       flexDirection: "row",
       alignItems: "center",
-      paddingHorizontal: 10,
-      paddingVertical: 6,
+      paddingHorizontal: 12, // Increased from 10
+      paddingVertical: 10, // Increased from 6 to ensure larger hit area
       borderRadius: 999,
       backgroundColor: colors.card,
       borderWidth: 1,
       borderColor: colors.border,
       gap: 6,
+      minHeight: 40, // Enforce minimum visual height
     },
     iconHeaderButtonText: {
+      fontFamily: "Inter_600SemiBold",
       fontSize: 13,
       color: colors.text,
-      fontWeight: "500",
+      fontWeight: "600",
     },
     vehicleCard: {
       flexDirection: "column",
@@ -89,6 +92,7 @@ export const createStyles = (colors: any) =>
       marginBottom: 4,
     },
     vehicleName: {
+      fontFamily: "Inter_700Bold",
       fontSize: 18,
       fontWeight: "700",
       color: colors.text,
@@ -111,16 +115,19 @@ export const createStyles = (colors: any) =>
       borderRadius: 4,
     },
     archivedBadgeText: {
+      fontFamily: "Inter_600SemiBold",
       fontSize: 10,
       color: colors.textSecondary,
-      fontWeight: "500",
+      fontWeight: "600",
     },
     vehicleDetails: {
+      fontFamily: "Inter_500Medium",
       fontSize: 14,
       color: colors.textSecondary,
       marginBottom: 2,
     },
     vehicleMileage: {
+      fontFamily: "Inter_700Bold",
       fontSize: 16,
       color: colors.primary,
       fontWeight: "700",
@@ -132,6 +139,7 @@ export const createStyles = (colors: any) =>
       gap: 4,
     },
     categoryBadgeText: {
+      fontFamily: "Inter_600SemiBold",
       fontSize: 14,
       fontWeight: "600",
     },
@@ -151,7 +159,8 @@ export const createStyles = (colors: any) =>
 
     addButton: {
       position: "absolute",
-      bottom: 24,
+      bottom: 100, // Matches paddingBottom of list for perfect alignment with footer
+
       right: 24,
       width: 56,
       height: 56,
@@ -162,10 +171,10 @@ export const createStyles = (colors: any) =>
       shadowColor: "#000",
       shadowOffset: {
         width: 0,
-        height: 4,
+        height: 8,
       },
-      shadowOpacity: 0.3,
-      shadowRadius: 4.65,
+      shadowOpacity: 0.2, // Slightly more pronounced than cards but still soft
+      shadowRadius: 12,
       elevation: 8,
     },
     filterBadge: {

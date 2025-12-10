@@ -3,7 +3,7 @@
     "vehicles": "Veículos",
     "reminders": "Lembretes",
     "statistics": "Estatísticas",
-    "settings": "Definições"
+    "vehicle_types": "Tipos de Veículo"
   },
   "validation": {
     "required": "Este campo é obrigatório",
@@ -47,6 +47,7 @@
     "mileage_placeholder": "ex., 50000",
     "photo": "Foto",
     "add_photo": "Adicionar Foto",
+    "main_photo": "Foto de Capa",
     "choose_photo_source": "Escolher origem da foto",
     "camera": "Câmara",
     "gallery": "Galeria",
@@ -334,6 +335,7 @@
     "theme_light": "Claro",
     "theme_dark": "Escuro",
     "theme_system": "Predefinição do Sistema",
+    "preferences": "Preferências",
     "language": "Idioma",
     "language_en": "English",
     "language_pt": "Português (Portugal)",
@@ -442,6 +444,7 @@
     "feature_backup": "Segurança de Dados"
   },
   "common": {
+    "ready": "Tudo Pronto",
     "save": "Guardar",
     "cancel": "Cancelar",
     "delete": "Eliminar",
@@ -465,6 +468,7 @@
     "reorder_hint": "Arraste itens para reordenar",
     "ascending": "Ascendente",
     "descending": "Descendente",
+    "specifications": "Ficha Técnica",
     "back_to_top": "Voltar ao Topo"
   },
   "quick_reminders": {
@@ -510,5 +514,32 @@
     "maintenance_tomorrow_title": "Manutenção Amanhã",
     "maintenance_tomorrow_body": "Não se esqueça: {{taskTitle}} para {{vehicleName}} é amanhã!",
     "snoozed_title": "Lembrete Adiado"
+  },
+  "onboarding": {
+    "welcome_pretitle": "Bem-vindo ao,",
+    "welcome_subtitle": "Acompanhe a saúde do seu veículo,\nmanutenção e combustível num só lugar.",
+    "features_title": "Tudo o que precisa",
+    "feature_vehicles": "Gerir veículos ilimitados",
+    "feature_maintenance": "Lembretes de manutenção inteligentes",
+    "feature_fuel": "Controle custos de combustível",
+    "feature_statistics": "Estatísticas Detalhadas",
+    "feature_reminders": "Lembretes Personalizados",
+    "slide_add_vehicle_title": "Adicione o Seu Veículo",
+    "slide_add_vehicle_body": "Toque no botão '+' para adicionar o seu primeiro carro ou mota. Insira a marca, modelo e quilometragem atual.",
+    "slide_maintenance_title": "Acompanhe a Manutenção",
+    "slide_maintenance_body": "Configure lembretes para mudanças de óleo, inspeções e mais. Nunca perca um serviço.",
+    "preferences_subtitle": "Personalize a sua experiência.",
+    "ready_title": "Tudo Pronto",
+    "ready_subtitle": "Comece a adicionar os seus veículos e a registar manutenções hoje mesmo."
+  },
+  "vehicle_details": {
+    "customize_view": "Personalizar Vista",
+    "customize_view_description": "Escolha as secções que deseja ver na página do veículo.",
+    "show_quick_reminders": "Lembretes Rápidos",
+    "show_maintenance_overview": "Resumo de Manutenção",
+    "show_maintenance_history": "Histórico de Manutenção",
+    "show_fuel_logs": "Registos de Combustível",
+    "all_sections_hidden": "Vista Minimalista",
+    "all_sections_hidden_hint": "Toque no ícone do olho no topo para mostrar mais informações."
   }
 }

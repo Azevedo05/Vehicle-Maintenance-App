@@ -26,6 +26,7 @@ import { useAppAlert } from "@/contexts/AlertContext";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { SuccessAnimation } from "@/components/ui/SuccessAnimation";
+import { ThemedBackground } from "@/components/ThemedBackground";
 
 export default function AddRecordScreen() {
   const { vehicleId, taskId, recordId } = useLocalSearchParams();
@@ -210,146 +211,153 @@ export default function AddRecordScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["bottom"]}>
-      <Stack.Screen
-        options={{
-          headerRight: () => (
-            <View
-              style={{
-                flexDirection: "row",
-                gap: 16,
-                alignItems: "center",
-                marginRight: Platform.OS === "ios" ? -16 : 0,
-              }}
-            >
-              <TouchableOpacity
-                onPress={handleSubmit}
-                disabled={isSubmitting}
-                style={{ opacity: isSubmitting ? 0.5 : 1 }}
+    <ThemedBackground>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: "transparent" }]}
+        edges={["bottom"]}
+      >
+        <Stack.Screen
+          options={{
+            headerRight: () => (
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 16,
+                  alignItems: "center",
+                  marginRight: Platform.OS === "ios" ? -16 : 0,
+                }}
               >
-                <Check size={20} color={colors.primary} />
-              </TouchableOpacity>
-              {existingRecord && (
                 <TouchableOpacity
-                  onPress={handleDelete}
+                  onPress={handleSubmit}
                   disabled={isSubmitting}
                   style={{ opacity: isSubmitting ? 0.5 : 1 }}
+                  hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
                 >
-                  <Trash2 size={20} color={colors.error} />
+                  <Check size={24} color={colors.primary} />
                 </TouchableOpacity>
-              )}
-            </View>
-          ),
-        }}
-      />
-      <SuccessAnimation
-        visible={showSuccess}
-        onAnimationFinish={() => {
-          setShowSuccess(false);
-          router.back();
-        }}
-      />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardView}
-        keyboardVerticalOffset={100}
-      >
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
-          {!task && (
-            <>
-              <Text style={styles.sectionTitle}>
-                {t("maintenance.select_type")}
-              </Text>
-              <View style={styles.typeGrid}>
-                {sortedMaintenanceTypes.map((type) => {
-                  const isSelected = selectedType === type;
-                  return (
-                    <Card
-                      key={type}
-                      variant={isSelected ? "elevated" : "outlined"}
-                      style={[
-                        styles.typeCard,
-                        isSelected ? styles.typeCardSelected : undefined,
-                      ]}
-                      onPress={() => handleTypeSelect(type)}
-                    >
-                      <Text
-                        style={[
-                          styles.typeLabel,
-                          isSelected && styles.typeLabelSelected,
-                        ]}
-                        numberOfLines={2}
-                      >
-                        {getMaintenanceTypeLabel(type, t)}
-                      </Text>
-                    </Card>
-                  );
-                })}
+                {existingRecord && (
+                  <TouchableOpacity
+                    onPress={handleDelete}
+                    disabled={isSubmitting}
+                    style={{ opacity: isSubmitting ? 0.5 : 1 }}
+                    hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
+                  >
+                    <Trash2 size={24} color={colors.error} />
+                  </TouchableOpacity>
+                )}
               </View>
-            </>
-          )}
-
-          <View style={styles.form}>
-            {selectedType === "other" && (
-              <Input
-                label={t("maintenance.title_field")}
-                value={title}
-                onChangeText={setTitle}
-                placeholder={t("maintenance.task_name")}
-                required
-              />
+            ),
+          }}
+        />
+        <SuccessAnimation
+          visible={showSuccess}
+          onAnimationFinish={() => {
+            setShowSuccess(false);
+            router.back();
+          }}
+        />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.keyboardView}
+          keyboardVerticalOffset={100}
+        >
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            {!task && (
+              <>
+                <Text style={styles.sectionTitle}>
+                  {t("maintenance.select_type")}
+                </Text>
+                <View style={styles.typeGrid}>
+                  {sortedMaintenanceTypes.map((type) => {
+                    const isSelected = selectedType === type;
+                    return (
+                      <Card
+                        key={type}
+                        variant={isSelected ? "elevated" : "outlined"}
+                        style={[
+                          styles.typeCard,
+                          isSelected ? styles.typeCardSelected : undefined,
+                        ]}
+                        onPress={() => handleTypeSelect(type)}
+                      >
+                        <Text
+                          style={[
+                            styles.typeLabel,
+                            isSelected && styles.typeLabelSelected,
+                          ]}
+                          numberOfLines={2}
+                        >
+                          {getMaintenanceTypeLabel(type, t)}
+                        </Text>
+                      </Card>
+                    );
+                  })}
+                </View>
+              </>
             )}
 
-            <Input
-              label={t("maintenance.date")}
-              value={date}
-              onChangeText={setDate}
-              placeholder={t("maintenance.date_placeholder")}
-              required
-            />
+            <View style={styles.form}>
+              {selectedType === "other" && (
+                <Input
+                  label={t("maintenance.title_field")}
+                  value={title}
+                  onChangeText={setTitle}
+                  placeholder={t("maintenance.task_name")}
+                  required
+                />
+              )}
 
-            <Input
-              label={`${t("vehicles.current_mileage")} (${t("vehicles.km")})`}
-              value={mileage}
-              onChangeText={setMileage}
-              placeholder={t("vehicles.mileage_placeholder")}
-              keyboardType="numeric"
-              required
-            />
+              <Input
+                label={t("maintenance.date")}
+                value={date}
+                onChangeText={setDate}
+                placeholder={t("maintenance.date_placeholder")}
+                required
+              />
 
-            <Input
-              label={t("maintenance.cost")}
-              value={cost}
-              onChangeText={setCost}
-              placeholder={t("maintenance.cost_placeholder")}
-              keyboardType="decimal-pad"
-            />
+              <Input
+                label={`${t("vehicles.current_mileage")} (${t("vehicles.km")})`}
+                value={mileage}
+                onChangeText={setMileage}
+                placeholder={t("vehicles.mileage_placeholder")}
+                keyboardType="numeric"
+                required
+              />
 
-            <Input
-              label={t("maintenance.location")}
-              value={location}
-              onChangeText={setLocation}
-              placeholder={t("maintenance.location_placeholder")}
-            />
+              <Input
+                label={t("maintenance.cost")}
+                value={cost}
+                onChangeText={setCost}
+                placeholder={t("maintenance.cost_placeholder")}
+                keyboardType="decimal-pad"
+              />
 
-            <Input
-              label={t("maintenance.notes")}
-              value={notes}
-              onChangeText={setNotes}
-              placeholder={t("maintenance.notes")}
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-              style={styles.textArea}
-            />
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+              <Input
+                label={t("maintenance.location")}
+                value={location}
+                onChangeText={setLocation}
+                placeholder={t("maintenance.location_placeholder")}
+              />
+
+              <Input
+                label={t("maintenance.notes")}
+                value={notes}
+                onChangeText={setNotes}
+                placeholder={t("maintenance.notes")}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+                style={styles.textArea}
+              />
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </ThemedBackground>
   );
 }
 

@@ -3,6 +3,8 @@ import Header1 from "./components/mvpblocks/header-1";
 import { Hero } from "./components/Hero";
 import { Features } from "./components/Features";
 import { Showcase } from "./components/Showcase";
+import { Personalization } from "./components/Personalization";
+import Faq2 from "./components/mvpblocks/faq-2";
 import Footer4Col from "./components/mvpblocks/footer-4col";
 import Privacy from "./components/Privacy";
 import Terms from "./components/Terms";
@@ -19,6 +21,8 @@ function Landing() {
         <Hero />
         <Features />
         <Showcase />
+        <Personalization />
+        <Faq2 />
       </main>
       <Footer4Col />
     </>

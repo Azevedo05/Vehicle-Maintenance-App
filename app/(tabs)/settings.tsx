@@ -12,29 +12,39 @@ import { UnitSettings } from "@/components/settings/UnitSettings";
 import { DataManagementSettings } from "@/components/settings/DataManagementSettings";
 import { AboutSection } from "@/components/settings/AboutSection";
 
+import { ThemedBackground } from "@/components/ThemedBackground";
+
+// ...
+
 export default function SettingsScreen() {
   const { colors } = useTheme();
   const { t } = useLocalization();
   const styles = createStyles(colors);
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+    <ThemedBackground>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: "transparent" }]}
+        edges={["top"]}
       >
-        <View style={styles.header}>
-          <Text style={styles.screenTitle}>{t("settings.title")}</Text>
-        </View>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.header}>
+            <Text style={styles.screenTitle}>{t("settings.title")}</Text>
+          </View>
 
-        <ThemeSettings />
-        <LanguageSettings />
-        <NotificationSettingsSection />
-        <UnitSettings />
-        <DataManagementSettings />
-        <AboutSection />
-      </ScrollView>
-    </SafeAreaView>
+          <ThemeSettings />
+          <LanguageSettings />
+          <NotificationSettingsSection />
+          <UnitSettings />
+          <DataManagementSettings />
+          <AboutSection />
+        </ScrollView>
+      </SafeAreaView>
+    </ThemedBackground>
   );
 }
 
@@ -49,7 +59,7 @@ const createStyles = (colors: any) =>
     },
     scrollContent: {
       paddingHorizontal: 16,
-      paddingBottom: 12,
+      paddingBottom: 100,
     },
     header: {
       paddingTop: 8,

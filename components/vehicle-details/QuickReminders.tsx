@@ -122,23 +122,23 @@ export const QuickReminders = ({ vehicleId }: QuickRemindersProps) => {
         secondsFromNow = totalSeconds;
         dueDate = Date.now() + totalSeconds * 1000;
       } else {
-        // Time-based (Alarm)
-        const now = new Date();
-        const triggerDate = new Date();
-        triggerDate.setHours(date.getHours(), date.getMinutes(), 0, 0);
+        // One-time Duration (Timer) - previously was Alarm/Time
+        // User feedback indicates preference for "In X minutes" behavior
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        const totalSeconds = hours * 3600 + minutes * 60;
 
-        // If time passed today, schedule for tomorrow
-        if (triggerDate.getTime() <= now.getTime()) {
-          triggerDate.setDate(triggerDate.getDate() + 1);
-        }
+        // Ensure at least 1 second
+        const finalSeconds = totalSeconds > 0 ? totalSeconds : 1;
 
         trigger = {
-          type: Notifications.SchedulableTriggerInputTypes.DATE,
-          date: triggerDate,
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds: finalSeconds,
+          repeats: false,
         };
 
-        dueDate = triggerDate.getTime();
-        secondsFromNow = (dueDate - now.getTime()) / 1000;
+        secondsFromNow = finalSeconds;
+        dueDate = Date.now() + finalSeconds * 1000;
       }
 
       const notificationId = await Notifications.scheduleNotificationAsync({

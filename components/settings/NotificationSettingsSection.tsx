@@ -28,31 +28,14 @@ export const NotificationSettingsSection = () => {
   const localStyles = createLocalStyles(colors);
 
   const handleToggleNotifications = async (value: boolean) => {
-    // If turning on, show custom alert first
+    // If turning on, request permission directly (native behavior)
     if (value && !permissionGranted) {
-      showAlert({
-        title: t("settings.notifications_permission"),
-        message: t("settings.notifications_permission_explanation"),
-        buttons: [
-          {
-            text: t("common.cancel"),
-            style: "cancel",
-          },
-          {
-            text: t("common.allow"),
-            onPress: async () => {
-              setIsTogglingNotifications(true);
-              const granted = await requestPermissions();
-
-              if (granted) {
-                await toggleNotifications(true);
-              }
-
-              setIsTogglingNotifications(false);
-            },
-          },
-        ],
-      });
+      setIsTogglingNotifications(true);
+      const granted = await requestPermissions();
+      if (granted) {
+        await toggleNotifications(true);
+      }
+      setIsTogglingNotifications(false);
       return;
     }
 

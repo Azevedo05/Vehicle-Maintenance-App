@@ -32,7 +32,7 @@ html {
 }
 
 body {
-  background-color: var(--bg-color);
+  background-color: #000000;
   color: var(--text-color);
   font-family: var(--font-family);
   line-height: 1.6;
@@ -244,79 +244,17 @@ body {
 /* Features */
 .features {
   padding: 8rem 2rem;
-  background: #09090a;
+  background: #000000;
 }
 
-.section-title {
-  text-align: center;
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 5rem;
-  letter-spacing: -1px;
-}
-
-.feature-card {
-  background: var(--card-bg);
-  padding: 2.5rem;
-  border-radius: 24px;
-  border: 1px solid var(--card-border);
-  transition: all 0.3s;
-}
-
-.feature-card:hover {
-  transform: translateY(-8px);
-  border-color: #444;
-  background: #222;
-}
-
-.feature-card h3 {
-  font-size: 1.35rem;
-  margin-bottom: 0.75rem;
-  letter-spacing: -0.5px;
-}
-
-.feature-card p {
-  color: var(--text-secondary);
-  font-size: 1rem;
-  line-height: 1.6;
-}
-
-/* Showcase */
-.showcase {
-  padding: 8rem 2rem;
-  overflow: hidden;
-  text-align: center;
-}
-
-.carousel-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 4rem;
-  overflow-x: auto;
-  padding-bottom: 2rem; /* Space for scrollbar */
-}
-
-.carousel-track {
-  display: flex;
-  gap: 3rem;
-  padding: 0 1rem;
-}
-
-.screenshot-item {
-  width: 260px;
-  height: 540px;
-  background: #1c1c1e;
-  border-radius: 32px;
-  border: 6px solid #222;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-}
+/* ... */
 
 /* Footer */
 .footer {
   border-top: 1px solid var(--card-border);
   padding: 5rem 2rem;
   margin-top: 4rem;
-  background: #050505;
+  background: #000000;
 }
 
 .footer-content {

@@ -108,10 +108,10 @@ const createStyles = (colors: any) =>
       shadowColor: "#000",
       shadowOffset: {
         width: 0,
-        height: 2,
+        height: 4,
       },
-      shadowOpacity: 0.1,
-      shadowRadius: 8,
-      elevation: 3,
+      shadowOpacity: 0.08, // Much softer
+      shadowRadius: 12, // More spread out
+      elevation: 4, // Android
     },
   });

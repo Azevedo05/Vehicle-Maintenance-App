@@ -25,6 +25,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useAppAlert } from "@/contexts/AlertContext";
 import LoadingOverlay from "@/components/LoadingOverlay";
+import { ThemedBackground } from "@/components/ThemedBackground";
 
 export default function AddTaskScreen() {
   const { vehicleId } = useLocalSearchParams();
@@ -95,7 +96,7 @@ export default function AddTaskScreen() {
       });
     } else {
       return t("maintenance.recommended_days_simple", {
-        days: typeInfo.defaultTimeInterval,
+        days: typeInfo.defaultTimeInterval.toString(),
       });
     }
   };
@@ -116,8 +117,8 @@ export default function AddTaskScreen() {
         message: t("maintenance.invalid_interval_text", {
           type:
             intervalType === "mileage"
-              ? t("maintenance.interval_mileage")
-              : t("maintenance.interval_date"),
+              ? t("maintenance.interval_mileage").toLowerCase()
+              : t("maintenance.interval_date").toLowerCase(),
         }),
       });
       return;
@@ -192,232 +193,240 @@ export default function AddTaskScreen() {
   const styles = createStyles(colors);
 
   return (
-    <View style={styles.container}>
-      <Stack.Screen
-        options={{
-          title: t("maintenance.add_task"),
-          headerRight: () => (
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginRight: Platform.OS === "ios" ? -16 : 0,
-              }}
-            >
-              {isSubmitting ? (
-                <ActivityIndicator color={colors.primary} />
-              ) : (
-                <TouchableOpacity
-                  onPress={handleSubmit}
-                  disabled={isSubmitting}
-                >
-                  <Check size={24} color={colors.primary} />
-                </TouchableOpacity>
-              )}
-            </View>
-          ),
-        }}
-      />
-      <KeyboardAvoidingView
-        behavior="padding"
-        style={styles.keyboardView}
-        keyboardVerticalOffset={100}
-      >
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
-          <Text style={styles.sectionTitle}>
-            {t("maintenance.select_type")}
-          </Text>
-          <View style={styles.typeGrid}>
-            {sortedMaintenanceTypes.map((type) => {
-              const isSelected = selectedType === type;
-              return (
-                <TouchableOpacity
-                  key={type}
-                  style={[
-                    styles.typeCard,
-                    isSelected && styles.typeCardSelected,
-                  ]}
-                  onPress={() => handleTypeSelect(type)}
-                  activeOpacity={0.7}
-                >
-                  <Text
-                    style={[
-                      styles.typeLabel,
-                      isSelected && styles.typeLabelSelected,
-                    ]}
-                    numberOfLines={2}
-                  >
-                    {getMaintenanceTypeLabel(type, t)}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-
-          <View style={styles.form}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>{t("maintenance.interval_type")}</Text>
-              <View style={styles.segmentedControl}>
-                <TouchableOpacity
-                  style={[
-                    styles.segment,
-                    intervalType === "mileage" && styles.segmentSelected,
-                  ]}
-                  onPress={() => handleIntervalTypeChange("mileage")}
-                >
-                  <Text
-                    style={[
-                      styles.segmentText,
-                      intervalType === "mileage" && styles.segmentTextSelected,
-                    ]}
-                  >
-                    {t("maintenance.interval_mileage")}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.segment,
-                    intervalType === "date" && styles.segmentSelected,
-                  ]}
-                  onPress={() => handleIntervalTypeChange("date")}
-                >
-                  <Text
-                    style={[
-                      styles.segmentText,
-                      intervalType === "date" && styles.segmentTextSelected,
-                    ]}
-                  >
-                    {t("maintenance.interval_date")}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <View style={styles.inputGroup}>
-              <View style={styles.labelWithAction}>
-                <Text style={styles.label}>
-                  {t("maintenance.interval")} (
-                  {intervalType === "mileage"
-                    ? t("vehicles.km")
-                    : t("maintenance.interval_date").toLowerCase()}
-                  ) <Text style={styles.required}>*</Text>
-                </Text>
-              </View>
-              <TouchableOpacity
-                style={styles.recommendedHint}
-                onPress={handleUseRecommended}
-                activeOpacity={0.7}
+    <ThemedBackground>
+      <View style={[styles.container, { backgroundColor: "transparent" }]}>
+        <Stack.Screen
+          options={{
+            title: t("maintenance.add_task"),
+            headerRight: () => (
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginRight: Platform.OS === "ios" ? -16 : 0,
+                }}
               >
-                <View style={styles.iconContainer}>
-                  <Lightbulb size={20} color={colors.warning} />
-                </View>
-                <View style={styles.textContainer}>
-                  <Text style={[styles.cardTitle, { color: colors.warning }]}>
-                    {t("maintenance.use_recommended")}
-                  </Text>
-                  <Text style={styles.cardText}>{getRecommendedText()}</Text>
-                </View>
-              </TouchableOpacity>
-              <TextInput
-                style={styles.input}
-                value={intervalValue}
-                onChangeText={setIntervalValue}
-                placeholder={
-                  intervalType === "mileage"
-                    ? t("maintenance.interval_mileage_placeholder")
-                    : t("maintenance.interval_days_placeholder")
-                }
-                placeholderTextColor={colors.placeholder}
-                keyboardType="numeric"
-              />
+                {isSubmitting ? (
+                  <ActivityIndicator color={colors.primary} />
+                ) : (
+                  <TouchableOpacity
+                    onPress={handleSubmit}
+                    disabled={isSubmitting}
+                  >
+                    <Check size={24} color={colors.primary} />
+                  </TouchableOpacity>
+                )}
+              </View>
+            ),
+          }}
+        />
+        <KeyboardAvoidingView
+          behavior="padding"
+          style={styles.keyboardView}
+          keyboardVerticalOffset={100}
+        >
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            <Text style={styles.sectionTitle}>
+              {t("maintenance.select_type")}
+            </Text>
+            <View style={styles.typeGrid}>
+              {sortedMaintenanceTypes.map((type) => {
+                const isSelected = selectedType === type;
+                return (
+                  <TouchableOpacity
+                    key={type}
+                    style={[
+                      styles.typeCard,
+                      isSelected && styles.typeCardSelected,
+                    ]}
+                    onPress={() => handleTypeSelect(type)}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      style={[
+                        styles.typeLabel,
+                        isSelected && styles.typeLabelSelected,
+                      ]}
+                      numberOfLines={2}
+                    >
+                      {getMaintenanceTypeLabel(type, t)}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
 
-            {intervalType === "mileage" && (
+            <View style={styles.form}>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>
+                  {t("maintenance.interval_type")}
+                </Text>
+                <View style={styles.segmentedControl}>
+                  <TouchableOpacity
+                    style={[
+                      styles.segment,
+                      intervalType === "mileage" && styles.segmentSelected,
+                    ]}
+                    onPress={() => handleIntervalTypeChange("mileage")}
+                  >
+                    <Text
+                      style={[
+                        styles.segmentText,
+                        intervalType === "mileage" &&
+                          styles.segmentTextSelected,
+                      ]}
+                    >
+                      {t("maintenance.interval_mileage")}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.segment,
+                      intervalType === "date" && styles.segmentSelected,
+                    ]}
+                    onPress={() => handleIntervalTypeChange("date")}
+                  >
+                    <Text
+                      style={[
+                        styles.segmentText,
+                        intervalType === "date" && styles.segmentTextSelected,
+                      ]}
+                    >
+                      {t("maintenance.interval_date")}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
               <View style={styles.inputGroup}>
                 <View style={styles.labelWithAction}>
                   <Text style={styles.label}>
-                    {t("maintenance.last_completed_mileage")} (
-                    {t("vehicles.km")}) <Text style={styles.required}>*</Text>
+                    {t("maintenance.interval")} (
+                    {intervalType === "mileage"
+                      ? t("vehicles.km")
+                      : t("maintenance.interval_date").toLowerCase()}
+                    ) <Text style={styles.required}>*</Text>
                   </Text>
-                  <TouchableOpacity
-                    onPress={() =>
-                      showAlert({
-                        title: t("maintenance.last_mileage_help_title"),
-                        message: t("maintenance.last_mileage_help_text"),
-                      })
-                    }
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
-                    <Info size={20} color={colors.primary} />
-                  </TouchableOpacity>
                 </View>
+                <TouchableOpacity
+                  style={styles.recommendedHint}
+                  onPress={handleUseRecommended}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.iconContainer}>
+                    <Lightbulb size={20} color={colors.warning} />
+                  </View>
+                  <View style={styles.textContainer}>
+                    <Text style={[styles.cardTitle, { color: colors.warning }]}>
+                      {t("maintenance.use_recommended")}
+                    </Text>
+                    <Text style={styles.cardText}>{getRecommendedText()}</Text>
+                  </View>
+                </TouchableOpacity>
                 <TextInput
                   style={styles.input}
-                  value={lastMileage}
-                  onChangeText={setLastMileage}
-                  placeholder={t("vehicles.mileage_placeholder")}
+                  value={intervalValue}
+                  onChangeText={setIntervalValue}
+                  placeholder={
+                    intervalType === "mileage"
+                      ? t("maintenance.interval_mileage_placeholder")
+                      : t("maintenance.interval_days_placeholder")
+                  }
                   placeholderTextColor={colors.placeholder}
                   keyboardType="numeric"
                 />
               </View>
-            )}
 
-            <View style={styles.inputGroup}>
-              <View style={styles.switchRow}>
-                <View style={styles.switchLabelContainer}>
-                  <Text style={styles.label}>
-                    {t("maintenance.recurring_task")}
+              {intervalType === "mileage" && (
+                <View style={styles.inputGroup}>
+                  <View style={styles.labelWithAction}>
+                    <Text style={styles.label}>
+                      {t("maintenance.last_completed_mileage")} (
+                      {t("vehicles.km")}) <Text style={styles.required}>*</Text>
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() =>
+                        showAlert({
+                          title: t("maintenance.last_mileage_help_title"),
+                          message: t("maintenance.last_mileage_help_text"),
+                        })
+                      }
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <Info size={20} color={colors.primary} />
+                    </TouchableOpacity>
+                  </View>
+                  <TextInput
+                    style={styles.input}
+                    value={lastMileage}
+                    onChangeText={setLastMileage}
+                    placeholder={t("vehicles.mileage_placeholder")}
+                    placeholderTextColor={colors.placeholder}
+                    keyboardType="numeric"
+                  />
+                </View>
+              )}
+
+              <View style={styles.inputGroup}>
+                <View style={styles.switchRow}>
+                  <View style={styles.switchLabelContainer}>
+                    <Text style={styles.label}>
+                      {t("maintenance.recurring_task")}
+                    </Text>
+                    <Text style={styles.switchDescription}>
+                      {t("maintenance.recurring_description")}
+                    </Text>
+                  </View>
+                  <Switch
+                    value={isRecurring}
+                    onValueChange={setIsRecurring}
+                    trackColor={{
+                      false: colors.border,
+                      true: colors.primary + "50",
+                    }}
+                    thumbColor={
+                      isRecurring ? colors.primary : colors.placeholder
+                    }
+                  />
+                </View>
+              </View>
+
+              <View style={styles.infoCard}>
+                <View
+                  style={[
+                    styles.iconContainer,
+                    { backgroundColor: colors.primary + "15" },
+                  ]}
+                >
+                  <Calendar size={20} color={colors.primary} />
+                </View>
+                <View style={styles.textContainer}>
+                  <Text style={[styles.cardTitle, { color: colors.primary }]}>
+                    {t("maintenance.next_maintenance")}
                   </Text>
-                  <Text style={styles.switchDescription}>
-                    {t("maintenance.recurring_description")}
+                  <Text style={styles.cardText}>
+                    {intervalType === "mileage"
+                      ? t("maintenance.at_mileage", {
+                          mileage: (
+                            parseInt(lastMileage) +
+                            parseInt(intervalValue || "0")
+                          ).toLocaleString(),
+                        })
+                      : t("maintenance.in_days", { days: intervalValue })}
                   </Text>
                 </View>
-                <Switch
-                  value={isRecurring}
-                  onValueChange={setIsRecurring}
-                  trackColor={{
-                    false: colors.border,
-                    true: colors.primary + "50",
-                  }}
-                  thumbColor={isRecurring ? colors.primary : colors.placeholder}
-                />
               </View>
             </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
 
-            <View style={styles.infoCard}>
-              <View
-                style={[
-                  styles.iconContainer,
-                  { backgroundColor: colors.primary + "15" },
-                ]}
-              >
-                <Calendar size={20} color={colors.primary} />
-              </View>
-              <View style={styles.textContainer}>
-                <Text style={[styles.cardTitle, { color: colors.primary }]}>
-                  {t("maintenance.next_maintenance")}
-                </Text>
-                <Text style={styles.cardText}>
-                  {intervalType === "mileage"
-                    ? t("maintenance.at_mileage", {
-                        mileage: (
-                          parseInt(lastMileage) + parseInt(intervalValue || "0")
-                        ).toLocaleString(),
-                      })
-                    : t("maintenance.in_days", { days: intervalValue })}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-
-      <LoadingOverlay visible={isSubmitting} text={t("vehicles.adding")} />
-    </View>
+        <LoadingOverlay visible={isSubmitting} text={t("vehicles.adding")} />
+      </View>
+    </ThemedBackground>
   );
 }
 
