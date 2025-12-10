@@ -42,19 +42,19 @@ const FeatureItem = ({
     <div
       className={`flex flex-col ${
         index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
-      } items-center gap-16 lg:gap-32`}
+      } items-center gap-12 lg:gap-32`}
     >
       {/* Image Side - Slide In Animation */}
       <motion.div
         className="flex-1 w-full flex justify-center relative group"
         initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
         whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true, margin: "-20%" }}
+        viewport={{ once: true, margin: "-10%" }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
         <div className="relative z-10">
           <div
-            className={`relative w-[280px] md:w-[320px] aspect-[9/19] rounded-[0.5rem] border-[6px] border-neutral-800 bg-black overflow-hidden shadow-2xl group-hover:-translate-y-2 transition-transform duration-500`}
+            className={`relative w-[260px] xs:w-[280px] md:w-[320px] max-w-full aspect-[9/19] rounded-[0.5rem] border-[6px] border-neutral-800 bg-black overflow-hidden shadow-2xl group-hover:-translate-y-2 transition-transform duration-500`}
           >
             {/* Screen Content */}
             <img
@@ -110,7 +110,7 @@ export const Showcase = () => {
     >
       <div className="container mx-auto px-6 md:px-12">
         <motion.div
-          className="text-center mb-40"
+          className="text-center mb-24 lg:mb-40"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -125,7 +125,7 @@ export const Showcase = () => {
           </p>
         </motion.div>
 
-        <div className="space-y-40">
+        <div className="space-y-24 lg:space-y-40">
           {features.map((feature, index) => (
             <FeatureItem key={index} feature={feature} index={index} />
           ))}

@@ -27,10 +27,10 @@ export const Hero = () => {
           </motion.div>
 
           <div className="mb-2">
-            <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-7xl mb-4">
+            <h1 className="text-4xl xs:text-5xl font-extrabold tracking-tight text-white sm:text-7xl mb-4">
               Your Vehicle's
             </h1>
-            <TextReveal className="text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#2f95dc] to-[#3B82F6] sm:text-7xl pb-2">
+            <TextReveal className="text-4xl xs:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#2f95dc] to-[#3B82F6] sm:text-7xl pb-2">
               Best Friend
             </TextReveal>
           </div>
@@ -96,7 +96,7 @@ export const Hero = () => {
           className="relative order-2 lg:order-2 flex justify-center"
         >
           <div className="relative">
-            <div className="relative w-[280px] md:w-[320px] aspect-[9/19] border-[6px] border-neutral-800 rounded-[0.5rem] bg-black shadow-[0_0_50px_-12px_rgba(59,130,246,0.5)] overflow-hidden z-10">
+            <div className="relative w-[260px] xs:w-[280px] md:w-[320px] max-w-full aspect-[9/19] border-[6px] border-neutral-800 rounded-[0.5rem] bg-black shadow-[0_0_50px_-12px_rgba(59,130,246,0.5)] overflow-hidden z-10">
               <div className="w-full h-full bg-neutral-900">
                 <img
                   src="/hero-app.jpg"

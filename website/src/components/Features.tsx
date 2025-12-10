@@ -113,16 +113,16 @@ export const Features = () => {
   return (
     <section className="pt-24 pb-16 overflow-hidden" id="features">
       <div className="mx-6 max-w-[1280px] pt-8 pb-16 max-[300px]:mx-4 min-[1150px]:mx-auto">
-        <div className="flex flex-col-reverse gap-16 lg:gap-24 md:grid md:grid-cols-3 items-center">
+        <div className="flex flex-col-reverse gap-16 lg:gap-24 md:grid md:grid-cols-2 lg:grid-cols-3 items-center">
           {/* Left column */}
-          <div className="flex flex-col gap-8 justify-center">
+          <div className="flex flex-col gap-8 justify-center order-2 md:order-1">
             {leftFeatures.map((feature, index) => (
               <FeatureCard key={`left-feature-${index}`} feature={feature} />
             ))}
           </div>
 
-          {/* Center column */}
-          <div className="order-[1] mb-12 self-center sm:order-[0] md:mb-0 flex flex-col items-center text-center">
+          {/* Center column - Spans full width on tablet to separate features */}
+          <div className="order-1 mb-12 self-center md:order-last md:col-span-2 lg:order-2 lg:col-span-1 md:mb-16 lg:mb-0 flex flex-col items-center text-center">
             <div className="bg-white/5 text-blue-100 border border-blue-500/20 relative mx-auto mb-6 w-fit rounded-full rounded-bl-[2px] px-4 py-2 text-sm">
               <span className="relative z-1 flex items-center gap-2 font-semibold tracking-wide">
                 Features
@@ -130,7 +130,7 @@ export const Features = () => {
               <span className="from-blue-500/0 via-blue-500 to-blue-500/0 absolute -bottom-px left-1/2 h-px w-2/5 -translate-x-1/2 bg-gradient-to-r"></span>
               <span className="absolute inset-0 bg-[radial-gradient(30%_40%_at_50%_100%,rgba(59,130,246,0.2)_0%,transparent_100%)]"></span>
             </div>
-            <h2 className="text-foreground mb-6 text-center text-4xl font-extrabold sm:mb-6 md:text-5xl tracking-tight">
+            <h2 className="text-foreground mb-6 text-center text-3xl md:text-4xl lg:text-5xl font-extrabold sm:mb-6 tracking-tight">
               Everything you need
             </h2>
             <p className="text-muted-foreground mx-auto max-w-[22rem] text-center text-lg leading-relaxed">
@@ -140,7 +140,7 @@ export const Features = () => {
           </div>
 
           {/* Right column */}
-          <div className="flex flex-col gap-8 justify-center">
+          <div className="flex flex-col gap-8 justify-center order-3 md:order-2 lg:order-3">
             {rightFeatures.map((feature, index) => (
               <FeatureCard key={`right-feature-${index}`} feature={feature} />
             ))}

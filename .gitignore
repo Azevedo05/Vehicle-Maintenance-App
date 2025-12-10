@@ -16,6 +16,7 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
+*.apk
 
 # Metro
 .metro-health-check*
@@ -48,3 +49,4 @@ yarn-error.*
 *.avi
 *.mkv
 *.webm
+*.svg

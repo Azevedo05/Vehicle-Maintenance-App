@@ -141,8 +141,7 @@ export default function Header1() {
           <div className="hidden items-center space-x-4 lg:flex">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <a
-                href="/ShiftApp.apk"
-                className="inline-flex items-center space-x-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-2.5 font-medium text-white transition-all duration-200 hover:shadow-lg"
+                className="inline-flex items-center space-x-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-800 px-5 py-2 text-sm font-medium text-white transition-all duration-200 hover:shadow-lg lg:px-6 lg:py-2.5 lg:text-base"
                 download
               >
                 <span>Download</span>
@@ -185,7 +184,7 @@ export default function Header1() {
                     {item.name}
                   </a>
                 ))}
-                <div className="space-y-2 px-4 py-2">
+                <div className="space-y-2 px-4 py-3">
                   <a
                     href="/ShiftApp.apk"
                     className="block w-full rounded-lg bg-gradient-to-r from-blue-600 to-blue-800 py-2.5 text-center font-medium text-white transition-all duration-200 hover:shadow-lg"

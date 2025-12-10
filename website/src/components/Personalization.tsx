@@ -51,7 +51,7 @@ export const Personalization = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16 max-w-7xl mx-auto">
           {items.map((item, index) => {
             const Icon = item.icon;
             return (
@@ -67,7 +67,7 @@ export const Personalization = () => {
                 <div className="relative group/phone">
                   {/* Glow Effect - Removed as per user request */}
 
-                  <div className="relative w-[260px] md:w-[280px] aspect-[9/19] rounded-[0.5rem] border-[3px] border-neutral-800 bg-black overflow-hidden shadow-2xl mb-8 group-hover:-translate-y-2 transition-transform duration-500">
+                  <div className="relative w-[260px] md:w-[280px] max-w-full aspect-[9/19] rounded-[0.5rem] border-[3px] border-neutral-800 bg-black overflow-hidden shadow-2xl mb-8 group-hover:-translate-y-2 transition-transform duration-500">
                     <img
                       src={item.image}
                       alt={item.title}
