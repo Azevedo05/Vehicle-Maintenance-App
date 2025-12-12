@@ -453,7 +453,10 @@
     "feature_backup": "Data Security",
     "haptics_title": "Haptic Feedback",
     "haptics_enabled": "Enable Haptics",
-    "haptics_description": "Vibrate on interactions and alerts"
+    "haptics_description": "Vibrate on interactions and alerts",
+    "support": "Support",
+    "buy_me_coffee": "Buy Me a Coffee",
+    "buy_me_coffee_description": "Support the development of this app"
   },
   "common": {
     "ready": "You're All Set",
@@ -481,7 +484,8 @@
     "ascending": "Ascending",
     "descending": "Descending",
     "specifications": "Vehicle Specifications",
-    "back_to_top": "Back to Top"
+    "back_to_top": "Back to Top",
+    "drag_adjust": "Drag to adjust"
   },
   "quick_reminders": {
     "title": "New Reminder",

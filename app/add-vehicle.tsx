@@ -7,6 +7,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
   ActivityIndicator,
@@ -15,6 +16,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -26,11 +28,10 @@ import {
   FuelType,
 } from "@/types/vehicle";
 import { useFormValidation } from "@/hooks/useFormValidation";
-import MaskInput from "react-native-mask-input";
 
 import { Input } from "@/components/ui/Input";
 import { Chip } from "@/components/ui/Chip";
-import { DraggableImage } from "@/components/ui/DraggableImage";
+import { VehicleImage } from "@/components/ui/VehicleImage";
 import { ThemedBackground } from "@/components/ThemedBackground";
 import Toast from "react-native-toast-message";
 
@@ -52,9 +53,9 @@ export default function AddVehicleScreen() {
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
-  const [photoPosition, setPhotoPosition] = useState<
-    { x: number; y: number; scale: number } | undefined
-  >(undefined);
+  const [photoPositions, setPhotoPositions] = useState<
+    Record<string, { xRatio: number; yRatio: number; scale: number }>
+  >({});
 
   const { validate, errors, touched, handleBlur, rules } = useFormValidation({
     make,
@@ -107,7 +108,6 @@ export default function AddVehicleScreen() {
       if (!photo) {
         setPhoto(newUri);
       }
-      setPhotoPosition(undefined); // Reset position for new photo
     }
   };
 
@@ -158,7 +158,8 @@ export default function AddVehicleScreen() {
         licensePlate: licensePlate.trim() || undefined,
         currentMileage: mileageNum,
         photo,
-        photoPosition,
+        photoPosition: photo ? photoPositions[photo] : undefined,
+        photoPositions,
         photos,
         category,
         fuelType,
@@ -167,7 +168,9 @@ export default function AddVehicleScreen() {
       Toast.show({
         type: "success",
         text1: t("common.success"), // Or "Vehicle added" if available
-        text2: t("vehicles.add_success"), // Check if this key exists, otherwise generic
+        text2: t("vehicles.add_success", {
+          name: `${make.trim()} ${model.trim()}`,
+        }),
       });
       router.back();
     } catch (error) {
@@ -232,27 +235,43 @@ export default function AddVehicleScreen() {
                 activeOpacity={0.7}
               >
                 {photo ? (
-                  <View style={styles.photoWrapper}>
-                    <DraggableImage
+                  <Animated.View
+                    entering={FadeIn}
+                    exiting={FadeOut}
+                    style={styles.photoWrapper}
+                  >
+                    <VehicleImage
                       uri={photo}
-                      initialPosition={photoPosition}
-                      onPositionChange={setPhotoPosition}
+                      position={photoPositions[photo]}
+                      onPositionChange={(pos) => {
+                        setPhotoPositions((prev) => ({
+                          ...prev,
+                          [photo]: pos,
+                        }));
+                      }}
                       aspectRatio={16 / 9}
                       editable={true}
+                      borderTopRadius={16}
+                      borderBottomRadius={16}
+                      dragLabel={t("common.drag_adjust")}
                     />
                     <View style={styles.mainLabel}>
                       <Text style={styles.mainLabelText}>
                         {t("vehicles.main_photo")}
                       </Text>
                     </View>
-                  </View>
+                  </Animated.View>
                 ) : (
-                  <View style={styles.photoPlaceholder}>
+                  <Animated.View
+                    entering={FadeIn}
+                    exiting={FadeOut}
+                    style={styles.photoPlaceholder}
+                  >
                     <Camera size={48} color={colors.textSecondary} />
                     <Text style={styles.photoPlaceholderText}>
                       {t("vehicles.add_photo")}
                     </Text>
-                  </View>
+                  </Animated.View>
                 )}
               </TouchableOpacity>
 
@@ -267,7 +286,11 @@ export default function AddVehicleScreen() {
                   {photos.map((uri, index) => (
                     <View key={index} style={styles.galleryItemContainer}>
                       <TouchableOpacity
-                        onPress={() => setPhoto(uri)}
+                        onPress={() => {
+                          if (photo !== uri) {
+                            setPhoto(uri);
+                          }
+                        }}
                         activeOpacity={0.7}
                         style={[
                           styles.galleryItem,
@@ -343,13 +366,10 @@ export default function AddVehicleScreen() {
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>{t("vehicles.license_plate")}</Text>
-                <MaskInput
+                <TextInput
                   style={styles.input}
                   value={licensePlate}
-                  onChangeText={(masked, unmasked) =>
-                    setLicensePlate(masked.toUpperCase())
-                  }
-                  mask={[/\w/, /\w/, "-", /\w/, /\w/, "-", /\w/, /\w/]}
+                  onChangeText={(text) => setLicensePlate(text.toUpperCase())}
                   placeholder={t("vehicles.license_placeholder")}
                   placeholderTextColor={colors.placeholder}
                   autoCapitalize="characters"

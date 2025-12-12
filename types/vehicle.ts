@@ -9,11 +9,19 @@ export interface Vehicle {
   currentMileage: number;
   photo?: string;
   photoPosition?: {
-    x: number;
-    y: number;
+    xRatio: number; // 0-1, where 0 = image left edge at container left, 1 = image right edge at container right
+    yRatio: number; // 0-1, where 0 = image top at container top, 1 = image bottom at container bottom
     scale: number;
   };
   photos?: string[];
+  photoPositions?: Record<
+    string,
+    {
+      xRatio: number;
+      yRatio: number;
+      scale: number;
+    }
+  >;
   color?: string;
   vin?: string;
   fuelType?: FuelType;

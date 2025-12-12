@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -22,9 +23,10 @@ import { useVehicles } from "@/contexts/VehicleContext";
 import { useAppAlert } from "@/contexts/AlertContext";
 import { VehicleCategory, VEHICLE_CATEGORY_INFO } from "@/types/vehicle";
 import Link from "expo-router"; // Unused but keeping context if needed, actually just add the import
-import MaskInput from "react-native-mask-input";
+
 import { ThemedBackground } from "@/components/ThemedBackground";
 import { DraggableImage } from "@/components/ui/DraggableImage";
+import { VehicleImage } from "@/components/ui/VehicleImage";
 
 export default function EditVehicleScreen() {
   const { id } = useLocalSearchParams();
@@ -50,9 +52,9 @@ export default function EditVehicleScreen() {
     vehicle?.category
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [photoPosition, setPhotoPosition] = useState<
-    { x: number; y: number; scale: number } | undefined
-  >(vehicle?.photoPosition);
+  const [photoPositions, setPhotoPositions] = useState<
+    Record<string, { xRatio: number; yRatio: number; scale: number }>
+  >(vehicle?.photoPositions || {});
 
   const styles = createStyles(colors);
 
@@ -87,7 +89,6 @@ export default function EditVehicleScreen() {
       if (!photo) {
         setPhoto(newUri);
       }
-      setPhotoPosition(undefined); // Reset position for new photo
     }
   };
 
@@ -137,8 +138,9 @@ export default function EditVehicleScreen() {
         licensePlate: licensePlate.trim() || undefined,
         currentMileage: mileageNum,
         photo,
-        photoPosition,
-        photos,
+        photoPosition: photo ? photoPositions[photo] : undefined, // Keep legacy field for backward compatibility if needed, or migration
+        photoPositions,
+        photos, // Ensure this uses 'photos' state, not 'vehicle.photos'
         category,
       });
 
@@ -209,35 +211,72 @@ export default function EditVehicleScreen() {
             keyboardShouldPersistTaps="handled"
           >
             <View style={styles.photoSection}>
-              <TouchableOpacity
-                style={styles.mainPhotoContainer}
-                onPress={pickImage}
-                activeOpacity={0.7}
-              >
+              <View style={styles.mainPhotoContainer}>
                 {photo ? (
-                  <View style={styles.photoWrapper}>
-                    <DraggableImage
+                  <Animated.View
+                    entering={FadeIn}
+                    exiting={FadeOut}
+                    style={styles.photoWrapper}
+                  >
+                    <VehicleImage
                       uri={photo}
-                      initialPosition={photoPosition}
-                      onPositionChange={setPhotoPosition}
+                      position={photoPositions[photo]}
+                      onPositionChange={(pos) => {
+                        setPhotoPositions((prev) => ({
+                          ...prev,
+                          [photo]: pos,
+                        }));
+                      }}
                       aspectRatio={16 / 9}
                       editable={true}
+                      borderTopRadius={16}
+                      borderBottomRadius={16}
+                      dragLabel={t("common.drag_adjust")}
                     />
+
+                    {/* Top overlay buttons */}
+                    <View
+                      style={{
+                        position: "absolute",
+                        top: 12,
+                        right: 12,
+                        flexDirection: "row",
+                        gap: 8,
+                      }}
+                    >
+                      <TouchableOpacity
+                        style={{
+                          backgroundColor: "rgba(0,0,0,0.6)",
+                          padding: 8,
+                          borderRadius: 20,
+                        }}
+                        onPress={pickImage}
+                      >
+                        <Camera size={20} color="#FFF" />
+                      </TouchableOpacity>
+                    </View>
+
                     <View style={styles.mainLabel}>
                       <Text style={styles.mainLabelText}>
                         {t("vehicles.main_photo")}
                       </Text>
                     </View>
-                  </View>
+                  </Animated.View>
                 ) : (
-                  <View style={styles.photoPlaceholder}>
-                    <Camera size={32} color={colors.textSecondary} />
-                    <Text style={styles.photoPlaceholderText}>
-                      {t("vehicles.add_photo")}
-                    </Text>
-                  </View>
+                  <TouchableOpacity onPress={pickImage} activeOpacity={0.7}>
+                    <Animated.View
+                      entering={FadeIn}
+                      exiting={FadeOut}
+                      style={styles.photoPlaceholder}
+                    >
+                      <Camera size={32} color={colors.textSecondary} />
+                      <Text style={styles.photoPlaceholderText}>
+                        {t("vehicles.add_photo")}
+                      </Text>
+                    </Animated.View>
+                  </TouchableOpacity>
                 )}
-              </TouchableOpacity>
+              </View>
 
               {/* Gallery Strip */}
               {photos.length > 0 && (
@@ -250,7 +289,11 @@ export default function EditVehicleScreen() {
                   {photos.map((uri, index) => (
                     <View key={index} style={styles.galleryItemContainer}>
                       <TouchableOpacity
-                        onPress={() => setPhoto(uri)}
+                        onPress={() => {
+                          if (photo !== uri) {
+                            setPhoto(uri);
+                          }
+                        }}
                         activeOpacity={0.7}
                         style={[
                           styles.galleryItem,
@@ -332,13 +375,10 @@ export default function EditVehicleScreen() {
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>{t("vehicles.license_plate")}</Text>
-                <MaskInput
+                <TextInput
                   style={styles.input}
                   value={licensePlate}
-                  onChangeText={(masked, unmasked) =>
-                    setLicensePlate(masked.toUpperCase())
-                  }
-                  mask={[/\w/, /\w/, "-", /\w/, /\w/, "-", /\w/, /\w/]}
+                  onChangeText={(text) => setLicensePlate(text.toUpperCase())}
                   placeholder={t("vehicles.license_placeholder")}
                   placeholderTextColor={colors.placeholder}
                   autoCapitalize="characters"

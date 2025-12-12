@@ -55,6 +55,7 @@ import { QuickReminders } from "@/components/vehicle-details/QuickReminders";
 
 import { VehicleViewSettingsModal } from "@/components/vehicle-details/VehicleViewSettingsModal";
 import { usePreferences } from "@/contexts/PreferencesContext";
+import { VehicleImage } from "@/components/ui/VehicleImage";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -293,48 +294,10 @@ export default function VehicleDetailScreen() {
                   >
                     {displayPhotos.map((uri, index) => (
                       <View key={index} style={styles.vehicleImage}>
-                        <ImageModal
-                          resizeMode="cover"
-                          imageBackgroundColor="#000000"
-                          style={styles.vehicleImage}
-                          source={{ uri }}
-                          animationDuration={300}
-                          modalImageResizeMode="contain"
-                          renderToHardwareTextureAndroid={false}
-                          isTranslucent={true}
-                          renderHeader={(close) => (
-                            <TouchableOpacity
-                              onPress={close}
-                              style={{
-                                position: "absolute",
-                                top: Platform.OS === "ios" ? 50 : 30,
-                                right: 20,
-                                zIndex: 10,
-                              }}
-                              activeOpacity={0.8}
-                            >
-                              <BlurView
-                                intensity={60}
-                                tint={isDark ? "dark" : "light"}
-                                style={{
-                                  width: 44,
-                                  height: 44,
-                                  borderRadius: 22,
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                  backgroundColor: isDark
-                                    ? "rgba(0, 0, 0, 0.8)"
-                                    : "rgba(255, 255, 255, 0.8)",
-                                  overflow: "hidden",
-                                }}
-                              >
-                                <X
-                                  size={24}
-                                  color={isDark ? "#FFFFFF" : colors.text}
-                                />
-                              </BlurView>
-                            </TouchableOpacity>
-                          )}
+                        <VehicleImage
+                          uri={uri}
+                          position={vehicle?.photoPositions?.[uri]}
+                          height={isMinimalist ? SCREEN_HEIGHT * 0.6 : 400}
                         />
                       </View>
                     ))}

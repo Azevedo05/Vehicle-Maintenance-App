@@ -6,6 +6,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useVehicles } from "@/contexts/VehicleContext";
 import { usePreferences } from "@/contexts/PreferencesContext";
+import { useAppAlert } from "@/contexts/AlertContext";
 import { getMaintenanceTypeLabel } from "@/types/maintenance";
 import { createVehicleDetailsStyles } from "./VehicleDetailsStyles";
 
@@ -21,6 +22,7 @@ export const MaintenanceOverview = ({
 
   const { getUpcomingTasks } = useVehicles();
   const { formatDistance } = usePreferences();
+  const { showAlert } = useAppAlert();
   const styles = createVehicleDetailsStyles(colors);
 
   const upcomingTasks = getUpcomingTasks(vehicleId);
@@ -54,8 +56,30 @@ export const MaintenanceOverview = ({
               : false;
 
           return (
-            <View
+            <TouchableOpacity
               key={item.task.id}
+              activeOpacity={0.7}
+              onPress={() => {
+                if (isStrictlyOverdue) {
+                  showAlert({
+                    title: t("maintenance.details"),
+                    message: `${t("common.created_at")}: ${new Date(
+                      item.task.createdAt
+                    ).toLocaleDateString()} ${new Date(
+                      item.task.createdAt
+                    ).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}\n\n${
+                      item.task.nextDueDate
+                        ? `${t("common.overdue_since")}: ${new Date(
+                            item.task.nextDueDate
+                          ).toLocaleDateString()}`
+                        : ""
+                    }`,
+                  });
+                }
+              }}
               style={[
                 styles.taskCard,
                 isStrictlyOverdue
@@ -98,11 +122,14 @@ export const MaintenanceOverview = ({
                     : t("maintenance.scheduled")}
                 </Text>
               </View>
+
               <TouchableOpacity
                 onPress={() =>
-                  router.push(
-                    `/add-record?vehicleId=${vehicleId}&taskId=${item.task.id}`
-                  )
+                  item.task.type === "inspection"
+                    ? router.push(`/add-record?vehicleId=${vehicleId}`)
+                    : router.push(
+                        `/add-record?vehicleId=${vehicleId}&taskId=${item.task.id}`
+                      )
                 }
                 style={styles.completeButton}
               >
@@ -110,7 +137,7 @@ export const MaintenanceOverview = ({
                   {t("maintenance.complete")}
                 </Text>
               </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           );
         })
       )}

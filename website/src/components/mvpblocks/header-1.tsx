@@ -14,7 +14,8 @@ const navItems: NavItem[] = [
   { name: "Features", href: "/#features" },
   { name: "Showcase", href: "/#showcase" },
   { name: "Make It Yours", href: "/#personalization" },
-  { name: "Support", href: "/#faq" },
+  { name: "Support", href: "/#support" },
+  { name: "FAQ", href: "/#faq" },
 ];
 
 export default function Header1() {

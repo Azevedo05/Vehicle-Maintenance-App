@@ -147,6 +147,7 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({
         visible={visible && !!current}
         transparent
         animationType="fade"
+        statusBarTranslucent
         onRequestClose={() => setVisible(false)}
       >
         <View style={styles.overlay}>

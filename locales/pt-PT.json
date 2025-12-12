@@ -42,7 +42,7 @@
     "year": "Ano",
     "year_placeholder": "ex., 2020",
     "license_plate": "Matrícula",
-    "license_placeholder": "ex., AB-12-CD",
+    "license_placeholder": "ex., AB-12-CD ou ABC 1234",
     "current_mileage": "Quilometragem Atual",
     "mileage_placeholder": "ex., 50000",
     "photo": "Foto",
@@ -453,7 +453,10 @@
     "feature_backup": "Segurança de Dados",
     "haptics_title": "Feedback Tátil",
     "haptics_enabled": "Ativar Vibração",
-    "haptics_description": "Vibrar em interações e alertas"
+    "haptics_description": "Vibrar em interações e alertas",
+    "support": "Suporte",
+    "buy_me_coffee": "Oferece-me um Café",
+    "buy_me_coffee_description": "Apoia o desenvolvimento desta aplicação"
   },
   "common": {
     "ready": "Tudo Pronto",
@@ -481,7 +484,10 @@
     "ascending": "Ascendente",
     "descending": "Descendente",
     "specifications": "Ficha Técnica",
-    "back_to_top": "Voltar ao Topo"
+    "back_to_top": "Voltar ao Topo",
+    "drag_adjust": "Arrastar para ajustar",
+    "created_at": "Criado em",
+    "overdue_since": "Atrasado desde"
   },
   "quick_reminders": {
     "title": "Novo Lembrete",

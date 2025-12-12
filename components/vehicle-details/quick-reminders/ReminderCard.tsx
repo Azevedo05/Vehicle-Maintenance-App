@@ -69,9 +69,14 @@ export const ReminderCard = ({
           <Check size={14} color={colors.success} />
         </TouchableOpacity>
       </View>
-      <Text style={[styles.noteText, { color: colors.text }]} numberOfLines={1}>
-        {reminder.text}
-      </Text>
+      <View>
+        <Text
+          style={[styles.noteText, { color: colors.text }]}
+          numberOfLines={1}
+        >
+          {reminder.text}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 };
@@ -123,5 +128,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
     lineHeight: 20,
+  },
+  timestampText: {
+    fontSize: 10,
+    color: "#8E8E93",
+    fontWeight: "500",
   },
 });

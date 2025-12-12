@@ -18,7 +18,7 @@ import { useVehicles } from "@/contexts/VehicleContext";
 import { Vehicle, VEHICLE_CATEGORY_INFO } from "@/types/vehicle";
 import { createStyles } from "@/components/styles/index.styles";
 import { Reminder } from "@/components/vehicle-details/quick-reminders/types";
-import { PositionedImage } from "@/components/ui/PositionedImage";
+import { VehicleImage } from "@/components/ui/VehicleImage";
 
 interface VehicleListItemProps {
   vehicle: Vehicle;
@@ -67,7 +67,7 @@ const VehicleListItemComponent = ({
     >
       <View style={{ position: "relative" }}>
         {vehicle.photo ? (
-          <PositionedImage
+          <VehicleImage
             uri={vehicle.photo}
             position={vehicle.photoPosition}
             height={200}

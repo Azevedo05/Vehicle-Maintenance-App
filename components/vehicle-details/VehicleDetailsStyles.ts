@@ -183,4 +183,9 @@ export const createVehicleDetailsStyles = (colors: any) =>
       fontSize: 13,
       fontWeight: "600",
     },
+    timestampText: {
+      fontSize: 10,
+      color: "#8E8E93",
+      fontWeight: "500",
+    },
   });

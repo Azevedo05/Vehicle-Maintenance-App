@@ -4,6 +4,7 @@ import { Hero } from "./components/Hero";
 import { Features } from "./components/Features";
 import { Showcase } from "./components/Showcase";
 import { Personalization } from "./components/Personalization";
+import SupportSection from "./components/mvpblocks/pricing-4";
 import Faq2 from "./components/mvpblocks/faq-2";
 import Footer4Col from "./components/mvpblocks/footer-4col";
 import Privacy from "./components/Privacy";
@@ -22,6 +23,7 @@ function Landing() {
         <Features />
         <Showcase />
         <Personalization />
+        <SupportSection />
         <Faq2 />
       </main>
       <Footer4Col />

@@ -59,7 +59,7 @@ export const ReminderDetailModal = ({
             {/* Info Group (Settings Style) */}
             <View style={styles.menuGroup}>
               {/* Type/Time Row - Now the only metadata row */}
-              <View style={[styles.menuRow, styles.menuRowLast]}>
+              <View style={styles.menuRow}>
                 <View style={styles.menuLabelRow}>
                   {reminder.type === "recurring" ? (
                     <Repeat size={20} color={colors.primary} />
@@ -108,6 +108,36 @@ export const ReminderDetailModal = ({
                         minute: "2-digit",
                       })}
                 </Text>
+              </View>
+
+              {/* Created At / Overdue Since Metadata */}
+              <View style={[styles.menuRow, styles.menuRowLast]}>
+                <View style={{ gap: 4, flex: 1 }}>
+                  <Text style={[styles.timestampText, { textAlign: "right" }]}>
+                    {t("common.created_at")}:{" "}
+                    {new Date(reminder.createdAt).toLocaleDateString()}{" "}
+                    {new Date(reminder.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </Text>
+                  {reminder.type !== "recurring" &&
+                    reminder.dueAt <= Date.now() && (
+                      <Text
+                        style={[
+                          styles.timestampText,
+                          { color: colors.error, textAlign: "right" },
+                        ]}
+                      >
+                        {t("common.overdue_since")}:{" "}
+                        {new Date(reminder.dueAt).toLocaleDateString()}{" "}
+                        {new Date(reminder.dueAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </Text>
+                    )}
+                </View>
               </View>
             </View>
 
@@ -244,5 +274,10 @@ const createStyles = (colors: any) =>
       fontSize: 16,
       color: colors.textSecondary,
       fontWeight: "600",
+    },
+    timestampText: {
+      fontSize: 12,
+      color: "#8E8E93",
+      fontWeight: "500",
     },
   });

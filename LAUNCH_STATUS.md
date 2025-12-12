@@ -101,3 +101,14 @@
 
 - [x] **Fix Edit Fuel Log Units**: Ensure "kWh" is displayed instead of "L" on the Add/Edit Fuel Log page when the vehicle type is Electric.
 - [x] **Separate Statistics**: Ensure kWh values are not aggregated with Liters in the Statistics page (Total Volume, Average Volume, etc.).
+
+## 15. Buy me a coffee
+
+- [x] **Buy me a coffee**: Buy me a coffee to support the development of this app.
+- [x] **Payment Method**: Add a payment method to support the development of this app.
+
+## 16. Quick fixes
+
+- [x] **Support various license plate types**: Support various license plate types (e.g., PT, EU, US, etc.)
+- [x] **Blur**: The delete blur must cover the entire screen.
+- [x] **Overdue Timestamp**: Capture creation timestamp and include the exact date/time it became overdue in the description of the new overdue reminder and for maintenance tasks

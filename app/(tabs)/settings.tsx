@@ -12,6 +12,7 @@ import { UnitSettings } from "@/components/settings/UnitSettings";
 import { DataManagementSettings } from "@/components/settings/DataManagementSettings";
 import { AboutSection } from "@/components/settings/AboutSection";
 import { HapticSettings } from "@/components/settings/HapticSettings";
+import { BuyMeCoffee } from "@/components/settings/BuyMeCoffee";
 
 import { ThemedBackground } from "@/components/ThemedBackground";
 
@@ -41,6 +42,7 @@ export default function SettingsScreen() {
           <HapticSettings />
           {/* <UnitSettings /> */}
           <DataManagementSettings />
+          <BuyMeCoffee />
           <AboutSection />
         </ScrollView>
       </SafeAreaView>
