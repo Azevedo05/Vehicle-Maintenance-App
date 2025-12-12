@@ -105,7 +105,7 @@ const FeatureItem = ({
 export const Showcase = () => {
   return (
     <section
-      className="py-32 bg-transparent relative overflow-hidden"
+      className="py-16 md:py-24 lg:py-32 bg-transparent relative overflow-hidden"
       id="showcase"
     >
       <div className="container mx-auto px-6 md:px-12">

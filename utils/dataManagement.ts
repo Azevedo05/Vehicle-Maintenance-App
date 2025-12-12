@@ -544,13 +544,17 @@ export async function injectSeedData(): Promise<boolean> {
           // and then download/copy it to the document directory.
 
           let asset: any = null;
+          // Image assets missing, skipping image injection for now
+          asset = null;
+          
           if (v.photo === "tesla_model_3_blue_1765127312244.png") {
-            asset = require("../assets/temp_images/tesla_model_3_blue_1765127312244.png");
+             asset = require("../assets/temp_images/tesla_model_3_blue_1765127312244.png");
           } else if (v.photo === "ford_transit_white_v2_1765128177999.png") {
-            asset = require("../assets/temp_images/ford_transit_white_v2_1765128177999.png");
+             asset = require("../assets/temp_images/ford_transit_white_v2_1765128177999.png");
           } else if (v.photo === "volvo_xc90_green_1765127340928.png") {
-            asset = require("../assets/temp_images/volvo_xc90_green_1765127340928.png");
+             asset = require("../assets/temp_images/volvo_xc90_green_1765127340928.png");
           }
+          
 
           if (asset) {
             const { Image } = require("react-native");

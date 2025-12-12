@@ -1,10 +1,10 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Car } from "lucide-react-native";
 
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
-import { createStyles } from "@/components/styles/index.styles";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 interface VehicleListEmptyProps {
   hasVehicles: boolean;
@@ -12,24 +12,37 @@ interface VehicleListEmptyProps {
 
 export const VehicleListEmpty = ({ hasVehicles }: VehicleListEmptyProps) => {
   const { colors } = useTheme();
-  const styles = createStyles(colors);
   const { t } = useLocalization();
 
   if (!hasVehicles) {
     return (
-      <View style={styles.emptyState}>
-        <Car size={64} color={colors.placeholder} />
-        <Text style={styles.emptyTitle}>{t("vehicles.empty_title")}</Text>
-        <Text style={styles.emptyText}>{t("vehicles.empty_text")}</Text>
+      <View style={styles.container}>
+        <EmptyState
+          icon={
+            <Car size={64} color={colors.textSecondary} strokeWidth={1.5} />
+          }
+          title={t("vehicles.empty_title")}
+          description={t("vehicles.empty_text")}
+        />
       </View>
     );
   }
 
   return (
-    <View style={styles.emptyState}>
-      <Car size={64} color={colors.placeholder} />
-      <Text style={styles.emptyTitle}>{t("vehicles.no_results")}</Text>
-      <Text style={styles.emptyText}>{t("vehicles.no_results_text")}</Text>
+    <View style={styles.container}>
+      <EmptyState
+        icon={<Car size={64} color={colors.placeholder} strokeWidth={1.5} />}
+        title={t("vehicles.no_results")}
+        description={t("vehicles.no_results_text")}
+      />
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 40,
+    paddingBottom: 160,
+  },
+});

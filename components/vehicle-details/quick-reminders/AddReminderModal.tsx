@@ -57,6 +57,7 @@ export const AddReminderModal = ({
       visible={visible}
       transparent
       animationType="fade"
+      statusBarTranslucent
       onRequestClose={onClose}
     >
       <View style={styles.modalContainer}>

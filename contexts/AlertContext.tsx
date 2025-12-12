@@ -11,16 +11,17 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Animated,
-  Easing,
-  PanResponder,
   Alert,
   Platform,
 } from "react-native";
 import { BlurView } from "expo-blur";
+import * as Haptics from "expo-haptics";
+import { useSafeAreaInsets, EdgeInsets } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
+import { usePreferences } from "@/contexts/PreferencesContext";
 
 type AlertButtonStyle = "default" | "cancel" | "destructive";
 
@@ -63,15 +64,12 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const { colors } = useTheme();
   const { t } = useLocalization();
+  const { hapticsEnabled } = usePreferences();
+  const insets = useSafeAreaInsets();
   const [visible, setVisible] = useState(false);
   const [current, setCurrent] = useState<AlertConfig | null>(null);
-  const [toast, setToast] = useState<ToastConfig | null>(null);
-  const [toastVisible, setToastVisible] = useState(false);
-  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const toastProgress = useRef(new Animated.Value(0)).current;
-  const toastOpacity = useRef(new Animated.Value(0)).current;
 
-  const styles = createStyles(colors);
+  const styles = createStyles(colors, insets);
 
   const showAlert = useCallback(
     (config: AlertConfig) => {
@@ -102,103 +100,44 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const showToast = useCallback(
     (config: ToastConfig) => {
-      if (toastTimeoutRef.current) {
-        clearTimeout(toastTimeoutRef.current);
+      // Global Haptic Injection for Toast
+      if (hapticsEnabled) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
 
-      setToast(config);
-      setToastVisible(true);
-
-      toastProgress.setValue(0);
-      toastOpacity.setValue(0);
-
-      Animated.timing(toastOpacity, {
-        toValue: 1,
-        duration: 150,
-        useNativeDriver: true,
-      }).start();
-
-      Animated.timing(toastProgress, {
-        toValue: 1,
-        duration: config.durationMs ?? 5000,
-        easing: Easing.linear,
-        useNativeDriver: false,
-      }).start();
-
-      toastTimeoutRef.current = setTimeout(() => {
-        Animated.timing(toastOpacity, {
-          toValue: 0,
-          duration: 220,
-          useNativeDriver: true,
-        }).start(() => {
-          setToastVisible(false);
-          setToast(null);
-        });
-        toastTimeoutRef.current = null;
-      }, config.durationMs ?? 5000);
+      Toast.show({
+        type: "success", // Default to success, or make it dynamic if config allows
+        text1: config.message,
+        // Pass action props to our custom config
+        props: {
+          actionLabel: config.actionLabel,
+          onAction: config.onAction,
+        },
+        visibilityTime: config.durationMs ?? 4000,
+      });
     },
-    [toastOpacity, toastProgress]
+    [hapticsEnabled]
   );
-
-  const dismissToast = useCallback(() => {
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-      toastTimeoutRef.current = null;
-    }
-    Animated.timing(toastOpacity, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start(() => {
-      setToastVisible(false);
-      setToast(null);
-    });
-  }, [toastOpacity]);
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        return Math.abs(gestureState.dy) > 10;
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy < -20) {
-          // Swipe up
-          dismissToast();
-        }
-      },
-    })
-  ).current;
 
   const handleButtonPress = (index: number) => {
     if (!current || !current.buttons) return;
     const button = current.buttons[index];
+
+    // Global Haptic Injection for Alerts
+    if (hapticsEnabled) {
+      if (button.style === "destructive") {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      } else if (button.style === "cancel") {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      } else {
+        Haptics.selectionAsync();
+      }
+    }
+
     setVisible(false);
     setTimeout(() => {
       button?.onPress?.();
     }, 150);
-  };
-
-  const handleToastAction = () => {
-    if (!toast || !toast.onAction) {
-      setToastVisible(false);
-      return;
-    }
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-      toastTimeoutRef.current = null;
-    }
-    Animated.timing(toastOpacity, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start(() => {
-      setToastVisible(false);
-      setToast(null);
-      setTimeout(() => {
-        toast.onAction?.();
-      }, 100);
-    });
   };
 
   return (
@@ -260,55 +199,14 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({
           </View>
         </View>
       </Modal>
-
-      {toastVisible && toast && (
-        <View style={styles.toastContainer} pointerEvents="box-none">
-          <Animated.View
-            style={[
-              styles.toastCard,
-              {
-                opacity: toastOpacity,
-                transform: [
-                  {
-                    translateY: toastOpacity.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [-20, 0],
-                    }),
-                  },
-                ],
-              },
-            ]}
-            {...panResponder.panHandlers}
-          >
-            <Text style={styles.toastMessage}>{toast.message}</Text>
-            {toast.actionLabel && toast.onAction && (
-              <TouchableOpacity
-                style={styles.toastActionButton}
-                onPress={handleToastAction}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.toastActionText}>{toast.actionLabel}</Text>
-              </TouchableOpacity>
-            )}
-            <Animated.View
-              style={[
-                styles.progressBar,
-                {
-                  width: toastProgress.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ["100%", "0%"],
-                  }),
-                },
-              ]}
-            />
-          </Animated.View>
-        </View>
-      )}
     </AlertContext.Provider>
   );
 };
 
-const createStyles = (colors: ReturnType<typeof useTheme>["colors"]) =>
+const createStyles = (
+  colors: ReturnType<typeof useTheme>["colors"],
+  insets: EdgeInsets
+) =>
   StyleSheet.create({
     overlay: {
       flex: 1,
@@ -390,7 +288,7 @@ const createStyles = (colors: ReturnType<typeof useTheme>["colors"]) =>
       position: "absolute",
       left: 20,
       right: 20,
-      top: 60,
+      top: insets.top + 10,
       alignItems: "center",
       zIndex: 9999,
     },

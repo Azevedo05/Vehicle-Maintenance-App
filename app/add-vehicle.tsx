@@ -30,8 +30,9 @@ import MaskInput from "react-native-mask-input";
 
 import { Input } from "@/components/ui/Input";
 import { Chip } from "@/components/ui/Chip";
-import { SuccessAnimation } from "@/components/ui/SuccessAnimation";
+import { DraggableImage } from "@/components/ui/DraggableImage";
 import { ThemedBackground } from "@/components/ThemedBackground";
+import Toast from "react-native-toast-message";
 
 export default function AddVehicleScreen() {
   const { addVehicle, restoreLastSnapshot } = useVehicles();
@@ -50,8 +51,10 @@ export default function AddVehicleScreen() {
     undefined
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
+  const [photoPosition, setPhotoPosition] = useState<
+    { x: number; y: number; scale: number } | undefined
+  >(undefined);
 
   const { validate, errors, touched, handleBlur, rules } = useFormValidation({
     make,
@@ -88,8 +91,7 @@ export default function AddVehicleScreen() {
     let result;
     const options: ImagePicker.ImagePickerOptions = {
       mediaTypes: ["images"],
-      allowsEditing: true,
-      aspect: [16, 9],
+      allowsEditing: false,
       quality: 0.8,
     };
 
@@ -105,6 +107,7 @@ export default function AddVehicleScreen() {
       if (!photo) {
         setPhoto(newUri);
       }
+      setPhotoPosition(undefined); // Reset position for new photo
     }
   };
 
@@ -155,12 +158,18 @@ export default function AddVehicleScreen() {
         licensePlate: licensePlate.trim() || undefined,
         currentMileage: mileageNum,
         photo,
+        photoPosition,
         photos,
         category,
         fuelType,
       });
 
-      setShowSuccess(true);
+      Toast.show({
+        type: "success",
+        text1: t("common.success"), // Or "Vehicle added" if available
+        text2: t("vehicles.add_success"), // Check if this key exists, otherwise generic
+      });
+      router.back();
     } catch (error) {
       console.error("Error adding vehicle:", error);
       showAlert({
@@ -196,6 +205,7 @@ export default function AddVehicleScreen() {
                   <TouchableOpacity
                     onPress={handleSubmit}
                     disabled={isSubmitting}
+                    hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
                   >
                     <Check size={24} color={colors.primary} />
                   </TouchableOpacity>
@@ -204,13 +214,7 @@ export default function AddVehicleScreen() {
             ),
           }}
         />
-        <SuccessAnimation
-          visible={showSuccess}
-          onAnimationFinish={() => {
-            setShowSuccess(false);
-            router.back();
-          }}
-        />
+
         <KeyboardAvoidingView
           behavior="padding"
           style={styles.keyboardView}
@@ -229,10 +233,12 @@ export default function AddVehicleScreen() {
               >
                 {photo ? (
                   <View style={styles.photoWrapper}>
-                    <Image
-                      source={{ uri: photo }}
-                      style={styles.photo}
-                      contentFit="cover"
+                    <DraggableImage
+                      uri={photo}
+                      initialPosition={photoPosition}
+                      onPositionChange={setPhotoPosition}
+                      aspectRatio={16 / 9}
+                      editable={true}
                     />
                     <View style={styles.mainLabel}>
                       <Text style={styles.mainLabelText}>

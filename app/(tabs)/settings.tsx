@@ -11,10 +11,9 @@ import { NotificationSettingsSection } from "@/components/settings/NotificationS
 import { UnitSettings } from "@/components/settings/UnitSettings";
 import { DataManagementSettings } from "@/components/settings/DataManagementSettings";
 import { AboutSection } from "@/components/settings/AboutSection";
+import { HapticSettings } from "@/components/settings/HapticSettings";
 
 import { ThemedBackground } from "@/components/ThemedBackground";
-
-// ...
 
 export default function SettingsScreen() {
   const { colors } = useTheme();
@@ -39,7 +38,8 @@ export default function SettingsScreen() {
           <ThemeSettings />
           <LanguageSettings />
           <NotificationSettingsSection />
-          <UnitSettings />
+          <HapticSettings />
+          {/* <UnitSettings /> */}
           <DataManagementSettings />
           <AboutSection />
         </ScrollView>

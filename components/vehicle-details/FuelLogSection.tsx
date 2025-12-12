@@ -16,12 +16,17 @@ interface FuelLogSectionProps {
 export const FuelLogSection = ({ vehicleId }: FuelLogSectionProps) => {
   const { colors } = useTheme();
   const { t } = useLocalization();
-  const { getFuelLogsByVehicle, deleteFuelLog, restoreLastSnapshot } =
-    useVehicles();
+  const {
+    getFuelLogsByVehicle,
+    deleteFuelLog,
+    restoreLastSnapshot,
+    getVehicleById,
+  } = useVehicles();
   const { currencySymbol } = usePreferences();
   const { showAlert, showToast } = useAppAlert();
   const styles = createVehicleDetailsStyles(colors);
 
+  const vehicle = getVehicleById(vehicleId);
   const fuelLogs = getFuelLogsByVehicle(vehicleId);
 
   const handleDeleteFuelLog = (logId: string) => {
@@ -59,7 +64,11 @@ export const FuelLogSection = ({ vehicleId }: FuelLogSectionProps) => {
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>{t("fuel.section_title")}</Text>
+        <Text style={styles.sectionTitle}>
+          {vehicle?.fuelType === "electric"
+            ? t("fuel.section_title_electric")
+            : t("fuel.section_title")}
+        </Text>
         <TouchableOpacity
           onPress={() => router.push(`/add-fuel-log?vehicleId=${vehicleId}`)}
           style={styles.addButton}
@@ -74,45 +83,49 @@ export const FuelLogSection = ({ vehicleId }: FuelLogSectionProps) => {
           <Text style={styles.emptyText}>{t("fuel.empty_state")}</Text>
         </View>
       ) : (
-        fuelLogs.slice(0, 3).map((log) => (
-          <TouchableOpacity
-            key={log.id}
-            style={styles.fuelCard}
-            onPress={() =>
-              router.push(
-                `/add-fuel-log?vehicleId=${vehicleId}&fuelLogId=${log.id}`
-              )
-            }
-            onLongPress={() => handleDeleteFuelLog(log.id)}
-            delayLongPress={500}
-            activeOpacity={0.7}
-          >
-            <View style={styles.recordInfo}>
-              <View style={styles.fuelRow}>
-                <Text style={styles.recordTitle}>{formatDate(log.date)}</Text>
-                <Text style={styles.fuelVolume}>
-                  {log.volume.toFixed(1)} {t("fuel.volume_unit")}
+        fuelLogs.slice(0, 3).map((log) => {
+          const volumeUnit =
+            log.fuelType === "electric"
+              ? t("fuel.volume_unit_electric")
+              : t("fuel.volume_unit");
+
+          return (
+            <TouchableOpacity
+              key={log.id}
+              style={styles.fuelCard}
+              onPress={() =>
+                router.push(
+                  `/add-fuel-log?vehicleId=${vehicleId}&fuelLogId=${log.id}`
+                )
+              }
+              onLongPress={() => handleDeleteFuelLog(log.id)}
+              delayLongPress={500}
+              activeOpacity={0.7}
+            >
+              <View style={styles.recordInfo}>
+                <Text style={styles.recordTitle} numberOfLines={1}>
+                  {log.station ||
+                    (log.fuelType === "electric"
+                      ? t("fuel.refuel_title_electric")
+                      : t("fuel.refuel_title"))}
+                </Text>
+                <Text style={styles.recordDate} numberOfLines={1}>
+                  {formatDate(log.date)} • {log.volume.toFixed(1)} {volumeUnit}
+                </Text>
+                <Text style={styles.recordCost}>
+                  {currencySymbol}
+                  {log.totalCost.toFixed(2)}
+                </Text>
+                <Text style={styles.recordNotes} numberOfLines={1}>
+                  {currencySymbol}
+                  {log.pricePerUnit?.toFixed(3)}/{volumeUnit} •{" "}
+                  {t(`fuel.type_${log.fuelType}`)}
                 </Text>
               </View>
-              <Text style={styles.recordDate}>
-                {currencySymbol}
-                {log.totalCost.toFixed(2)} • {t(`fuel.type_${log.fuelType}`)}
-              </Text>
-              {log.pricePerUnit !== undefined && (
-                <Text style={styles.fuelPricePerUnit}>
-                  {currencySymbol}
-                  {log.pricePerUnit.toFixed(3)}/{t("fuel.volume_unit")}
-                </Text>
-              )}
-              {log.station && (
-                <Text style={styles.recordNotes} numberOfLines={1}>
-                  {log.station}
-                </Text>
-              )}
-            </View>
-            <ChevronRight size={20} color={colors.border} />
-          </TouchableOpacity>
-        ))
+              <ChevronRight size={20} color={colors.border} />
+            </TouchableOpacity>
+          );
+        })
       )}
     </View>
   );

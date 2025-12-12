@@ -22,6 +22,8 @@ export const AnimatedSplashScreen = ({
   const opacity = useRef(new Animated.Value(1)).current;
   const progress = useRef(new Animated.Value(0)).current;
 
+  const hasFinished = useRef(false);
+
   // Animation values for Title
   const titleScale = useRef(new Animated.Value(0.8)).current; // Start slightly smaller
   const titleOpacity = useRef(new Animated.Value(0)).current; // Start invisible
@@ -54,7 +56,8 @@ export const AnimatedSplashScreen = ({
 
       // Update progress bar
       if (status.durationMillis) {
-        const currentProgress = status.positionMillis / status.durationMillis;
+        // Calculate progress based on 3000ms target (max duration), capped at 100%
+        const currentProgress = Math.min(status.positionMillis / 3000, 1);
         Animated.timing(progress, {
           toValue: currentProgress,
           duration: 250,
@@ -64,8 +67,14 @@ export const AnimatedSplashScreen = ({
 
       setLastStatus(status);
 
-      // Auto-dismiss when finished
-      if (status.didJustFinish) {
+      // Auto-dismiss when finished OR after 3 seconds
+      const shouldFinish = status.didJustFinish || status.positionMillis > 3000;
+
+      if (shouldFinish && !hasFinished.current) {
+        hasFinished.current = true;
+        // Ensure progress bar fills if finishing early or on time
+        progress.setValue(1);
+
         Animated.timing(opacity, {
           toValue: 0,
           duration: 400,
@@ -86,11 +95,11 @@ export const AnimatedSplashScreen = ({
     >
       <Video
         ref={videoRef}
-        style={[StyleSheet.absoluteFill, { transform: [{ translateY: 50 }] }]} // Shift video down
-        source={require("@/assets/splash-animation.mp4")}
+        style={StyleSheet.absoluteFill}
+        source={require("@/assets/4489810-uhd_2160_4096_25fps.mp4")}
         resizeMode={ResizeMode.COVER}
         shouldPlay
-        rate={1.5}
+        rate={1.0}
         isLooping={false}
         onPlaybackStatusUpdate={onPlaybackStatusUpdate}
         onError={(e) => {

@@ -233,9 +233,10 @@ const createStyles = (colors: any) =>
     heroPreTitle: {
       fontSize: 32,
       fontWeight: "600",
-      color: "#94a3b8",
+      color: colors.text,
       marginBottom: 24,
       textAlign: "center",
+      opacity: 0.8,
     },
     logoImage: {
       width: 280,
@@ -244,11 +245,12 @@ const createStyles = (colors: any) =>
     },
     heroSubtitle: {
       fontSize: 20,
-      color: "#cbd5e1",
+      color: colors.text,
       textAlign: "center",
       lineHeight: 30,
       fontWeight: "400",
       maxWidth: "90%",
+      opacity: 0.6,
     },
     // Features Slide
     featuresContainer: {
@@ -259,7 +261,7 @@ const createStyles = (colors: any) =>
     sectionTitle: {
       fontSize: 28,
       fontWeight: "bold",
-      color: "#fff",
+      color: colors.text,
       marginBottom: 24,
       textAlign: "center",
     },
@@ -270,17 +272,22 @@ const createStyles = (colors: any) =>
     featureItem: {
       flexDirection: "row",
       alignItems: "center",
-      backgroundColor: "rgba(255,255,255,0.05)",
+      backgroundColor: colors.card,
       padding: 16,
       borderRadius: 16,
       borderWidth: 1,
-      borderColor: "rgba(255,255,255,0.1)",
+      borderColor: colors.border,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+      elevation: 2,
     },
     featureIconBox: {
       width: 44,
       height: 44,
       borderRadius: 22,
-      backgroundColor: "rgba(255,255,255,0.1)",
+      backgroundColor: colors.background,
       justifyContent: "center",
       alignItems: "center",
       marginRight: 16,
@@ -290,7 +297,7 @@ const createStyles = (colors: any) =>
     },
     featureText: {
       fontSize: 16,
-      color: "#e2e8f0",
+      color: colors.text,
       fontWeight: "500",
       lineHeight: 24,
     },
@@ -303,12 +310,12 @@ const createStyles = (colors: any) =>
       width: 140,
       height: 140,
       borderRadius: 70,
-      backgroundColor: "rgba(255,255,255,0.05)",
+      backgroundColor: colors.card,
       justifyContent: "center",
       alignItems: "center",
       marginBottom: 40,
       borderWidth: 1,
-      borderColor: "rgba(255,255,255,0.1)",
+      borderColor: colors.border,
     },
     glow: {
       position: "absolute",
@@ -323,15 +330,16 @@ const createStyles = (colors: any) =>
     slideTitle: {
       fontSize: 32,
       fontWeight: "bold",
-      color: "#fff",
+      color: colors.text,
       marginBottom: 16,
       textAlign: "center",
     },
     slideBody: {
       fontSize: 18,
-      color: "#cbd5e1",
+      color: colors.text,
       textAlign: "center",
       lineHeight: 28,
       maxWidth: "85%",
+      opacity: 0.7,
     },
   });

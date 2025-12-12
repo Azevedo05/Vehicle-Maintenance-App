@@ -14,6 +14,8 @@ import {
   Inter_800ExtraBold,
 } from "@expo-google-fonts/inter";
 import { AnimatedSplashScreen } from "@/components/AnimatedSplashScreen";
+import Toast from "react-native-toast-message";
+import { toastConfig } from "@/components/ui/ToastConfig";
 
 import {
   LocalizationProvider,
@@ -190,6 +192,7 @@ export default function RootLayout() {
                   <AlertProvider>
                     <GestureHandlerRootView style={{ flex: 1 }}>
                       <RootLayoutContent />
+                      <Toast config={toastConfig} />
                     </GestureHandlerRootView>
                   </AlertProvider>
                 </VehicleProvider>

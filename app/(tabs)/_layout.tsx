@@ -1,13 +1,16 @@
 import { Tabs } from "expo-router";
+import * as Haptics from "expo-haptics";
 import { Bell, CarFront, Settings, TrendingUp } from "lucide-react-native";
 import React from "react";
 
 import { AnimatedTabIcon } from "@/components/ui/AnimatedTabIcon";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { usePreferences } from "@/contexts/PreferencesContext";
 
 export default function TabLayout() {
   const { colors } = useTheme();
+  const { hapticsEnabled } = usePreferences();
   const { t } = useLocalization();
 
   return (
@@ -45,6 +48,13 @@ export default function TabLayout() {
           fontSize: 12, // Readable standard size
           fontWeight: "600",
           marginTop: 2,
+        },
+      }}
+      screenListeners={{
+        tabPress: () => {
+          if (hapticsEnabled) {
+            Haptics.selectionAsync();
+          }
         },
       }}
     >

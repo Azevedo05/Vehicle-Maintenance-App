@@ -9,10 +9,12 @@ import {
   ChevronRight,
 } from "lucide-react-native";
 import * as DocumentPicker from "expo-document-picker";
+import * as Haptics from "expo-haptics";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useVehicles } from "@/contexts/VehicleContext";
 import { useAppAlert } from "@/contexts/AlertContext";
+import { usePreferences } from "@/contexts/PreferencesContext";
 import {
   exportData,
   importData,
@@ -37,6 +39,7 @@ export const DataManagementSettings = () => {
     restoreLastSnapshot,
   } = useVehicles();
   const { showAlert } = useAppAlert();
+  const { hapticsEnabled } = usePreferences();
 
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
@@ -49,6 +52,9 @@ export const DataManagementSettings = () => {
   const localStyles = createLocalStyles(colors);
 
   const handleExportCategory = async (category: VehicleCategory) => {
+    if (hapticsEnabled) {
+      Haptics.selectionAsync();
+    }
     const vehiclesInCategory = vehicles.filter(
       (vehicle) => (vehicle.category ?? "other") === category
     );
@@ -81,6 +87,9 @@ export const DataManagementSettings = () => {
   };
 
   const handleExportData = async () => {
+    if (hapticsEnabled) {
+      Haptics.selectionAsync();
+    }
     setIsExporting(true);
     const success = await exportData();
     setIsExporting(false);
@@ -99,6 +108,9 @@ export const DataManagementSettings = () => {
   };
 
   const handleImportData = async () => {
+    if (hapticsEnabled) {
+      Haptics.selectionAsync();
+    }
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: ["application/json", "text/plain", "*/*"],
@@ -144,6 +156,9 @@ export const DataManagementSettings = () => {
   };
 
   const handleLoadSampleData = () => {
+    if (hapticsEnabled) {
+      Haptics.selectionAsync();
+    }
     showAlert({
       title: t("settings.load_sample_confirm"),
       message: t("settings.load_sample_text"),
@@ -185,6 +200,9 @@ export const DataManagementSettings = () => {
   };
 
   const handleClearData = () => {
+    if (hapticsEnabled) {
+      Haptics.selectionAsync(); // Selection for the button
+    }
     showAlert({
       title: t("settings.clear_data_confirm"),
       message: t("settings.clear_data_confirm_text"),
@@ -197,6 +215,9 @@ export const DataManagementSettings = () => {
           text: t("common.delete"),
           style: "destructive",
           onPress: async () => {
+            if (hapticsEnabled) {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); // Impact for the actual delete
+            }
             setIsClearing(true);
             const success = await clearAllData();
 
@@ -223,6 +244,9 @@ export const DataManagementSettings = () => {
   };
 
   const handleInjectData = async () => {
+    if (hapticsEnabled) {
+      Haptics.selectionAsync();
+    }
     setIsInjecting(true);
     const success = await injectSeedData();
     if (success) {
@@ -262,7 +286,10 @@ export const DataManagementSettings = () => {
 
           <TouchableOpacity
             style={styles.optionButton}
-            onPress={() => setIsCategoryModalVisible(true)}
+            onPress={() => {
+              if (hapticsEnabled) Haptics.selectionAsync();
+              setIsCategoryModalVisible(true);
+            }}
             activeOpacity={0.7}
           >
             <Database size={20} color={colors.text} />
@@ -430,6 +457,7 @@ const createLocalStyles = (colors: any) =>
       fontSize: 16,
       fontWeight: "500",
       color: colors.text,
+      marginBottom: 0,
     },
     modalCloseButton: {
       marginTop: 16,

@@ -28,7 +28,7 @@ import { SlideData } from "@/components/onboarding/types";
 const { width, height } = Dimensions.get("window");
 
 export default function OnboardingScreen() {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const { completeOnboarding } = usePreferences();
   const router = useRouter();
   const { t } = useLocalization();
@@ -134,7 +134,7 @@ export default function OnboardingScreen() {
               width: widthAnim,
               opacity: opacityAnim,
               backgroundColor:
-                index === currentIndex ? colors.primary : "#ffffff80",
+                index === currentIndex ? colors.primary : colors.text,
             };
           });
           return (
@@ -147,7 +147,7 @@ export default function OnboardingScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
 
       {/* --- Top Progress Bar --- */}
       <SafeAreaView style={styles.topContainer} pointerEvents="none">
@@ -172,7 +172,11 @@ export default function OnboardingScreen() {
 
       {/* --- Floating Footer --- */}
       <View style={styles.footerContainer}>
-        <BlurView intensity={40} tint="dark" style={styles.glassFooter}>
+        <BlurView
+          intensity={40}
+          tint={isDark ? "dark" : "light"}
+          style={styles.glassFooter}
+        >
           <TouchableOpacity
             onPress={handleBack}
             style={[styles.footerBtn, { opacity: currentIndex > 0 ? 1 : 0 }]}
@@ -180,7 +184,7 @@ export default function OnboardingScreen() {
           >
             <ArrowRight
               size={24}
-              color="#fff"
+              color={colors.text}
               style={{ transform: [{ rotate: "180deg" }] }}
             />
           </TouchableOpacity>
@@ -192,9 +196,9 @@ export default function OnboardingScreen() {
             style={[styles.footerBtn, styles.primaryBtn]}
           >
             {currentIndex === slides.length - 1 ? (
-              <Check size={24} color="#000" />
+              <Check size={24} color="#fff" />
             ) : (
-              <ArrowRight size={24} color="#000" />
+              <ArrowRight size={24} color="#fff" />
             )}
           </TouchableOpacity>
         </BlurView>
@@ -207,7 +211,7 @@ const createStyles = (colors: any) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: "#000",
+      backgroundColor: colors.background,
     },
     topContainer: {
       position: "absolute",
@@ -233,9 +237,9 @@ const createStyles = (colors: any) =>
       height: 80,
       borderRadius: 40,
       paddingHorizontal: 16,
-      backgroundColor: "rgba(0,0,0,0.6)",
+      backgroundColor: colors.card,
       borderWidth: 1,
-      borderColor: "rgba(255,255,255,0.1)",
+      borderColor: colors.border,
       overflow: "hidden",
     },
     footerBtn: {
@@ -246,7 +250,7 @@ const createStyles = (colors: any) =>
       alignItems: "center",
     },
     primaryBtn: {
-      backgroundColor: "#fff",
+      backgroundColor: colors.primary,
     },
     paginationContainer: {
       flexDirection: "row",
@@ -255,6 +259,6 @@ const createStyles = (colors: any) =>
     dot: {
       height: 6,
       borderRadius: 3,
-      backgroundColor: "#fff",
+      backgroundColor: colors.text,
     },
   });

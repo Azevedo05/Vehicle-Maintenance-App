@@ -13,9 +13,9 @@ export const Hero = () => {
         <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-purple-500/20 blur-[100px]" />
       </div>
 
-      <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center relative z-10">
+      <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
         {/* Text Content (Left) */}
-        <div className="order-1 lg:order-1 flex flex-col items-start text-left">
+        <div className="order-1 lg:order-1 flex flex-col items-center text-center lg:items-start lg:text-left">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -52,7 +52,7 @@ export const Hero = () => {
             transition={{ duration: 0.5, delay: 0.4 }}
           >
             <div className="flex flex-col gap-6">
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
                 {/* Google Play Button Only */}
                 <button
                   className="flex items-center gap-3 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-white transition-transform hover:scale-105 hover:bg-white/10 disabled:opacity-70 disabled:cursor-not-allowed"

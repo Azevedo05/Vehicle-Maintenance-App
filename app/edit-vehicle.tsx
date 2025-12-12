@@ -24,6 +24,7 @@ import { VehicleCategory, VEHICLE_CATEGORY_INFO } from "@/types/vehicle";
 import Link from "expo-router"; // Unused but keeping context if needed, actually just add the import
 import MaskInput from "react-native-mask-input";
 import { ThemedBackground } from "@/components/ThemedBackground";
+import { DraggableImage } from "@/components/ui/DraggableImage";
 
 export default function EditVehicleScreen() {
   const { id } = useLocalSearchParams();
@@ -49,6 +50,9 @@ export default function EditVehicleScreen() {
     vehicle?.category
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [photoPosition, setPhotoPosition] = useState<
+    { x: number; y: number; scale: number } | undefined
+  >(vehicle?.photoPosition);
 
   const styles = createStyles(colors);
 
@@ -73,8 +77,7 @@ export default function EditVehicleScreen() {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
-      allowsEditing: true,
-      aspect: [16, 9],
+      allowsEditing: false,
       quality: 0.8,
     });
 
@@ -84,6 +87,7 @@ export default function EditVehicleScreen() {
       if (!photo) {
         setPhoto(newUri);
       }
+      setPhotoPosition(undefined); // Reset position for new photo
     }
   };
 
@@ -133,6 +137,7 @@ export default function EditVehicleScreen() {
         licensePlate: licensePlate.trim() || undefined,
         currentMileage: mileageNum,
         photo,
+        photoPosition,
         photos,
         category,
       });
@@ -184,6 +189,7 @@ export default function EditVehicleScreen() {
                   <TouchableOpacity
                     onPress={handleSubmit}
                     disabled={isSubmitting}
+                    hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
                   >
                     <Check size={24} color={colors.primary} />
                   </TouchableOpacity>
@@ -210,10 +216,12 @@ export default function EditVehicleScreen() {
               >
                 {photo ? (
                   <View style={styles.photoWrapper}>
-                    <Image
-                      source={{ uri: photo }}
-                      style={styles.photo}
-                      contentFit="cover"
+                    <DraggableImage
+                      uri={photo}
+                      initialPosition={photoPosition}
+                      onPositionChange={setPhotoPosition}
+                      aspectRatio={16 / 9}
+                      editable={true}
                     />
                     <View style={styles.mainLabel}>
                       <Text style={styles.mainLabelText}>

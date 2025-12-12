@@ -18,6 +18,7 @@ import {
   MAINTENANCE_TYPES,
   MaintenanceType,
   getMaintenanceTypeLabel,
+  ICE_ONLY_MAINTENANCE_TYPES,
 } from "@/types/maintenance";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
@@ -25,8 +26,9 @@ import { useAppAlert } from "@/contexts/AlertContext";
 
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
-import { SuccessAnimation } from "@/components/ui/SuccessAnimation";
+// import { SuccessAnimation } from "@/components/ui/SuccessAnimation"; // Removed
 import { ThemedBackground } from "@/components/ThemedBackground";
+import Toast from "react-native-toast-message";
 
 export default function AddRecordScreen() {
   const { vehicleId, taskId, recordId } = useLocalSearchParams();
@@ -49,11 +51,16 @@ export default function AddRecordScreen() {
     ? getRecordById(recordId as string)
     : undefined;
 
+  const isElectric = vehicle?.fuelType === "electric";
+
   const [selectedType, setSelectedType] = useState<MaintenanceType>(
-    task?.type || "oil_change"
+    task?.type || (isElectric ? "battery" : "oil_change")
   );
   const [title, setTitle] = useState(
-    task?.title || t("maintenance.types.oil_change")
+    task?.title ||
+      (isElectric
+        ? t("maintenance.types.battery")
+        : t("maintenance.types.oil_change"))
   );
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [mileage, setMileage] = useState("");
@@ -61,7 +68,7 @@ export default function AddRecordScreen() {
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  // const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     if (existingRecord) {
@@ -75,11 +82,22 @@ export default function AddRecordScreen() {
     } else if (task) {
       setSelectedType(task.type);
       setTitle(task.title);
+    } else if (isElectric && selectedType === "oil_change") {
+      // Correct default if vehicle loaded late or type mismatch
+      setSelectedType("battery");
+      setTitle(t("maintenance.types.battery"));
     }
-  }, [task, existingRecord]);
+  }, [task, existingRecord, isElectric]);
 
   const sortedMaintenanceTypes = useMemo(() => {
-    const types = Object.keys(MAINTENANCE_TYPES) as MaintenanceType[];
+    let types = Object.keys(MAINTENANCE_TYPES) as MaintenanceType[];
+
+    if (isElectric) {
+      types = types.filter(
+        (type) => !ICE_ONLY_MAINTENANCE_TYPES.includes(type)
+      );
+    }
+
     return types.sort((a, b) => {
       if (a === "other") return 1;
       if (b === "other") return -1;
@@ -87,7 +105,7 @@ export default function AddRecordScreen() {
       const labelB = getMaintenanceTypeLabel(b, t);
       return labelA.localeCompare(labelB);
     });
-  }, [t]);
+  }, [t, isElectric]);
 
   const handleTypeSelect = (type: MaintenanceType) => {
     setSelectedType(type);
@@ -187,7 +205,11 @@ export default function AddRecordScreen() {
         await addRecord(recordData);
       }
 
-      setShowSuccess(true);
+      Toast.show({
+        type: "success",
+        text1: t("common.success"),
+      });
+      router.back();
     } catch (error) {
       console.error("Error saving record:", error);
       showAlert({
@@ -249,13 +271,7 @@ export default function AddRecordScreen() {
             ),
           }}
         />
-        <SuccessAnimation
-          visible={showSuccess}
-          onAnimationFinish={() => {
-            setShowSuccess(false);
-            router.back();
-          }}
-        />
+
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.keyboardView}

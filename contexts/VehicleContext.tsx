@@ -4,12 +4,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { FuelLog, Vehicle } from "@/types/vehicle";
 import { MaintenanceRecord, MaintenanceTask } from "@/types/maintenance";
+import { Reminder } from "@/components/vehicle-details/quick-reminders/types";
 
 const STORAGE_KEYS = {
   VEHICLES: "@vehicles",
   TASKS: "@maintenance_tasks",
   RECORDS: "@maintenance_records",
   FUEL_LOGS: "@fuel_logs",
+  QUICK_REMINDERS: "@quick_reminders",
 };
 
 export const [VehicleProvider, useVehicles] = createContextHook(() => {
@@ -17,12 +19,14 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
   const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
   const [records, setRecords] = useState<MaintenanceRecord[]>([]);
   const [fuelLogs, setFuelLogs] = useState<FuelLog[]>([]);
+  const [quickReminders, setQuickReminders] = useState<Reminder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const lastSnapshotRef = useRef<{
     vehicles: Vehicle[];
     tasks: MaintenanceTask[];
     records: MaintenanceRecord[];
     fuelLogs: FuelLog[];
+    quickReminders: Reminder[];
   } | null>(null);
 
   useEffect(() => {
@@ -31,13 +35,19 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
 
   const loadData = async () => {
     try {
-      const [vehiclesData, tasksData, recordsData, fuelLogsData] =
-        await Promise.all([
-          AsyncStorage.getItem(STORAGE_KEYS.VEHICLES),
-          AsyncStorage.getItem(STORAGE_KEYS.TASKS),
-          AsyncStorage.getItem(STORAGE_KEYS.RECORDS),
-          AsyncStorage.getItem(STORAGE_KEYS.FUEL_LOGS),
-        ]);
+      const [
+        vehiclesData,
+        tasksData,
+        recordsData,
+        fuelLogsData,
+        quickRemindersData,
+      ] = await Promise.all([
+        AsyncStorage.getItem(STORAGE_KEYS.VEHICLES),
+        AsyncStorage.getItem(STORAGE_KEYS.TASKS),
+        AsyncStorage.getItem(STORAGE_KEYS.RECORDS),
+        AsyncStorage.getItem(STORAGE_KEYS.FUEL_LOGS),
+        AsyncStorage.getItem(STORAGE_KEYS.QUICK_REMINDERS),
+      ]);
 
       if (vehiclesData) setVehicles(JSON.parse(vehiclesData));
       else setVehicles([]);
@@ -50,6 +60,43 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
 
       if (fuelLogsData) setFuelLogs(JSON.parse(fuelLogsData));
       else setFuelLogs([]);
+
+      // Load Quick Reminders (with migration check)
+      if (quickRemindersData) {
+        setQuickReminders(JSON.parse(quickRemindersData));
+      } else {
+        // Migration: Check for legacy per-vehicle keys
+        // We need vehiclesData loaded to know IDs, but we have it properly here
+        const loadedVehicles = vehiclesData ? JSON.parse(vehiclesData) : [];
+        if (loadedVehicles.length > 0) {
+          const migratedReminders: Reminder[] = [];
+          for (const v of loadedVehicles) {
+            const key = `@quick_reminders_${v.id}`;
+            const legacyData = await AsyncStorage.getItem(key);
+            if (legacyData) {
+              const parsed: Omit<Reminder, "vehicleId">[] =
+                JSON.parse(legacyData);
+              // Add vehicleId and push
+              migratedReminders.push(
+                ...parsed.map((r) => ({ ...r, vehicleId: v.id }))
+              );
+              // Optional: Remove legacy key? maybe keep for safety for now
+            }
+          }
+          if (migratedReminders.length > 0) {
+            setQuickReminders(migratedReminders);
+            // Save immediately to new key
+            await AsyncStorage.setItem(
+              STORAGE_KEYS.QUICK_REMINDERS,
+              JSON.stringify(migratedReminders)
+            );
+          } else {
+            setQuickReminders([]);
+          }
+        } else {
+          setQuickReminders([]);
+        }
+      }
     } catch (error) {
       console.error("Error loading data:", error);
     } finally {
@@ -107,6 +154,18 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
     }
   }, []);
 
+  const saveQuickReminders = useCallback(async (newReminders: Reminder[]) => {
+    try {
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.QUICK_REMINDERS,
+        JSON.stringify(newReminders)
+      );
+      setQuickReminders(newReminders);
+    } catch (error) {
+      console.error("Error saving quick reminders:", error);
+    }
+  }, []);
+
   const takeSnapshot = useCallback(() => {
     // Fazer cópias dos arrays para evitar problemas de referência
     const snapshot = {
@@ -114,9 +173,37 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
       tasks: [...tasks],
       records: [...records],
       fuelLogs: [...fuelLogs],
+      quickReminders: [...quickReminders],
     };
     lastSnapshotRef.current = snapshot;
-  }, [vehicles, tasks, records, fuelLogs]);
+  }, [vehicles, tasks, records, fuelLogs, quickReminders]);
+
+  const addQuickReminder = useCallback(
+    async (reminder: Reminder) => {
+      takeSnapshot();
+      await saveQuickReminders([reminder, ...quickReminders]);
+    },
+    [quickReminders, saveQuickReminders, takeSnapshot]
+  );
+
+  const deleteQuickReminder = useCallback(
+    async (id: string) => {
+      takeSnapshot();
+      await saveQuickReminders(quickReminders.filter((r) => r.id !== id));
+    },
+    [quickReminders, saveQuickReminders, takeSnapshot]
+  );
+
+  const updateQuickReminder = useCallback(
+    async (id: string, updates: Partial<Reminder>) => {
+      takeSnapshot();
+      const updatedReminders = quickReminders.map((r) =>
+        r.id === id ? { ...r, ...updates } : r
+      );
+      await saveQuickReminders(updatedReminders);
+    },
+    [quickReminders, saveQuickReminders, takeSnapshot]
+  );
 
   const restoreLastSnapshot = useCallback(async () => {
     const snapshot = lastSnapshotRef.current;
@@ -129,10 +216,11 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
       saveTasks(snapshot.tasks),
       saveRecords(snapshot.records),
       saveFuelLogs(snapshot.fuelLogs),
+      saveQuickReminders(snapshot.quickReminders),
     ]);
 
     lastSnapshotRef.current = null;
-  }, [saveVehicles, saveTasks, saveRecords, saveFuelLogs]);
+  }, [saveVehicles, saveTasks, saveRecords, saveFuelLogs, saveQuickReminders]);
 
   const addVehicle = useCallback(
     async (vehicle: Omit<Vehicle, "id" | "createdAt" | "updatedAt">) => {
@@ -426,6 +514,14 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
     [fuelLogs]
   );
 
+  const getQuickRemindersByVehicle = useCallback(
+    (vehicleId: string) =>
+      quickReminders
+        .filter((r) => r.vehicleId === vehicleId)
+        .sort((a, b) => a.dueAt - b.dueAt),
+    [quickReminders]
+  );
+
   const getUpcomingTasks = useCallback(
     (vehicleId?: string) => {
       const now = Date.now();
@@ -504,5 +600,10 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
     setVehicleArchived,
     setVehiclesArchived,
     reorderVehicles,
+    quickReminders,
+    addQuickReminder,
+    deleteQuickReminder,
+    updateQuickReminder,
+    getQuickRemindersByVehicle,
   };
 });

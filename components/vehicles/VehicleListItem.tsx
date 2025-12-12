@@ -9,6 +9,7 @@ import {
 import { ArchiveRestore, Car, Clock, AlertCircle } from "lucide-react-native";
 import { router } from "expo-router";
 import { BlurView } from "expo-blur";
+import { Image } from "expo-image";
 
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
@@ -16,6 +17,8 @@ import { usePreferences } from "@/contexts/PreferencesContext";
 import { useVehicles } from "@/contexts/VehicleContext";
 import { Vehicle, VEHICLE_CATEGORY_INFO } from "@/types/vehicle";
 import { createStyles } from "@/components/styles/index.styles";
+import { Reminder } from "@/components/vehicle-details/quick-reminders/types";
+import { PositionedImage } from "@/components/ui/PositionedImage";
 
 interface VehicleListItemProps {
   vehicle: Vehicle;
@@ -29,7 +32,7 @@ const VehicleListItemComponent = ({
   const { colors } = useTheme();
   const { t } = useLocalization();
   const { formatDistance } = usePreferences();
-  const { getUpcomingTasks } = useVehicles();
+  const { getUpcomingTasks, getQuickRemindersByVehicle } = useVehicles();
   const styles = createStyles(colors);
 
   const upcomingTasks = getUpcomingTasks(vehicle.id);
@@ -64,14 +67,12 @@ const VehicleListItemComponent = ({
     >
       <View style={{ position: "relative" }}>
         {vehicle.photo ? (
-          <Card.Cover
-            source={{ uri: vehicle.photo }}
-            style={{
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24,
-              height: 200,
-              backgroundColor: colors.background,
-            }}
+          <PositionedImage
+            uri={vehicle.photo}
+            position={vehicle.photoPosition}
+            height={200}
+            borderTopRadius={24}
+            borderBottomRadius={24}
           />
         ) : (
           <View
@@ -139,8 +140,13 @@ const VehicleListItemComponent = ({
               return isOverdueDate || isOverdueMileage;
             });
 
+            const vehicleReminders = getQuickRemindersByVehicle(vehicle.id);
+            const overdueReminders = vehicleReminders.filter(
+              (r: Reminder) => r.dueAt <= Date.now()
+            );
+
             const upcomingTasksCount = dueTasks.length - overdueTasks.length;
-            const overdueCount = overdueTasks.length;
+            const overdueCount = overdueTasks.length + overdueReminders.length;
 
             if (overdueCount === 0 && upcomingTasksCount === 0) return null;
 

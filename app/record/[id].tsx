@@ -133,8 +133,9 @@ export default function RecordDetailScreen() {
               <TouchableOpacity
                 onPress={handleDeleteRecord}
                 style={styles.headerButton}
+                hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
               >
-                <Trash2 size={20} color={colors.error} />
+                <Trash2 size={24} color={colors.error} />
               </TouchableOpacity>
             </View>
           ),

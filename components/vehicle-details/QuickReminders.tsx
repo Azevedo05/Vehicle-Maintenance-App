@@ -11,6 +11,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { useAppAlert } from "@/contexts/AlertContext";
+import { useVehicles } from "@/contexts/VehicleContext";
 import * as Notifications from "expo-notifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -29,49 +30,26 @@ export const QuickReminders = ({ vehicleId }: QuickRemindersProps) => {
   const { requestPermissions, permissionGranted, notificationsEnabled } =
     useNotifications();
   const { showAlert } = useAppAlert();
-  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const {
+    addQuickReminder,
+    deleteQuickReminder,
+    updateQuickReminder,
+    getQuickRemindersByVehicle,
+  } = useVehicles();
+
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedReminder, setSelectedReminder] = useState<Reminder | null>(
     null
   );
 
-  const STORAGE_KEY = `@quick_reminders_${vehicleId}`;
-
-  // Load reminders
-  useEffect(() => {
-    const loadReminders = async () => {
-      try {
-        const stored = await AsyncStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          setReminders(JSON.parse(stored));
-        }
-      } catch (e) {
-        console.error("Failed to load reminders", e);
-      }
-    };
-    loadReminders();
-  }, [vehicleId]);
-
-  // Save reminders
-  useEffect(() => {
-    const saveReminders = async () => {
-      try {
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(reminders));
-      } catch (e) {
-        console.error("Failed to save reminders", e);
-      }
-    };
-    saveReminders();
-  }, [reminders, vehicleId]);
+  const reminders = getQuickRemindersByVehicle(vehicleId);
 
   // Update description text
-  const updateReminderText = (text: string) => {
+  const updateReminderText = async (text: string) => {
     if (!selectedReminder) return;
     const updated = { ...selectedReminder, text };
     setSelectedReminder(updated);
-    setReminders((prev) =>
-      prev.map((r) => (r.id === updated.id ? updated : r))
-    );
+    await updateQuickReminder(selectedReminder.id, { text });
   };
 
   const handleOpenModal = async () => {
@@ -122,8 +100,7 @@ export const QuickReminders = ({ vehicleId }: QuickRemindersProps) => {
         secondsFromNow = totalSeconds;
         dueDate = Date.now() + totalSeconds * 1000;
       } else {
-        // One-time Duration (Timer) - previously was Alarm/Time
-        // User feedback indicates preference for "In X minutes" behavior
+        // One-time Duration (Timer)
         const hours = date.getHours();
         const minutes = date.getMinutes();
         const totalSeconds = hours * 3600 + minutes * 60;
@@ -152,6 +129,7 @@ export const QuickReminders = ({ vehicleId }: QuickRemindersProps) => {
 
       const newReminder: Reminder = {
         id: Math.random().toString(),
+        vehicleId,
         text,
         createdAt: Date.now(),
         dueAt: dueDate,
@@ -160,7 +138,7 @@ export const QuickReminders = ({ vehicleId }: QuickRemindersProps) => {
         triggerSeconds: secondsFromNow,
       };
 
-      setReminders((prev) => [newReminder, ...prev]);
+      await addQuickReminder(newReminder);
       setModalVisible(false);
     } catch (e) {
       console.error("Error adding reminder:", e);
@@ -180,9 +158,6 @@ export const QuickReminders = ({ vehicleId }: QuickRemindersProps) => {
           text: t("quick_reminders.confirm"),
           style: "destructive",
           onPress: async () => {
-            // Optimistic removal
-            setReminders((prev) => prev.filter((r) => r.id !== reminder.id));
-
             // Cancel notification
             if (reminder.notificationId) {
               await Notifications.cancelScheduledNotificationAsync(
@@ -194,6 +169,7 @@ export const QuickReminders = ({ vehicleId }: QuickRemindersProps) => {
             if (selectedReminder?.id === reminder.id) {
               setSelectedReminder(null);
             }
+            await deleteQuickReminder(reminder.id);
           },
         },
       ],

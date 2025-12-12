@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { Bell, Filter, SlidersHorizontal } from "lucide-react-native";
 import * as Notifications from "expo-notifications";
+import * as Haptics from "expo-haptics";
 import React, { useMemo, useState, useRef } from "react";
 import {
   ActivityIndicator,
@@ -31,6 +32,7 @@ import { AnimatedItem } from "@/components/ui/AnimatedItem";
 import { SwipeableRow } from "@/components/ui/SwipeableRow";
 import { createStyles } from "@/components/styles/maintenance.styles";
 import { ThemedBackground } from "@/components/ThemedBackground";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 type MaintenanceSortOption =
   | "due_date_overdue"
@@ -208,7 +210,20 @@ export default function MaintenanceScreen() {
     if (!dataItem.item) return null;
 
     const item = dataItem.item;
-    const isDue = dataItem.section === "due";
+    const isDueSection = dataItem.section === "due";
+
+    // Determine specific status
+    let isOverdue = false;
+    let isDueSoon = false;
+
+    if (isDueSection) {
+      const isOverdueDate =
+        item.daysUntilDue !== undefined && item.daysUntilDue <= 0;
+      const isOverdueMileage =
+        item.milesUntilDue !== undefined && item.milesUntilDue <= 0;
+      isOverdue = isOverdueDate || isOverdueMileage;
+      isDueSoon = !isOverdue; // If it's in the 'due' section but not overdue, it's due soon
+    }
 
     return (
       <AnimatedItem index={index}>
@@ -224,11 +239,13 @@ export default function MaintenanceScreen() {
                   text: t("common.delete"),
                   style: "destructive",
                   onPress: async () => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
                     await deleteTask(item.task.id);
                     showToast({
                       message: t("maintenance.delete_success"),
                       actionLabel: t("common.undo"),
                       onAction: async () => {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                         await restoreLastSnapshot();
                       },
                     });
@@ -239,7 +256,11 @@ export default function MaintenanceScreen() {
           }}
         >
           <TouchableOpacity
-            style={[styles.taskCard, isDue && styles.dueTaskCard]}
+            style={[
+              styles.taskCard,
+              isOverdue && styles.overdueTaskCard,
+              isDueSoon && styles.dueSoonTaskCard,
+            ]}
             onPress={() => router.push(`/vehicle/${item.vehicle.id}`)}
             activeOpacity={0.7}
           >
@@ -250,7 +271,15 @@ export default function MaintenanceScreen() {
               <Text style={styles.taskVehicle} numberOfLines={1}>
                 {item.vehicle.make} {item.vehicle.model}
               </Text>
-              <Text style={isDue ? styles.taskDue : styles.taskScheduled}>
+              <Text
+                style={
+                  isOverdue
+                    ? styles.taskOverdue
+                    : isDueSoon
+                    ? styles.taskDueSoon
+                    : styles.taskScheduled
+                }
+              >
                 {item.daysUntilDue !== undefined
                   ? item.daysUntilDue <= 0
                     ? t("maintenance.overdue")
@@ -368,15 +397,12 @@ export default function MaintenanceScreen() {
   );
 
   const renderListEmpty = () => (
-    <View style={styles.emptyState}>
-      <Bell size={64} color={colors.placeholder} />
-      <Text style={styles.emptyTitle}>
-        {t("maintenance.empty_title_all_done")}
-      </Text>
-      <Text style={styles.emptyText}>
-        {t("maintenance.empty_text_all_done")}
-      </Text>
-    </View>
+    <EmptyState
+      icon={<Bell size={64} color={colors.textSecondary} />}
+      title={t("maintenance.empty_title_all_done")}
+      description={t("maintenance.empty_text_all_done")}
+      style={styles.emptyState}
+    />
   );
 
   if (isLoading) {

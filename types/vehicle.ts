@@ -8,6 +8,11 @@ export interface Vehicle {
   licensePlate?: string;
   currentMileage: number;
   photo?: string;
+  photoPosition?: {
+    x: number;
+    y: number;
+    scale: number;
+  };
   photos?: string[];
   color?: string;
   vin?: string;

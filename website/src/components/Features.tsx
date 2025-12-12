@@ -113,16 +113,9 @@ export const Features = () => {
   return (
     <section className="pt-24 pb-16 overflow-hidden" id="features">
       <div className="mx-6 max-w-[1280px] pt-8 pb-16 max-[300px]:mx-4 min-[1150px]:mx-auto">
-        <div className="flex flex-col-reverse gap-16 lg:gap-24 md:grid md:grid-cols-2 lg:grid-cols-3 items-center">
-          {/* Left column */}
-          <div className="flex flex-col gap-8 justify-center order-2 md:order-1">
-            {leftFeatures.map((feature, index) => (
-              <FeatureCard key={`left-feature-${index}`} feature={feature} />
-            ))}
-          </div>
-
-          {/* Center column - Spans full width on tablet to separate features */}
-          <div className="order-1 mb-12 self-center md:order-last md:col-span-2 lg:order-2 lg:col-span-1 md:mb-16 lg:mb-0 flex flex-col items-center text-center">
+        <div className="flex flex-col gap-8 lg:gap-24 md:grid md:grid-cols-2 lg:grid-cols-3 items-center">
+          {/* Header/Title column - First on Mobile, Last on Tablet/Desktop */}
+          <div className="order-1 flex flex-col items-center text-center justify-center md:order-last md:col-span-2 lg:order-2 lg:col-span-1 md:mb-16 lg:mb-0">
             <div className="bg-white/5 text-blue-100 border border-blue-500/20 relative mx-auto mb-6 w-fit rounded-full rounded-bl-[2px] px-4 py-2 text-sm">
               <span className="relative z-1 flex items-center gap-2 font-semibold tracking-wide">
                 Features
@@ -139,7 +132,14 @@ export const Features = () => {
             </p>
           </div>
 
-          {/* Right column */}
+          {/* Left column - Second on Mobile */}
+          <div className="flex flex-col gap-8 justify-center order-2 md:order-1">
+            {leftFeatures.map((feature, index) => (
+              <FeatureCard key={`left-feature-${index}`} feature={feature} />
+            ))}
+          </div>
+
+          {/* Right column - Third on Mobile */}
           <div className="flex flex-col gap-8 justify-center order-3 md:order-2 lg:order-3">
             {rightFeatures.map((feature, index) => (
               <FeatureCard key={`right-feature-${index}`} feature={feature} />

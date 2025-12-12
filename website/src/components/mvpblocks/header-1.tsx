@@ -56,7 +56,7 @@ export default function Header1() {
 
   return (
     <motion.header
-      className="fixed top-0 right-0 left-0 z-50 transition-all duration-300"
+      className="fixed top-0 right-0 left-0 z-[9999] transition-all duration-300"
       variants={headerVariants}
       initial="initial"
       animate={isScrolled ? "scrolled" : "animate"}
@@ -151,7 +151,7 @@ export default function Header1() {
           </div>
 
           <motion.button
-            className="hover:bg-muted rounded-lg p-2 transition-colors duration-200 lg:hidden"
+            className="relative z-[10000] text-white p-2 transition-opacity duration-200 lg:hidden hover:opacity-80"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             whileTap={{ scale: 0.95 }}
           >
@@ -173,12 +173,12 @@ export default function Header1() {
               exit="closed"
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <div className="border-border bg-background/95 mt-4 space-y-2 rounded-xl border py-4 shadow-xl backdrop-blur-lg">
+              <div className="bg-zinc-950 border-border mt-4 space-y-2 rounded-xl border py-4 shadow-xl backdrop-blur-lg">
                 {navItems.map((item) => (
                   <a
                     key={item.name}
                     href={item.href}
-                    className="text-foreground hover:bg-muted block px-4 py-3 font-medium transition-colors duration-200"
+                    className="text-white hover:bg-white/10 block px-4 py-3 font-medium transition-colors duration-200 text-center"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {item.name}

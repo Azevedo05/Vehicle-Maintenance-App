@@ -38,6 +38,7 @@ interface Preferences {
   notificationSettings: NotificationSettings;
   vehicleLayout: VehicleLayout;
   isOnboardingCompleted: boolean;
+  hapticsEnabled: boolean;
 }
 
 const PREFERENCES_STORAGE_KEY = "@preferences";
@@ -58,6 +59,7 @@ const DEFAULT_PREFERENCES: Preferences = {
     showFuelLogs: true,
   },
   isOnboardingCompleted: false,
+  hapticsEnabled: true,
 };
 
 export const CURRENCY_SYMBOLS: Record<Currency, string> = {
@@ -176,6 +178,13 @@ export const [PreferencesProvider, usePreferences] = createContextHook(() => {
     [preferences, savePreferences]
   );
 
+  const setHapticsEnabled = useCallback(
+    async (enabled: boolean) => {
+      await savePreferences({ ...preferences, hapticsEnabled: enabled });
+    },
+    [preferences, savePreferences]
+  );
+
   return {
     preferences,
     isLoading,
@@ -193,5 +202,7 @@ export const [PreferencesProvider, usePreferences] = createContextHook(() => {
     convertDistance,
     formatDistance,
     formatCurrency,
+    hapticsEnabled: preferences.hapticsEnabled,
+    setHapticsEnabled,
   };
 });

@@ -157,7 +157,11 @@ export const createVehicleDetailsStyles = (colors: any) =>
     taskScheduled: {
       color: colors.textSecondary,
     },
-    dueTaskCard: {
+    overdueTaskCard: {
+      borderColor: colors.error,
+      borderWidth: 1,
+    },
+    dueSoonTaskCard: {
       borderColor: colors.warning,
       borderWidth: 1,
     },

@@ -45,6 +45,7 @@
 - [x] **Change the Inspection Overdue border color to red**
 - [x] **Ensure "Next maintenance" appears in "Add maintenance task" even when the recurring task is not activated**
 - [x] **Vehicle Card Status Indicators**: Split overdue/upcoming status into a unified status pill for better clarity.
+- [x] **Toast Notifications**: Replace full-screen success modal with non-blocking toast notifications (including Undo functionality).
 
 ## 7. New Features & Research
 
@@ -67,7 +68,7 @@
 - [x] **Visual Effects**: Added "Glow" and "Shimmer" effects to Hero and Showcase mockups.
 - [x] **Showcase Polish**: Fixed text clipping and refined atmospheric lighting.
 - [x] **Platform Info**: Updated website to reflect Android-first focus (coming soon for iOS).
-- [ ] **Change the Mockups**: Change the mockups to be most updated app printscreen.
+- [x] **Change the Mockups**: Change the mockups to be most updated app printscreen.
 
 ## 11. IOS Critical Fixes (Deferred to v1.1)
 
@@ -81,6 +82,8 @@
 - [ ] **Biometric Authentication**: Add FaceID/TouchID support.
 - [ ] **Visual Statistics**: Implement charts/graphs for spending and maintenance trends.
 - [ ] **Maintenance Calendar**: Calendar view to visualize upcoming maintenance dates.
+- [ ] **Voice Integration**: Voice commands for adding records/tasks (e.g., "Add gas log").
+- [ ] **AI Insights**: Personalized suggestions based on usage patterns (e.g., fuel efficiency tips).
 
 ## 13. Final Polish & Data Injection
 
@@ -89,4 +92,12 @@
 - [x] **Vehicle Image Dots**: Review the pagination dots that indicate which vehicle image is being viewed ("pontinhos"), ensuring they distinguish the active image clearly.
 - [ ] **Material Design 3 Compliance**: Conduct a review against [M3 Design Guidelines](https://m3.material.io/get-started) to ensure adhering to best practices.
 - [x] **Data Injection**: Create realistic dummy data using the user-provided images (to be placed in `assets/temp_images`).
-- [ ] **Interactive Empty State**: Add an arrow pointing to the "Add" button when the list is empty.
+- [x] **Interactive Empty State**: Add an arrow pointing to the "Add" button when the list is empty.
+- [x] **Image Viewer Modal**: Ensure the image viewer modal works correctly and is responsive and closes smoothly.
+- [x] **Change Onboarding colors**: Change the onboarding colors because they are too dark on light mode.
+- [x] **Aspect ratio on photos**: Ensure photos are displayed with correct aspect ratio on both Android and iOS.
+
+## 14. Electric Vehicle Support (Refinement)
+
+- [x] **Fix Edit Fuel Log Units**: Ensure "kWh" is displayed instead of "L" on the Add/Edit Fuel Log page when the vehicle type is Electric.
+- [x] **Separate Statistics**: Ensure kWh values are not aggregated with Liters in the Statistics page (Total Volume, Average Volume, etc.).

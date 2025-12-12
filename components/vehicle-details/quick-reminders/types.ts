@@ -1,5 +1,6 @@
 export interface Reminder {
   id: string;
+  vehicleId: string;
   text: string;
   createdAt: number;
   dueAt: number;

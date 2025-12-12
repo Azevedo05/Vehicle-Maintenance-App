@@ -113,19 +113,6 @@ export const StatisticsFuel = ({
           <Text style={styles.cardValue}>{fuelStats.totalFillUps}</Text>
         </Card>
         <Card style={styles.fuelStatCard}>
-          <Text style={styles.cardLabel}>{t("fuel.total_volume")}</Text>
-          <Text style={styles.cardValue}>
-            {fuelStats.totalVolume.toFixed(1)} {t("fuel.volume_unit")}
-          </Text>
-        </Card>
-        <Card style={styles.fuelStatCard}>
-          <Text style={styles.cardLabel}>{t("fuel.total_spent")}</Text>
-          <Text style={styles.cardValue}>
-            {currencySymbol}
-            {fuelStats.totalCost.toFixed(2)}
-          </Text>
-        </Card>
-        <Card style={styles.fuelStatCard}>
           <Text style={styles.cardLabel}>{t("fuel.last_fill")}</Text>
           <Text style={styles.cardValue}>
             {fuelStats.lastFillDate
@@ -137,6 +124,52 @@ export const StatisticsFuel = ({
                   return `${day}/${month}/${year}`;
                 })()
               : t("fuel.no_data")}
+          </Text>
+        </Card>
+        <Card style={styles.fuelStatCard}>
+          <Text style={styles.cardLabel}>{t("fuel.total_volume")}</Text>
+          <Text style={styles.cardValue}>
+            {fuelStats.totalVolumeL > 0 &&
+              `${fuelStats.totalVolumeL.toFixed(1)} ${t("fuel.volume_unit")}`}
+            {fuelStats.totalVolumeL > 0 && fuelStats.totalVolumeKWh > 0 && "\n"}
+            {fuelStats.totalVolumeKWh > 0 &&
+              `${fuelStats.totalVolumeKWh.toFixed(1)} ${t(
+                "fuel.volume_unit_electric"
+              )}`}
+            {fuelStats.totalVolumeL === 0 &&
+              fuelStats.totalVolumeKWh === 0 &&
+              `0 ${t("fuel.volume_unit")}`}
+          </Text>
+        </Card>
+        <Card style={styles.fuelStatCard}>
+          <Text style={styles.cardLabel}>{t("fuel.average_volume")}</Text>
+          <Text style={styles.cardValue}>
+            {fuelStats.averageVolumeL > 0 &&
+              `${fuelStats.averageVolumeL.toFixed(1)} ${t("fuel.volume_unit")}`}
+            {fuelStats.averageVolumeL > 0 &&
+              fuelStats.averageVolumeKWh > 0 &&
+              "\n"}
+            {fuelStats.averageVolumeKWh > 0 &&
+              `${fuelStats.averageVolumeKWh.toFixed(1)} ${t(
+                "fuel.volume_unit_electric"
+              )}`}
+            {fuelStats.averageVolumeL === 0 &&
+              fuelStats.averageVolumeKWh === 0 &&
+              `0 ${t("fuel.volume_unit")}`}
+          </Text>
+        </Card>
+        <Card style={styles.fuelStatCard}>
+          <Text style={styles.cardLabel}>{t("fuel.total_spent")}</Text>
+          <Text style={styles.cardValue}>
+            {currencySymbol}
+            {fuelStats.totalCost.toFixed(2)}
+          </Text>
+        </Card>
+        <Card style={styles.fuelStatCard}>
+          <Text style={styles.cardLabel}>{t("fuel.avg_cost_fill")}</Text>
+          <Text style={styles.cardValue}>
+            {currencySymbol}
+            {fuelStats.averageCostPerFill.toFixed(2)}
           </Text>
         </Card>
       </View>
@@ -167,8 +200,20 @@ export const StatisticsFuel = ({
                 </View>
               </View>
               <Text style={styles.listItemSubtitle}>
-                {vehicle.fillUps} {t("fuel.fill_ups_short")} •{" "}
-                {vehicle.totalVolume.toFixed(1)} {t("fuel.volume_unit")}
+                {vehicle.fillUps}{" "}
+                {vehicle.fuelType === "electric"
+                  ? t("fuel.fill_ups_short_electric")
+                  : t("fuel.fill_ups_short")}{" "}
+                •{" "}
+                {vehicle.totalVolumeL > 0 &&
+                  `${vehicle.totalVolumeL.toFixed(1)} ${t("fuel.volume_unit")}`}
+                {vehicle.totalVolumeL > 0 &&
+                  vehicle.totalVolumeKWh > 0 &&
+                  " + "}
+                {vehicle.totalVolumeKWh > 0 &&
+                  `${vehicle.totalVolumeKWh.toFixed(1)} ${t(
+                    "fuel.volume_unit_electric"
+                  )}`}
               </Text>
             </TouchableOpacity>
           ))}

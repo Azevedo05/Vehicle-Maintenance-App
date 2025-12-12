@@ -1,4 +1,4 @@
-import { FuelLog, Vehicle, VehicleCategory } from "@/types/vehicle";
+import { FuelLog, Vehicle, VehicleCategory, FuelType } from "@/types/vehicle";
 import { MaintenanceRecord, MaintenanceType } from "@/types/maintenance";
 
 export interface VehicleStats {
@@ -27,10 +27,14 @@ export interface CategoryStats {
 
 export interface FuelStats {
   totalFillUps: number;
-  totalVolume: number;
+  totalVolume: number; // Deprecated: use totalVolumeL or totalVolumeKWh
+  totalVolumeL: number;
+  totalVolumeKWh: number;
   totalCost: number;
   averageCostPerFill: number;
-  averageVolume: number;
+  averageVolume: number; // Deprecated
+  averageVolumeL: number;
+  averageVolumeKWh: number;
   lastFillDate?: number;
 }
 
@@ -38,8 +42,11 @@ export interface FuelStatsByVehicle {
   vehicleId: string;
   vehicleName: string;
   fillUps: number;
-  totalVolume: number;
+  totalVolume: number; // Deprecated
+  totalVolumeL: number;
+  totalVolumeKWh: number;
   totalCost: number;
+  fuelType: FuelType;
 }
 
 export interface MonthlyStats {
@@ -283,15 +290,36 @@ export function calculateFuelStats(fuelLogs: FuelLog[]): FuelStats {
     return {
       totalFillUps: 0,
       totalVolume: 0,
+      totalVolumeL: 0,
+      totalVolumeKWh: 0,
       totalCost: 0,
       averageCostPerFill: 0,
       averageVolume: 0,
+      averageVolumeL: 0,
+      averageVolumeKWh: 0,
       lastFillDate: undefined,
     };
   }
 
   const totalFillUps = fuelLogs.length;
-  const totalVolume = fuelLogs.reduce((sum, log) => sum + (log.volume || 0), 0);
+
+  let totalVolumeL = 0;
+  let totalVolumeKWh = 0;
+  let countL = 0;
+  let countKWh = 0;
+
+  fuelLogs.forEach((log) => {
+    if (log.fuelType === "electric") {
+      totalVolumeKWh += log.volume || 0;
+      countKWh++;
+    } else {
+      totalVolumeL += log.volume || 0;
+      countL++;
+    }
+  });
+
+  const totalVolume = totalVolumeL + totalVolumeKWh; // kept for legacy fallback
+
   const totalCost = fuelLogs.reduce(
     (sum, log) => sum + (log.totalCost || 0),
     0
@@ -301,9 +329,13 @@ export function calculateFuelStats(fuelLogs: FuelLog[]): FuelStats {
   return {
     totalFillUps,
     totalVolume,
+    totalVolumeL,
+    totalVolumeKWh,
     totalCost,
     averageCostPerFill: totalFillUps > 0 ? totalCost / totalFillUps : 0,
     averageVolume: totalFillUps > 0 ? totalVolume / totalFillUps : 0,
+    averageVolumeL: countL > 0 ? totalVolumeL / countL : 0,
+    averageVolumeKWh: countKWh > 0 ? totalVolumeKWh / countKWh : 0,
     lastFillDate,
   };
 }
@@ -326,12 +358,24 @@ export function calculateFuelStatsByVehicle(
           : log.vehicleId,
         fillUps: 0,
         totalVolume: 0,
+        totalVolumeL: 0,
+        totalVolumeKWh: 0,
         totalCost: 0,
+        fuelType: vehicle?.fuelType || "gasoline",
       };
     }
 
     statsMap[log.vehicleId].fillUps += 1;
-    statsMap[log.vehicleId].totalVolume += log.volume || 0;
+
+    const vol = log.volume || 0;
+    statsMap[log.vehicleId].totalVolume += vol;
+
+    if (log.fuelType === "electric") {
+      statsMap[log.vehicleId].totalVolumeKWh += vol;
+    } else {
+      statsMap[log.vehicleId].totalVolumeL += vol;
+    }
+
     statsMap[log.vehicleId].totalCost += log.totalCost || 0;
   });
 

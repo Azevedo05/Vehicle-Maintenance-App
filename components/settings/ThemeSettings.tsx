@@ -1,14 +1,25 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Sun, Moon, Settings as SettingsIcon } from "lucide-react-native";
+import * as Haptics from "expo-haptics";
+
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
+import { usePreferences } from "@/contexts/PreferencesContext";
 import { createSettingsStyles } from "./SettingsStyles";
 
 export const ThemeSettings = () => {
   const { colors, themeMode, setThemeMode } = useTheme();
   const { t } = useLocalization();
+  const { hapticsEnabled } = usePreferences();
   const styles = createSettingsStyles(colors);
+
+  const handleThemeChange = (mode: "light" | "dark" | "system") => {
+    if (hapticsEnabled) {
+      Haptics.selectionAsync();
+    }
+    setThemeMode(mode);
+  };
 
   return (
     <View style={styles.section}>
@@ -19,7 +30,7 @@ export const ThemeSettings = () => {
             styles.optionButton,
             themeMode === "light" && styles.optionButtonActive,
           ]}
-          onPress={() => setThemeMode("light")}
+          onPress={() => handleThemeChange("light")}
           activeOpacity={0.7}
         >
           <Sun
@@ -41,7 +52,7 @@ export const ThemeSettings = () => {
             styles.optionButton,
             themeMode === "dark" && styles.optionButtonActive,
           ]}
-          onPress={() => setThemeMode("dark")}
+          onPress={() => handleThemeChange("dark")}
           activeOpacity={0.7}
         >
           <Moon
@@ -64,7 +75,7 @@ export const ThemeSettings = () => {
             themeMode === "system" && styles.optionButtonActive,
             styles.optionButtonLast,
           ]}
-          onPress={() => setThemeMode("system")}
+          onPress={() => handleThemeChange("system")}
           activeOpacity={0.7}
         >
           <SettingsIcon

@@ -58,10 +58,13 @@ export const MaintenanceOverview = ({
               key={item.task.id}
               style={[
                 styles.taskCard,
-                item.isDue &&
-                  (item.task.type === "inspection"
+                isStrictlyOverdue
+                  ? item.task.type === "inspection"
                     ? styles.inspectionOverdueCard
-                    : styles.dueTaskCard),
+                    : styles.overdueTaskCard
+                  : item.isDue
+                  ? styles.dueSoonTaskCard
+                  : undefined,
               ]}
             >
               <View style={styles.taskInfo}>

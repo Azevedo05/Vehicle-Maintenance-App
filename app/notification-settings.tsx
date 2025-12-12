@@ -1,5 +1,6 @@
 import { Stack, router } from "expo-router";
 import React, { useState } from "react";
+import Toast from "react-native-toast-message";
 import {
   ScrollView,
   Text,
@@ -15,7 +16,6 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { useAppAlert } from "@/contexts/AlertContext";
-import { SuccessAnimation } from "@/components/ui/SuccessAnimation";
 import { createNotificationSettingsStyles } from "@/components/notification-settings/NotificationSettingsStyles";
 import { NotificationTimeSection } from "@/components/notification-settings/NotificationTimeSection";
 import { DateIntervalsSection } from "@/components/notification-settings/DateIntervalsSection";
@@ -43,7 +43,6 @@ export default function NotificationSettingsScreen() {
     "custom" | "daily" | "weekly" | "monthly"
   >(notificationSettings.overdueFrequency || "custom");
 
-  const [showSuccess, setShowSuccess] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const addDateInterval = (value: number) => {
@@ -93,7 +92,11 @@ export default function NotificationSettingsScreen() {
         overdueFrequency,
       });
 
-      setShowSuccess(true);
+      Toast.show({
+        type: "success",
+        text1: t("common.success"),
+      });
+      router.back();
     } catch (error) {
       showAlert({
         title: t("common.error"),
@@ -134,13 +137,7 @@ export default function NotificationSettingsScreen() {
           ),
         }}
       />
-      <SuccessAnimation
-        visible={showSuccess}
-        onAnimationFinish={() => {
-          setShowSuccess(false);
-          router.back();
-        }}
-      />
+
       <SafeAreaView
         style={[styles.container, { backgroundColor: "transparent" }]}
         edges={["bottom"]}

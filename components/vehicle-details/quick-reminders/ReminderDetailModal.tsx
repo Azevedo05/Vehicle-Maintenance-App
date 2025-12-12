@@ -41,6 +41,7 @@ export const ReminderDetailModal = ({
       visible={visible}
       transparent
       animationType="fade"
+      statusBarTranslucent
       onRequestClose={onClose}
     >
       <View style={styles.modalContainer}>
@@ -131,7 +132,7 @@ export const ReminderDetailModal = ({
             <TouchableOpacity
               style={[
                 styles.saveButton,
-                { backgroundColor: colors.success, marginTop: 0 },
+                { backgroundColor: colors.primary, marginTop: 0 },
               ]}
               onPress={onComplete}
             >

@@ -25,7 +25,7 @@ const items = [
 export const Personalization = () => {
   return (
     <section
-      className="py-24 bg-transparent overflow-hidden relative"
+      className="py-12 md:py-24 bg-transparent overflow-hidden relative"
       id="personalization"
     >
       {/* Background Gradient */}
@@ -46,8 +46,9 @@ export const Personalization = () => {
             Tailored to Your Workflow
           </h2>
           <p className="text-xl text-neutral-400 max-w-2xl mx-auto leading-relaxed">
-            Every driver differs. Customize your dashboard, notifications, and
-            vehicle order to match your specific needs.
+            Experience true freedom. Toggle Dashboard Views, Reorder Vehicles,
+            and fine-tune Smart Notifications. From Dark Mode to Haptics, every
+            detail is yours to define.
           </p>
         </motion.div>
 

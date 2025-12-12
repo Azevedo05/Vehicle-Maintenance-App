@@ -20,6 +20,7 @@ import {
   MAINTENANCE_TYPES,
   MaintenanceType,
   getMaintenanceTypeLabel,
+  ICE_ONLY_MAINTENANCE_TYPES,
 } from "@/types/maintenance";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
@@ -36,21 +37,45 @@ export default function AddTaskScreen() {
 
   const vehicle = vehicleId ? getVehicleById(vehicleId as string) : null;
 
-  const [selectedType, setSelectedType] =
-    useState<MaintenanceType>("oil_change");
-  const [title, setTitle] = useState(t("maintenance.types.oil_change"));
-  const [intervalType, setIntervalType] = useState<"mileage" | "date">(
-    "mileage"
+  const isElectric = vehicle?.fuelType === "electric";
+
+  const [selectedType, setSelectedType] = useState<MaintenanceType>(
+    isElectric ? "battery" : "oil_change"
   );
-  const [intervalValue, setIntervalValue] = useState("5000");
+  const [title, setTitle] = useState(
+    isElectric
+      ? t("maintenance.types.battery")
+      : t("maintenance.types.oil_change")
+  );
+  const [intervalType, setIntervalType] = useState<"mileage" | "date">(
+    isElectric ? "date" : "mileage" // Battery is date-based by default
+  );
+  const [intervalValue, setIntervalValue] = useState("1095"); // Battery default (3 yrs)
   const [lastMileage, setLastMileage] = useState(
     vehicle?.currentMileage.toString() || "0"
   );
   const [isRecurring, setIsRecurring] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Update effect for initial state if vehicle loads late
+  React.useEffect(() => {
+    if (vehicle?.fuelType === "electric" && selectedType === "oil_change") {
+      setSelectedType("battery");
+      setTitle(t("maintenance.types.battery"));
+      setIntervalType("date");
+      setIntervalValue("1095");
+    }
+  }, [vehicle]);
+
   const sortedMaintenanceTypes = useMemo(() => {
-    const types = Object.keys(MAINTENANCE_TYPES) as MaintenanceType[];
+    let types = Object.keys(MAINTENANCE_TYPES) as MaintenanceType[];
+
+    if (vehicle?.fuelType === "electric") {
+      types = types.filter(
+        (type) => !ICE_ONLY_MAINTENANCE_TYPES.includes(type)
+      );
+    }
+
     return types.sort((a, b) => {
       if (a === "other") return 1;
       if (b === "other") return -1;
@@ -58,7 +83,7 @@ export default function AddTaskScreen() {
       const labelB = getMaintenanceTypeLabel(b, t);
       return labelA.localeCompare(labelB);
     });
-  }, [t]);
+  }, [t, vehicle?.fuelType]);
 
   const handleTypeSelect = (type: MaintenanceType) => {
     setSelectedType(type);
@@ -212,6 +237,7 @@ export default function AddTaskScreen() {
                   <TouchableOpacity
                     onPress={handleSubmit}
                     disabled={isSubmitting}
+                    hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
                   >
                     <Check size={24} color={colors.primary} />
                   </TouchableOpacity>

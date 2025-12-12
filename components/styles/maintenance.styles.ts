@@ -95,9 +95,13 @@ export const createStyles = (colors: any) =>
       shadowRadius: 4,
       elevation: 2,
     },
-    dueTaskCard: {
+    overdueTaskCard: {
       borderWidth: 1,
       borderColor: colors.error,
+    },
+    dueSoonTaskCard: {
+      borderWidth: 1,
+      borderColor: colors.warning,
     },
     taskInfo: {
       flex: 1,
@@ -116,10 +120,15 @@ export const createStyles = (colors: any) =>
       marginBottom: 2,
       flexShrink: 1,
     },
-    taskDue: {
+    taskOverdue: {
       fontSize: 14,
       fontWeight: "500" as const,
       color: colors.error,
+    },
+    taskDueSoon: {
+      fontSize: 14,
+      fontWeight: "500" as const,
+      color: colors.warning,
     },
     taskScheduled: {
       fontSize: 14,

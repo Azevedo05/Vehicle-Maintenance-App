@@ -1,9 +1,25 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { FlatList, Keyboard, TouchableOpacity, View, Text } from "react-native";
+import {
+  FlatList,
+  Keyboard,
+  TouchableOpacity,
+  View,
+  Text,
+  useWindowDimensions,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Plus, Car, ChevronUp, ChevronDown } from "lucide-react-native";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
+import Svg, { Path } from "react-native-svg";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
 
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -28,7 +44,7 @@ import { ThemedBackground } from "@/components/ThemedBackground";
 export default function VehiclesScreen() {
   const { colors } = useTheme();
   const { t } = useLocalization();
-  const { formatDistance } = usePreferences();
+  const { formatDistance, hapticsEnabled } = usePreferences();
   const {
     vehicles,
     isLoading,
@@ -40,6 +56,7 @@ export default function VehiclesScreen() {
     restoreLastSnapshot,
   } = useVehicles();
   const { showAlert, showToast } = useAppAlert();
+  // const { width, height } = useWindowDimensions(); // Removed duplicate declaration if exists elsewhere, checking if used later
 
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<
@@ -48,6 +65,7 @@ export default function VehiclesScreen() {
   const [showArchived, setShowArchived] = useState(false);
   const [actionVehicleId, setActionVehicleId] = useState<string | null>(null);
   const [isFilterMenuVisible, setFilterMenuVisible] = useState(false);
+  const { width, height } = useWindowDimensions();
   const [isActionsMenuVisible, setActionsMenuVisible] = useState(false);
   const [isQuickActionsMenuVisible, setQuickActionsModalVisible] =
     useState(false);
@@ -141,6 +159,28 @@ export default function VehiclesScreen() {
     getRecordsByVehicle,
   ]);
 
+  // Animation for the FAB
+  const fabScale = useSharedValue(1);
+
+  useEffect(() => {
+    if (filteredVehicles.length === 0 && !isLoading) {
+      fabScale.value = withRepeat(
+        withSequence(
+          withTiming(1.1, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+          withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) })
+        ),
+        -1,
+        true // Reverse
+      );
+    } else {
+      fabScale.value = withTiming(1);
+    }
+  }, [filteredVehicles.length, isLoading]);
+
+  const animatedFabStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: fabScale.value }],
+  }));
+
   const handleToggleReorderMode = () => {
     if (!isReorderMode && filteredVehicles.length > 0) {
       // Entering reorder mode
@@ -193,43 +233,13 @@ export default function VehiclesScreen() {
     index: number;
   }) => (
     <AnimatedItem index={index}>
-      <SwipeableRow
-        onDelete={() => {
-          showAlert({
-            title: t("common.delete"),
-            message: t("vehicles.delete_confirm", {
-              name: `${item.make} ${item.model}`,
-            }),
-            buttons: [
-              { text: t("common.cancel"), style: "cancel" },
-              {
-                text: t("common.delete"),
-                style: "destructive",
-                onPress: async () => {
-                  await deleteVehicle(item.id);
-                  showToast({
-                    message: t("vehicles.delete_success", {
-                      name: `${item.make} ${item.model}`,
-                    }),
-                    actionLabel: t("common.undo"),
-                    onAction: async () => {
-                      await restoreLastSnapshot();
-                    },
-                  });
-                },
-              },
-            ],
-          });
+      <VehicleListItem
+        vehicle={item}
+        onLongPress={(id) => {
+          setActionVehicleId(id);
+          setQuickActionsModalVisible(true);
         }}
-      >
-        <VehicleListItem
-          vehicle={item}
-          onLongPress={(id) => {
-            setActionVehicleId(id);
-            setQuickActionsModalVisible(true);
-          }}
-        />
-      </SwipeableRow>
+      />
     </AnimatedItem>
   );
 
@@ -403,7 +413,7 @@ export default function VehiclesScreen() {
             ListEmptyComponent={
               <VehicleListEmpty hasVehicles={vehicles.length > 0} />
             }
-            contentContainerStyle={styles.scrollContent}
+            contentContainerStyle={[styles.scrollContent, { flexGrow: 1 }]}
             style={styles.scrollView}
             showsVerticalScrollIndicator={false}
           />
@@ -424,7 +434,7 @@ export default function VehiclesScreen() {
             ListEmptyComponent={
               <VehicleListEmpty hasVehicles={vehicles.length > 0} />
             }
-            contentContainerStyle={styles.scrollContent}
+            contentContainerStyle={[styles.scrollContent, { flexGrow: 1 }]}
             style={styles.scrollView}
             showsVerticalScrollIndicator={false}
             initialNumToRender={10}
@@ -435,13 +445,29 @@ export default function VehiclesScreen() {
         )}
 
         {!isKeyboardVisible && !isReorderMode && (
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => router.push("/add-vehicle")}
-            activeOpacity={0.8}
-          >
-            <Plus size={28} color="#FFFFFF" />
-          </TouchableOpacity>
+          <>
+            <>
+              <Animated.View style={[styles.addButton, animatedFabStyle]}>
+                <TouchableOpacity
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  onPress={() => {
+                    if (hapticsEnabled) {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    }
+                    router.push("/add-vehicle");
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Plus size={28} color="#FFFFFF" />
+                </TouchableOpacity>
+              </Animated.View>
+            </>
+          </>
         )}
 
         <VehicleFilters

@@ -6,8 +6,10 @@ import {
   ChevronRight,
 } from "lucide-react-native";
 import { router } from "expo-router";
+import * as Haptics from "expo-haptics";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
+import { usePreferences } from "@/contexts/PreferencesContext";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { useAppAlert } from "@/contexts/AlertContext";
 import { createSettingsStyles } from "./SettingsStyles";
@@ -15,6 +17,7 @@ import { createSettingsStyles } from "./SettingsStyles";
 export const NotificationSettingsSection = () => {
   const { colors } = useTheme();
   const { t } = useLocalization();
+  const { hapticsEnabled } = usePreferences();
   const {
     notificationsEnabled,
     permissionGranted,
@@ -28,6 +31,10 @@ export const NotificationSettingsSection = () => {
   const localStyles = createLocalStyles(colors);
 
   const handleToggleNotifications = async (value: boolean) => {
+    if (hapticsEnabled) {
+      Haptics.selectionAsync();
+    }
+
     // If turning on, request permission directly (native behavior)
     if (value && !permissionGranted) {
       setIsTogglingNotifications(true);

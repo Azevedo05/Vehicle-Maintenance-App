@@ -265,3 +265,11 @@ export function getMaintenanceTypeLabel(
 ): string {
   return t(`maintenance.types.${type}`);
 }
+
+export const ICE_ONLY_MAINTENANCE_TYPES: MaintenanceType[] = [
+  "oil_change",
+  "spark_plugs",
+  "timing_belt",
+  "air_filter",
+  "transmission_fluid",
+];

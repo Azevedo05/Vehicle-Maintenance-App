@@ -25,8 +25,9 @@ import LoadingOverlay from "@/components/LoadingOverlay";
 
 import { Input } from "@/components/ui/Input";
 import { Chip } from "@/components/ui/Chip";
-import { SuccessAnimation } from "@/components/ui/SuccessAnimation";
+// import { SuccessAnimation } from "@/components/ui/SuccessAnimation"; // Removed
 import { ThemedBackground } from "@/components/ThemedBackground";
+import Toast from "react-native-toast-message";
 
 export default function AddFuelLogScreen() {
   const { vehicleId, fuelLogId } = useLocalSearchParams();
@@ -56,7 +57,7 @@ export default function AddFuelLogScreen() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  // const [showSuccess, setShowSuccess] = useState(false);
 
   // Load existing log data if editing
   React.useEffect(() => {
@@ -146,7 +147,11 @@ export default function AddFuelLogScreen() {
         await addFuelLog(logData);
       }
 
-      setShowSuccess(true);
+      Toast.show({
+        type: "success",
+        text1: t("common.success"),
+      });
+      router.back();
     } catch (error) {
       console.error("Error saving fuel log:", error);
       showAlert({
@@ -204,7 +209,13 @@ export default function AddFuelLogScreen() {
       >
         <Stack.Screen
           options={{
-            title: isEditing ? t("fuel.edit_log") : t("fuel.add_log"),
+            title: isEditing
+              ? vehicle?.fuelType === "electric"
+                ? t("fuel.edit_log_electric")
+                : t("fuel.edit_log")
+              : vehicle?.fuelType === "electric"
+              ? t("fuel.add_log_electric")
+              : t("fuel.add_log"),
             headerRight: () => (
               <View
                 style={{
@@ -221,15 +232,17 @@ export default function AddFuelLogScreen() {
                     <TouchableOpacity
                       onPress={handleSubmit}
                       disabled={isSubmitting}
+                      hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
                     >
-                      <Check size={20} color={colors.primary} />
+                      <Check size={24} color={colors.primary} />
                     </TouchableOpacity>
                     {isEditing && (
                       <TouchableOpacity
                         onPress={handleDelete}
                         disabled={isSubmitting}
+                        hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
                       >
-                        <Trash2 size={20} color={colors.error} />
+                        <Trash2 size={24} color={colors.error} />
                       </TouchableOpacity>
                     )}
                   </>
@@ -238,13 +251,7 @@ export default function AddFuelLogScreen() {
             ),
           }}
         />
-        <SuccessAnimation
-          visible={showSuccess}
-          onAnimationFinish={() => {
-            setShowSuccess(false);
-            router.back();
-          }}
-        />
+
         <KeyboardAvoidingView
           behavior="padding"
           style={styles.keyboardView}
@@ -289,7 +296,10 @@ export default function AddFuelLogScreen() {
                 <View style={styles.rowItem}>
                   <Input
                     label={t("fuel.volume_label", {
-                      unit: t("fuel.volume_unit"),
+                      unit:
+                        fuelType === "electric"
+                          ? t("fuel.volume_unit_electric")
+                          : t("fuel.volume_unit"),
                     })}
                     value={volume}
                     onChangeText={setVolume}

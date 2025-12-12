@@ -1,7 +1,8 @@
-import { LinearGradient } from "expo-linear-gradient";
-import { router, Stack, useLocalSearchParams } from "expo-router";
-import { AlertCircle } from "lucide-react-native";
 import React, { useState } from "react";
+import ImageModal from "react-native-image-modal";
+import { LinearGradient } from "expo-linear-gradient";
+import { router, Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { AlertCircle } from "lucide-react-native";
 import {
   ActivityIndicator,
   ScrollView,
@@ -40,6 +41,7 @@ import {
   Trash2,
   MoreVertical,
   Eye,
+  X,
 } from "lucide-react-native";
 import { BlurView } from "expo-blur";
 import { ThemedBackground } from "@/components/ThemedBackground";
@@ -51,7 +53,6 @@ import { FuelLogSection } from "@/components/vehicle-details/FuelLogSection";
 
 import { QuickReminders } from "@/components/vehicle-details/QuickReminders";
 
-import { ImageViewerModal } from "@/components/vehicle-details/ImageViewerModal";
 import { VehicleViewSettingsModal } from "@/components/vehicle-details/VehicleViewSettingsModal";
 import { usePreferences } from "@/contexts/PreferencesContext";
 
@@ -125,10 +126,6 @@ export default function VehicleDetailScreen() {
   const { id } = useLocalSearchParams();
   const vehicleId = id as string;
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [fullscreenImage, setFullscreenImage] = useState<string | undefined>(
-    undefined
-  );
 
   const insets = useSafeAreaInsets();
   const scrollY = useSharedValue(0);
@@ -157,7 +154,7 @@ export default function VehicleDetailScreen() {
   });
 
   const { getVehicleById, deleteVehicle, restoreLastSnapshot } = useVehicles();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const { preferences } = usePreferences();
   const { vehicleLayout } = preferences;
   const isMinimalist =
@@ -173,7 +170,7 @@ export default function VehicleDetailScreen() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const vehicle = getVehicleById(vehicleId);
-  const styles = createStyles(colors, insets, isMinimalist);
+  const styles = createStyles(colors, insets, isMinimalist, isDark);
 
   const displayPhotos =
     vehicle?.photos && vehicle.photos.length > 0
@@ -181,11 +178,6 @@ export default function VehicleDetailScreen() {
       : vehicle?.photo
       ? [vehicle.photo]
       : [];
-
-  const handleImagePress = (uri: string) => {
-    setFullscreenImage(uri);
-    setIsModalVisible(true);
-  };
 
   const handleDelete = () => {
     if (!vehicle || isDeleting) {
@@ -300,17 +292,51 @@ export default function VehicleDetailScreen() {
                     scrollEventThrottle={16}
                   >
                     {displayPhotos.map((uri, index) => (
-                      <TouchableOpacity
-                        key={index}
-                        activeOpacity={1}
-                        onPress={() => handleImagePress(uri)}
-                      >
-                        <Image
-                          source={{ uri }}
+                      <View key={index} style={styles.vehicleImage}>
+                        <ImageModal
+                          resizeMode="cover"
+                          imageBackgroundColor="#000000"
                           style={styles.vehicleImage}
-                          contentFit="cover"
+                          source={{ uri }}
+                          animationDuration={300}
+                          modalImageResizeMode="contain"
+                          renderToHardwareTextureAndroid={false}
+                          isTranslucent={true}
+                          renderHeader={(close) => (
+                            <TouchableOpacity
+                              onPress={close}
+                              style={{
+                                position: "absolute",
+                                top: Platform.OS === "ios" ? 50 : 30,
+                                right: 20,
+                                zIndex: 10,
+                              }}
+                              activeOpacity={0.8}
+                            >
+                              <BlurView
+                                intensity={60}
+                                tint={isDark ? "dark" : "light"}
+                                style={{
+                                  width: 44,
+                                  height: 44,
+                                  borderRadius: 22,
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                  backgroundColor: isDark
+                                    ? "rgba(0, 0, 0, 0.8)"
+                                    : "rgba(255, 255, 255, 0.8)",
+                                  overflow: "hidden",
+                                }}
+                              >
+                                <X
+                                  size={24}
+                                  color={isDark ? "#FFFFFF" : colors.text}
+                                />
+                              </BlurView>
+                            </TouchableOpacity>
+                          )}
                         />
-                      </TouchableOpacity>
+                      </View>
                     ))}
                   </Animated.ScrollView>
                 </View>
@@ -328,10 +354,13 @@ export default function VehicleDetailScreen() {
                 >
                   <BlurView
                     intensity={60}
-                    tint="dark"
+                    tint={isDark ? "dark" : "light"}
                     style={styles.floatingButtonBlur}
                   >
-                    <ChevronLeft size={24} color="#FFFFFF" />
+                    <ChevronLeft
+                      size={24}
+                      color={isDark ? "#FFFFFF" : colors.text}
+                    />
                   </BlurView>
                 </TouchableOpacity>
               </View>
@@ -344,10 +373,13 @@ export default function VehicleDetailScreen() {
                 >
                   <BlurView
                     intensity={60}
-                    tint="dark"
+                    tint={isDark ? "dark" : "light"}
                     style={styles.floatingButtonBlur}
                   >
-                    <MoreVertical size={20} color="#FFFFFF" />
+                    <MoreVertical
+                      size={20}
+                      color={isDark ? "#FFFFFF" : colors.text}
+                    />
                   </BlurView>
                 </TouchableOpacity>
 
@@ -371,7 +403,7 @@ export default function VehicleDetailScreen() {
                     >
                       <BlurView
                         intensity={80}
-                        tint="dark"
+                        tint={isDark ? "dark" : "light"}
                         style={styles.menuBlur}
                       >
                         <TouchableOpacity
@@ -381,7 +413,10 @@ export default function VehicleDetailScreen() {
                             setIsViewSettingsVisible(true);
                           }}
                         >
-                          <Eye size={18} color="#FFFFFF" />
+                          <Eye
+                            size={18}
+                            color={isDark ? "#FFFFFF" : colors.text}
+                          />
                           <Text style={styles.menuItemText}>
                             {t(
                               "vehicle_details.customize_view",
@@ -397,7 +432,10 @@ export default function VehicleDetailScreen() {
                             router.push(`/edit-vehicle?id=${vehicle.id}`);
                           }}
                         >
-                          <Edit size={18} color="#FFFFFF" />
+                          <Edit
+                            size={18}
+                            color={isDark ? "#FFFFFF" : colors.text}
+                          />
                           <Text style={styles.menuItemText}>
                             {t("common.edit")}
                           </Text>
@@ -467,11 +505,7 @@ export default function VehicleDetailScreen() {
             </LinearGradient>
           </Animated.ScrollView>
         </SafeAreaView>
-        <ImageViewerModal
-          visible={isModalVisible}
-          imageUri={fullscreenImage}
-          onClose={() => setIsModalVisible(false)}
-        />
+
         <VehicleViewSettingsModal
           visible={isViewSettingsVisible}
           onClose={() => setIsViewSettingsVisible(false)}
@@ -484,7 +518,8 @@ export default function VehicleDetailScreen() {
 const createStyles = (
   colors: any,
   insets: any,
-  isMinimalist: boolean = false
+  isMinimalist: boolean = false,
+  isDark: boolean = true
 ) =>
   StyleSheet.create({
     container: {
@@ -581,9 +616,11 @@ const createStyles = (
     },
     menuBlur: {
       paddingVertical: 4,
-      backgroundColor: "rgba(0, 0, 0, 0.9)", // Maximum contrast
+      backgroundColor: isDark
+        ? "rgba(0, 0, 0, 0.9)"
+        : "rgba(255, 255, 255, 0.95)",
       borderWidth: 1,
-      borderColor: "rgba(255, 255, 255, 0.2)",
+      borderColor: isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.1)",
     },
     menuItem: {
       flexDirection: "row",
@@ -595,11 +632,13 @@ const createStyles = (
     menuItemText: {
       fontSize: 14,
       fontFamily: "Inter_600SemiBold",
-      color: "#FFFFFF",
+      color: isDark ? "#FFFFFF" : colors.text,
     },
     menuDivider: {
       height: 1,
-      backgroundColor: "rgba(255, 255, 255, 0.1)", // Consistent glass divider
+      backgroundColor: isDark
+        ? "rgba(255, 255, 255, 0.1)"
+        : "rgba(0, 0, 0, 0.05)",
       marginHorizontal: 16,
     },
     floatingButtonBlur: {
@@ -608,7 +647,9 @@ const createStyles = (
       borderRadius: 22,
       justifyContent: "center",
       alignItems: "center",
-      backgroundColor: "rgba(0, 0, 0, 0.8)",
+      backgroundColor: isDark
+        ? "rgba(0, 0, 0, 0.8)"
+        : "rgba(255, 255, 255, 0.8)",
       overflow: "hidden",
     },
     safeArea: {
