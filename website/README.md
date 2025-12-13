@@ -1,73 +1,100 @@
-# React + TypeScript + Vite
+# 🚗 Shift - Website
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<div align="center">
 
-Currently, two official plugins are available:
+Marketing website for the **Shift** vehicle maintenance app.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+[Live Website](https://shift-vehicle-maintenance.vercel.app/) • [Main Project](../README.md)
 
-## React Compiler
+</div>
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🛠️ Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Vite** - Next-generation frontend build tool
+- **React 19** - UI library
+- **TypeScript** - Type safety
+- **TailwindCSS 4** - Utility-first CSS framework
+- **Framer Motion** - Animations
+- **Lucide React** - Icons
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🚀 Getting Started
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Prerequisites
+
+- Node.js 18+ or Bun
+
+### Development
+
+```bash
+# Navigate to website directory
+cd website
+
+# Install dependencies
+npm install
+# or
+bun install
+
+# Start development server
+npm run dev
+# or
+bun dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The website will be available at `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Build for Production
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
+# or
+bun run build
 ```
+
+The production build will be output to the `dist` folder.
+
+---
+
+## 📁 Project Structure
+
+```
+website/
+├── public/                 # Static assets (images, favicon)
+│   ├── mockups/           # App screenshots and mockups
+│   └── favicon.png        # Site favicon
+├── src/
+│   ├── components/        # React components
+│   │   ├── mvpblocks/    # Premium UI blocks
+│   │   └── ...           # Feature sections
+│   ├── assets/           # Component assets
+│   ├── App.tsx           # Main app component
+│   ├── index.css         # Global styles
+│   └── main.tsx          # Entry point
+├── index.html            # HTML template
+├── tailwind.config.js    # Tailwind configuration
+├── vite.config.ts        # Vite configuration
+└── package.json          # Dependencies
+```
+
+---
+
+## 🎨 Features
+
+- **Responsive Design**: Optimized for all screen sizes
+- **Dark Mode**: Elegant dark theme
+- **Smooth Animations**: Framer Motion powered transitions
+- **SEO Optimized**: Meta tags and semantic HTML
+- **Fast Loading**: Vite's optimized build
+
+---
+
+## 📄 License
+
+This project is part of the Shift app ecosystem.
+
+See the main [LICENSE](../LICENSE) file for details.
+
+**All Rights Reserved** © 2024-2025 Gonçalo Azevedo

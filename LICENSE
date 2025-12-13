@@ -1,0 +1,248 @@
+# SHIFT - PROPRIETARY SOFTWARE LICENSE AGREEMENT
+
+Version 1.0 - Effective Date: December 2024
+
+Copyright (c) 2024-2025 Gonçalo Azevedo. All Rights Reserved.
+
+PLEASE READ THIS LICENSE AGREEMENT CAREFULLY BEFORE USING THIS SOFTWARE.
+
+By accessing, downloading, installing, or using this software, you acknowledge
+that you have read, understood, and agree to be bound by the terms and conditions
+of this License Agreement. If you do not agree to these terms, do not use the
+software.
+
+================================================================================
+
+1. # DEFINITIONS
+
+"Software" refers to the Shift mobile application, website, source code,
+documentation, and all associated files, assets, designs, and materials
+contained in this repository.
+
+"Licensor" refers to Gonçalo Azevedo, the copyright holder and owner of the
+Software.
+
+"You" or "User" refers to any individual or entity that accesses, downloads,
+or uses the Software.
+
+"Commercial Use" means any use of the Software intended for or directed toward
+commercial advantage or monetary compensation.
+
+================================================================================ 2. OWNERSHIP AND INTELLECTUAL PROPERTY
+================================================================================
+
+2.1 The Software, including but not limited to its source code, object code,
+algorithms, structure, organization, user interface, visual design,
+graphics, icons, images, sounds, and documentation, is the exclusive
+property of the Licensor.
+
+2.2 The Licensor retains all rights, title, and interest in and to the
+Software, including all intellectual property rights such as copyrights,
+trademarks, trade secrets, and patents.
+
+2.3 The name "Shift", all associated logos, branding elements, and visual
+identity are trademarks of the Licensor and may not be used without
+explicit written permission.
+
+2.4 Nothing in this Agreement grants you any ownership rights to the Software.
+
+================================================================================ 3. LICENSE GRANT
+================================================================================
+
+3.1 Subject to the terms of this Agreement, the Licensor grants you a limited,
+non-exclusive, non-transferable, revocable license to:
+
+    a) View and study the source code for personal, educational purposes only;
+    b) Use the compiled application (APK/IPA) for personal, non-commercial use;
+    c) Fork the repository for private, personal learning purposes only.
+
+3.2 This license does NOT include the right to:
+
+    a) Use the Software for any commercial purpose;
+    b) Distribute, sublicense, sell, lease, or rent the Software;
+    c) Modify, adapt, or create derivative works based on the Software;
+    d) Remove or alter any proprietary notices or labels on the Software;
+    e) Use the Software to create a competing product or service;
+    f) Deploy the Software on any public server or make it publicly accessible;
+    g) Use any part of the Software in your own projects without permission.
+
+================================================================================ 4. RESTRICTIONS
+================================================================================
+
+You expressly agree NOT to:
+
+4.1 REVERSE ENGINEERING: Decompile, disassemble, reverse engineer, or attempt
+to derive the source code, underlying ideas, algorithms, or structure of
+any compiled portions of the Software.
+
+4.2 COPYING: Copy, reproduce, or duplicate the Software or any portion thereof
+except as expressly permitted herein or for reasonable backup purposes.
+
+4.3 MODIFICATION: Modify, translate, adapt, alter, or create derivative works
+based upon the Software without prior written consent from the Licensor.
+
+4.4 DISTRIBUTION: Distribute, transfer, publish, disclose, display, or
+otherwise make available the Software or any copies thereof to any third
+party.
+
+4.5 COMMERCIAL EXPLOITATION: Use the Software, in whole or in part, as the
+basis for any commercial product, service, or venture.
+
+4.6 COMPETITION: Use the Software or any knowledge gained from it to develop,
+market, or distribute any product or service that competes with the
+Software.
+
+4.7 BRANDING MISUSE: Use the name "Shift", its logos, or any branding elements
+in any manner that suggests endorsement, affiliation, or sponsorship
+without explicit written permission.
+
+4.8 CIRCUMVENTION: Remove, disable, or circumvent any security features,
+access controls, or usage restrictions built into the Software.
+
+================================================================================ 5. THIRD-PARTY COMPONENTS
+================================================================================
+
+5.1 The Software may include third-party open-source libraries and components
+that are subject to their own license terms. These components remain
+subject to their respective licenses.
+
+5.2 The restrictions in this Agreement apply only to the original portions of
+the Software created by the Licensor, not to third-party components.
+
+5.3 A list of third-party dependencies and their licenses can be found in the
+package.json files within this repository.
+
+================================================================================ 6. DISCLAIMER OF WARRANTIES
+================================================================================
+
+6.1 THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTY OF
+ANY KIND, EXPRESS OR IMPLIED.
+
+6.2 THE LICENSOR EXPRESSLY DISCLAIMS ALL WARRANTIES, INCLUDING BUT NOT LIMITED
+TO:
+
+    a) WARRANTIES OF MERCHANTABILITY;
+    b) WARRANTIES OF FITNESS FOR A PARTICULAR PURPOSE;
+    c) WARRANTIES OF NON-INFRINGEMENT;
+    d) WARRANTIES OF ACCURACY, RELIABILITY, OR COMPLETENESS;
+    e) WARRANTIES THAT THE SOFTWARE WILL BE UNINTERRUPTED OR ERROR-FREE.
+
+6.3 YOU ASSUME ALL RISKS ASSOCIATED WITH USING THE SOFTWARE, INCLUDING BUT NOT
+LIMITED TO DATA LOSS, SYSTEM CRASHES, OR ANY OTHER DAMAGES.
+
+================================================================================ 7. LIMITATION OF LIABILITY
+================================================================================
+
+7.1 TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL THE
+LICENSOR BE LIABLE FOR ANY:
+
+    a) DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE
+       DAMAGES;
+    b) LOSS OF PROFITS, REVENUE, DATA, OR BUSINESS OPPORTUNITIES;
+    c) BUSINESS INTERRUPTION OR LOSS OF GOODWILL;
+    d) DAMAGES ARISING FROM YOUR USE OR INABILITY TO USE THE SOFTWARE;
+    e) DAMAGES ARISING FROM UNAUTHORIZED ACCESS TO OR ALTERATION OF YOUR DATA.
+
+7.2 THIS LIMITATION APPLIES REGARDLESS OF THE LEGAL THEORY UNDER WHICH DAMAGES
+ARE SOUGHT, WHETHER IN CONTRACT, TORT (INCLUDING NEGLIGENCE), STRICT
+LIABILITY, OR OTHERWISE.
+
+7.3 IN JURISDICTIONS THAT DO NOT ALLOW THE EXCLUSION OF CERTAIN WARRANTIES OR
+LIMITATION OF LIABILITY, THE LICENSOR'S LIABILITY SHALL BE LIMITED TO THE
+MAXIMUM EXTENT PERMITTED BY LAW.
+
+================================================================================ 8. INDEMNIFICATION
+================================================================================
+
+8.1 You agree to indemnify, defend, and hold harmless the Licensor from and
+against any and all claims, damages, losses, liabilities, costs, and
+expenses (including reasonable attorneys' fees) arising from:
+
+    a) Your use of the Software;
+    b) Your violation of this Agreement;
+    c) Your violation of any applicable laws or regulations;
+    d) Your infringement of any third-party rights.
+
+================================================================================ 9. TERMINATION
+================================================================================
+
+9.1 This license is effective until terminated.
+
+9.2 The Licensor may terminate this license at any time, with or without cause,
+upon notice to you.
+
+9.3 This license will automatically terminate if you violate any of its terms
+or conditions.
+
+9.4 Upon termination:
+
+    a) All rights granted to you under this Agreement cease immediately;
+    b) You must immediately stop using the Software;
+    c) You must delete all copies of the Software in your possession;
+    d) You must destroy any materials containing portions of the Software.
+
+9.5 Sections 2, 5, 6, 7, 8, 10, 11, and 12 shall survive termination.
+
+================================================================================ 10. PRIVACY AND DATA
+================================================================================
+
+10.1 The Software stores all user data locally on the user's device.
+
+10.2 The Licensor does not collect, transmit, or store any personal data from
+users through the Software.
+
+10.3 Users are solely responsible for backing up their own data.
+
+10.4 The website may use standard analytics and cookies as described in the
+website's privacy policy.
+
+================================================================================ 11. GOVERNING LAW AND JURISDICTION
+================================================================================
+
+11.1 This Agreement shall be governed by and construed in accordance with the
+laws of Portugal, without regard to its conflict of law principles.
+
+11.2 Any disputes arising from or relating to this Agreement shall be subject
+to the exclusive jurisdiction of the courts of Portugal.
+
+11.3 You agree to submit to the personal jurisdiction of such courts.
+
+================================================================================ 12. GENERAL PROVISIONS
+================================================================================
+
+12.1 ENTIRE AGREEMENT: This Agreement constitutes the entire agreement between
+you and the Licensor regarding the Software and supersedes all prior
+agreements and understandings.
+
+12.2 SEVERABILITY: If any provision of this Agreement is found to be invalid
+or unenforceable, the remaining provisions shall remain in full force
+and effect.
+
+12.3 WAIVER: The failure of the Licensor to enforce any right or provision of
+this Agreement shall not constitute a waiver of such right or provision.
+
+12.4 ASSIGNMENT: You may not assign or transfer this Agreement or any rights
+granted hereunder without the prior written consent of the Licensor.
+
+12.5 AMENDMENTS: The Licensor reserves the right to modify this Agreement at
+any time. Continued use of the Software after any modifications
+constitutes acceptance of the modified terms.
+
+12.6 NO PARTNERSHIP: Nothing in this Agreement creates any partnership, joint
+venture, employer-employee, agency, or franchisor-franchisee relationship.
+
+================================================================================ 13. CONTACT INFORMATION
+================================================================================
+
+For licensing inquiries, permissions requests, or questions about this
+Agreement, please contact:
+
+    Email: shift.app.help@gmail.com
+    GitHub: https://github.com/Azevedo05
+
+================================================================================
+
+BY USING THIS SOFTWARE, YOU ACKNOWLEDGE THAT YOU HAVE READ THIS AGREEMENT,
+UNDERSTAND IT, AND AGREE TO BE BOUND BY ITS TERMS AND CONDITIONS.
+
+================================================================================

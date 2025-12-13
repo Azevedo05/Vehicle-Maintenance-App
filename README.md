@@ -1,11 +1,38 @@
 # 🚗 Shift
 
-## About the Project
+<div align="center">
 
-Native mobile application for vehicle maintenance management and tracking, with intelligent notification system and full support for Portuguese (Portugal) and English.
+**Vehicle Maintenance Management App**
 
-**Platform**: Native iOS & Android app, exportable to web
-**Framework**: Expo Router + React Native
+[![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red.svg)](./LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-iOS%20%7C%20Android-blue.svg)]()
+[![Built with Expo](https://img.shields.io/badge/Built%20with-Expo-4630EB.svg)](https://expo.dev)
+
+[Website](https://shift-vehicle-maintenance.vercel.app/) • [Download APK](#-download) • [Report Bug](https://github.com/Azevedo05/Vehicle-Maintenance-App/issues)
+
+</div>
+
+---
+
+## 📖 About the Project
+
+**Shift** is a native mobile application for vehicle maintenance management and tracking, featuring an intelligent notification system and full support for Portuguese (Portugal) and English.
+
+- **Platform**: Native iOS & Android app
+- **Framework**: Expo Router + React Native
+- **Privacy**: 100% offline - all data stays on your device
+
+## 📥 Download
+
+### Android
+
+Download the latest APK from the [releases page](https://github.com/Azevedo05/Vehicle-Maintenance-App/releases) or visit the [website](https://shift-vehicle-maintenance.vercel.app/).
+
+### iOS
+
+Coming soon to the App Store.
+
+---
 
 ## ✨ Key Features
 
@@ -25,6 +52,12 @@ Native mobile application for vehicle maintenance management and tracking, with 
 - **Complete History**: Detailed record of all completed maintenance
 - **Predefined Types**: Oil change, service, tires, brakes, filters, battery, and more
 - **Full Details**: Cost, location, notes, and date/mileage
+
+### ⛽ Fuel Tracking
+
+- Log fuel consumption
+- Track fuel costs
+- Monitor fuel efficiency over time
 
 ### 🔔 Smart Notifications
 
@@ -53,7 +86,6 @@ Native mobile application for vehicle maintenance management and tracking, with 
 - **Light Mode**: Bright and modern interface
 - **Dark Mode**: Perfect for nighttime use
 - **System**: Automatically follows device preferences
-- **Customizable**: Settings detailed in `PreferencesContext`
 
 ### 📱 Responsive Interface
 
@@ -62,9 +94,9 @@ Native mobile application for vehicle maintenance management and tracking, with 
 - Smooth animations and transitions
 - Modern cards with shadows and gradients
 
-## 🛠️ Tech Stack
+---
 
-This project uses the best native cross-platform technologies:
+## 🛠️ Tech Stack
 
 ### Core
 
@@ -82,9 +114,7 @@ This project uses the best native cross-platform technologies:
 ### State & Data
 
 - **React Context API** - Global state management
-- **@nkzw/create-context-hook** - Optimized context hooks
 - **AsyncStorage** - Local data persistence
-- **React Query** - Server state management (available for future integrations)
 
 ### Native Features
 
@@ -93,16 +123,24 @@ This project uses the best native cross-platform technologies:
 - **i18next** - Full internationalization (PT/EN)
 - **date-fns** - Date manipulation
 
+---
+
 ## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+ or Bun
+- Expo CLI
+- iOS Simulator (Mac) or Android Emulator
 
 ### Installation
 
 ```bash
 # 1. Clone the repository
-git clone <YOUR_GIT_URL>
+git clone https://github.com/Azevedo05/Vehicle-Maintenance-App.git
 
 # 2. Navigate to project directory
-cd vehicle-maintenance-app
+cd Vehicle-Maintenance-App
 
 # 3. Install dependencies
 npm install --legacy-peer-deps
@@ -121,133 +159,66 @@ bun start
 2. **Android**: Download [Expo Go](https://play.google.com/store/apps/details?id=host.exp.exponent) from Google Play
 3. Run `npm start` and scan the QR code
 
-## 📂 App Structure
-
-### Contexts (State Management)
-
-- **VehicleContext** - Vehicle, task, and record management
-- **NotificationContext** - Smart notification system
-- **ThemeContext** - Themes (light/dark/system)
-- **LocalizationContext** - Internationalization (PT/EN)
-- **AlertContext** - Custom app-wide alert system
-- **PreferencesContext** - User preferences management
-
-### Main Screens
-
-- **Home** - Vehicle list with upcoming maintenance alerts
-- **Maintenance** - View of all scheduled maintenance
-- **Settings** - Theme, language, notification, and unit settings
-- **Vehicle Details** - Complete vehicle details with tasks and history
-- **Add/Edit Vehicle** - Vehicle management form
-- **Add Task** - Schedule new maintenance
-- **Add Record** - Log completed maintenance
-- **Record Details** - View historical maintenance details
-- **Add Fuel Log** - Track fuel consumption (New)
+---
 
 ## 📁 Project Structure
 
 ```
 ├── app/                           # App screens (Expo Router)
 │   ├── (tabs)/                   # Tab navigation
-│   │   ├── _layout.tsx          # Tab configuration
 │   │   ├── index.tsx            # Home - Vehicle list
 │   │   ├── maintenance.tsx      # Scheduled maintenance
 │   │   └── settings.tsx         # Settings
-│   ├── vehicle/                 # Vehicle details
-│   │   └── [id].tsx            # Dynamic vehicle page
-│   ├── record/                  # Record details
-│   │   └── [id].tsx            # Dynamic record page
-│   ├── vehicles/                # Vehicle specific components
-│   ├── _layout.tsx             # Root layout
-│   ├── add-vehicle.tsx         # Add vehicle
-│   ├── edit-vehicle.tsx        # Edit vehicle
-│   ├── add-task.tsx            # Add task
-│   ├── add-record.tsx          # Add record
-│   ├── add-fuel-log.tsx        # Add fuel log
-│   ├── notification-settings.tsx # Notification settings
-│   └── +not-found.tsx          # 404 page
-├── contexts/                    # React contexts
-│   ├── VehicleContext.tsx      # Vehicle and maintenance management
-│   ├── NotificationContext.tsx # Notification system
-│   ├── ThemeContext.tsx        # Theme management
-│   ├── LocalizationContext.tsx # Internationalization
-│   ├── AlertContext.tsx        # Custom alerts
-│   └── PreferencesContext.tsx  # User preferences
-├── hooks/                       # Custom hooks
-│   ├── useFormValidation.ts    # Form validation logic
-│   └── useMaintenanceNotifications.ts  # Notification sync
-├── types/                       # TypeScript types
-│   ├── vehicle.ts              # Vehicle interfaces and types
-│   └── maintenance.ts          # Maintenance interfaces
-├── components/                  # Reusable UI components
-├── locales/                     # Translations
-│   ├── en.json                 # English
-│   └── pt-PT.json              # Portuguese (Portugal)
-├── constants/                   # Constants
-│   └── colors.ts               # Color palette
-├── assets/                      # Static assets
-│   ├── images/                 # Icons and images
-│   └── sounds/                 # Notification sounds
-├── app.json                     # Expo configuration
-├── package.json                 # Dependencies
-└── tsconfig.json                # TypeScript configuration
+│   ├── vehicle/[id].tsx         # Vehicle details
+│   ├── record/[id].tsx          # Record details
+│   ├── add-vehicle.tsx          # Add vehicle
+│   ├── add-task.tsx             # Add task
+│   ├── add-record.tsx           # Add record
+│   └── add-fuel-log.tsx         # Add fuel log
+├── components/                   # Reusable UI components
+├── contexts/                     # React contexts (state management)
+├── hooks/                        # Custom hooks
+├── types/                        # TypeScript types
+├── locales/                      # Translations (EN/PT-PT)
+├── constants/                    # Constants
+├── assets/                       # Static assets
+└── website/                      # Marketing website
 ```
 
-## 📋 Implemented Features
-
-### ✅ Vehicle System
-
-- [x] Add vehicles with photo
-- [x] Edit vehicle information
-- [x] View complete details
-- [x] Update mileage
-- [x] Delete vehicles
-
-### ✅ Maintenance System
-
-- [x] Create tasks by date
-- [x] Create tasks by mileage
-- [x] Recurring vs one-time tasks
-- [x] 11 predefined maintenance types
-- [x] Log completed maintenance
-- [x] Complete history with details
-- [x] Automatic calculation of next maintenance (recurring)
-
-### ✅ Smart Notifications
-
-- [x] Date-based notifications (7d, 3d, 1d, today)
-- [x] Mileage-based notifications (1000km, 500km, 200km)
-- [x] Convenient schedule (9 AM)
-- [x] Overdue maintenance alerts
-- [x] Automatic synchronization
-- [x] Enable/disable in settings
-
-### ✅ Internationalization
-
-- [x] Portuguese (Portugal)
-- [x] English
-- [x] Instant language switching
-- [x] All strings translated
-
-### ✅ Themes
-
-- [x] Light mode
-- [x] Dark mode
-- [x] System mode (automatic)
-- [x] Preference persistence
+---
 
 ## 💾 Data Management
 
-All data is stored **locally** on the device using `@react-native-async-storage/async-storage`:
+All data is stored **locally** on the device using AsyncStorage:
 
 - ✅ **Total Privacy**: No data leaves the device
 - ✅ **Offline First**: Works without internet
 - ✅ **Persistence**: Data persists after closing the app
 - ✅ **Performance**: Fast data access
 
-### Stored Data
+---
 
-- Vehicle information (with photos in base64)
-- Scheduled maintenance tasks
-- Complete maintenance history
-- Preferences (theme, language, notifications)
+## 👨‍💻 Author
+
+**Gonçalo Azevedo**
+
+- Portfolio: [goncalo-portfolio.vercel.app](https://goncalo-portfolio.vercel.app/)
+- GitHub: [@Azevedo05](https://github.com/Azevedo05)
+
+---
+
+## 📄 License
+
+This project is proprietary software. See the [LICENSE](./LICENSE) file for details.
+
+**All Rights Reserved** © 2024-2025 Gonçalo Azevedo
+
+You may view the source code for educational purposes, but commercial use, redistribution, and derivative works require explicit written permission.
+
+---
+
+<div align="center">
+
+Made with ❤️ in Portugal
+
+</div>
