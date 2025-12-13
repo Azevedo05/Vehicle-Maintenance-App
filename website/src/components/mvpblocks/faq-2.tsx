@@ -202,7 +202,8 @@ export default function Faq2() {
               Contact Support
             </a>
             <a
-              href="#download"
+              href="/Shift.apk"
+              download
               className="border border-white/20 text-white hover:bg-white/10 inline-flex items-center justify-center rounded-lg px-8 py-3 font-bold transition-all hover:scale-105"
             >
               Download App

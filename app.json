@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "rork-app",
+    "scheme": "shift-app",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "app.rork.vehicle-maintenance-tracker-w06rnuj",
+      "bundleIdentifier": "com.shift.vehiclemaintenance",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos",
         "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera",
@@ -27,7 +27,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000000"
       },
-      "package": "app.rork.vehicle_maintenance_tracker_w06rnuj",
+      "package": "com.shift.vehiclemaintenance",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
@@ -35,7 +35,6 @@
         "android.permission.POST_NOTIFICATIONS",
         "android.permission.RECORD_AUDIO"
       ],
-      "useNextNotificationsApi": true,
       "softwareKeyboardLayoutMode": "pan"
     },
     "web": {
@@ -45,7 +44,7 @@
       [
         "expo-router",
         {
-          "origin": "https://rork.com/"
+          "origin": "https://shift-vehicle-maintenance.vercel.app/"
         }
       ],
       "expo-font",
@@ -69,7 +68,7 @@
     },
     "extra": {
       "router": {
-        "origin": "https://rork.com/"
+        "origin": "https://shift-vehicle-maintenance.vercel.app/"
       },
       "eas": {
         "projectId": "8b03b289-6df4-4ef0-aa57-4c9fdc9dec94"
