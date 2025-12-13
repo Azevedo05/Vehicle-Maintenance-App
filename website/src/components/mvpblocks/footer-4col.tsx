@@ -26,7 +26,7 @@ const data = {
 
 const socialLinks = [
   { icon: Github, label: "GitHub", href: data.githubLink },
-  { icon: Globe, label: "Portfolio", href: "#" },
+  { icon: Globe, label: "Portfolio", href: "https://goncalo-portfolio.vercel.app/" },
 ];
 
 const legalLinks = [

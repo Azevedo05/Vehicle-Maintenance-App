@@ -36,17 +36,4 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-# Media
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.bmp
-*.tiff
-*.webp
-*.mp4
-*.mov
-*.avi
-*.mkv
-*.webm
-*.svg
+

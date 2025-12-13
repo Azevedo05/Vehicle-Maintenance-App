@@ -456,7 +456,8 @@
     "haptics_description": "Vibrate on interactions and alerts",
     "support": "Support",
     "buy_me_coffee": "Buy Me a Coffee",
-    "buy_me_coffee_description": "Support the development of this app"
+    "buy_me_coffee_description": "Support the development of this app",
+    "portfolio": "Portfolio"
   },
   "common": {
     "ready": "You're All Set",

@@ -456,7 +456,8 @@
     "haptics_description": "Vibrar em interações e alertas",
     "support": "Suporte",
     "buy_me_coffee": "Oferece-me um Café",
-    "buy_me_coffee_description": "Apoia o desenvolvimento desta aplicação"
+    "buy_me_coffee_description": "Apoia o desenvolvimento desta aplicação",
+    "portfolio": "Portfólio"
   },
   "common": {
     "ready": "Tudo Pronto",

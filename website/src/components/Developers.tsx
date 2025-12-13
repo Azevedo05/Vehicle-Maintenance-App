@@ -71,7 +71,7 @@ const Developers = () => {
                     <span>LinkedIn</span>
                   </a>
                   <a
-                    href="#"
+                    href="https://goncalo-portfolio.vercel.app"
                     className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-colors font-medium hover:scale-105 active:scale-95"
                   >
                     <Globe size={20} />
