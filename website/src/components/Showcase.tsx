@@ -6,28 +6,28 @@ const features = [
     description:
       "Effortlessly manage your entire fleet from a single, intuitive interface. Whether it's personal cars or work vehicles, get a comprehensive snapshot of your automotive life in seconds.",
     image: "/mockups/dashboard.jpg",
-    color: "from-blue-600/40 to-blue-600/40",
+    glowColor: "0_0_30px_rgba(59,130,246,0.25),0_0_60px_rgba(59,130,246,0.12)",
   },
   {
     title: "Precision Vehicle Insights",
     description:
       "Dive deep into every detail. From tracking real-time mileage to managing specific fuel types, access a granular view of your vehicle's health and specifications with elegance and ease.",
     image: "/mockups/details.jpg",
-    color: "from-purple-600/40 to-indigo-500/40",
+    glowColor: "0_0_30px_rgba(147,51,234,0.25),0_0_60px_rgba(147,51,234,0.12)",
   },
   {
     title: "Intelligent Care Reminders",
     description:
       "Shift transforms maintenance from a chore into a seamless habit. Our proactive alert system ensures you're always ahead of essential services, extending the lifespan of your investment.",
     image: "/mockups/customization_notifications.jpg",
-    color: "from-orange-600/40 to-amber-500/40",
+    glowColor: "0_0_30px_rgba(234,88,12,0.25),0_0_60px_rgba(234,88,12,0.12)",
   },
   {
     title: "Financial Analytics & Trends",
     description:
       "Take control of your budget with deep insights. Visualize spending habits, track costs per kilometer, and get a clear breakdown of expenses across your entire fleet.",
     image: "/mockups/statistics.jpg",
-    color: "from-rose-600/40 to-red-500/40",
+    glowColor: "0_0_30px_rgba(225,29,72,0.25),0_0_60px_rgba(225,29,72,0.12)",
   },
 ];
 
@@ -54,7 +54,13 @@ const FeatureItem = ({
       >
         <div className="relative z-10">
           <div
-            className={`relative w-[260px] xs:w-[280px] md:w-[320px] max-w-full aspect-[9/19] rounded-[0.5rem] border-[6px] border-neutral-800 bg-black overflow-hidden shadow-2xl group-hover:-translate-y-2 transition-transform duration-500`}
+            className="relative w-[260px] xs:w-[280px] md:w-[320px] max-w-full aspect-[9/19] rounded-[0.5rem] border-[6px] border-neutral-800 bg-black overflow-hidden group-hover:-translate-y-2 transition-all duration-500"
+            style={{
+              boxShadow: feature.glowColor
+                .split(",")
+                .map((s) => s.trim().replace(/_/g, " "))
+                .join(", "),
+            }}
           >
             {/* Screen Content */}
             <img
@@ -76,11 +82,6 @@ const FeatureItem = ({
             <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none" />
           </div>
         </div>
-
-        {/* Elegant Atmospheric Glow */}
-        <div
-          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[700px] bg-gradient-to-r ${feature.color} blur-[128px] z-0 opacity-60 rounded-[2rem]`}
-        />
       </motion.div>
 
       {/* Text Side */}

@@ -96,7 +96,7 @@ export const Hero = () => {
           className="relative order-2 lg:order-2 flex justify-center"
         >
           <div className="relative">
-            <div className="relative w-[260px] xs:w-[280px] md:w-[320px] max-w-full aspect-[9/19] border-[6px] border-neutral-800 rounded-[0.5rem] bg-black shadow-[0_0_50px_-12px_rgba(59,130,246,0.5)] overflow-hidden z-10">
+            <div className="relative w-[260px] xs:w-[280px] md:w-[320px] max-w-full aspect-[9/19] border-[6px] border-neutral-800 rounded-[0.5rem] bg-black shadow-[0_0_60px_-20px_rgba(59,130,246,0.15)] overflow-hidden z-10">
               <div className="w-full h-full bg-neutral-900">
                 <img
                   src="/hero-app.jpg"
@@ -117,7 +117,7 @@ export const Hero = () => {
               <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none" />
             </div>
             {/* Glow Effect behind phone */}
-            <div className="absolute -inset-10 bg-blue-500/20 blur-[80px] -z-10 rounded-full opacity-40"></div>
+            <div className="absolute -inset-16 bg-blue-500/5 blur-[100px] -z-10 rounded-full opacity-20"></div>
           </div>
         </motion.div>
       </div>
