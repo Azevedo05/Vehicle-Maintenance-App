@@ -181,7 +181,17 @@ export default function Header1() {
                     key={item.name}
                     href={item.href}
                     className="text-white hover:bg-white/10 block px-4 py-3 font-medium transition-colors duration-200 text-center"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsMobileMenuOpen(false);
+                      const targetId = item.href.replace("/#", "");
+                      const element = document.getElementById(targetId);
+                      if (element) {
+                        setTimeout(() => {
+                          element.scrollIntoView({ behavior: "smooth" });
+                        }, 300);
+                      }
+                    }}
                   >
                     {item.name}
                   </a>

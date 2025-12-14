@@ -79,6 +79,7 @@
 
 ## 12. Version 2.0 (Planned)
 
+- [ ] **Document Scanning**: Scan vehicle registration document (livrete) to auto-fill vehicle information instead of manual entry.
 - [ ] **Biometric Authentication**: Add FaceID/TouchID support.
 - [ ] **Visual Statistics**: Implement charts/graphs for spending and maintenance trends.
 - [ ] **Maintenance Calendar**: Calendar view to visualize upcoming maintenance dates.
@@ -112,3 +113,4 @@
 - [x] **Support various license plate types**: Support various license plate types (e.g., PT, EU, US, etc.)
 - [x] **Blur**: The delete blur must cover the entire screen.
 - [x] **Overdue Timestamp**: Capture creation timestamp and include the exact date/time it became overdue in the description of the new overdue reminder and for maintenance tasks
+- [ ] **Euro Symbol Placement**: Display currency after the number (12€) instead of before (€12) for Portuguese locale.

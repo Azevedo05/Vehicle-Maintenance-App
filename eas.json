@@ -6,19 +6,22 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "channel": "development"
     },
     "preview": {
       "distribution": "internal",
       "env": {
         "REACT_NATIVE_OVERRIDE_AGP_VERSION": "8.5.2"
-      }
+      },
+      "channel": "preview"
     },
     "production": {
       "autoIncrement": true,
       "env": {
         "REACT_NATIVE_OVERRIDE_AGP_VERSION": "8.5.2"
-      }
+      },
+      "channel": "production"
     }
   },
   "submit": {

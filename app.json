@@ -33,6 +33,11 @@
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.POST_NOTIFICATIONS",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.POST_NOTIFICATIONS",
         "android.permission.RECORD_AUDIO"
       ],
       "softwareKeyboardLayoutMode": "pan"
@@ -73,6 +78,12 @@
       "eas": {
         "projectId": "8b03b289-6df4-4ef0-aa57-4c9fdc9dec94"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/8b03b289-6df4-4ef0-aa57-4c9fdc9dec94"
     }
   }
 }

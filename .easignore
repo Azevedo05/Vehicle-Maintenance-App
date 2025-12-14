@@ -1,15 +1,37 @@
-# Gradle cache and build files
-android/.gradle/
-android/build/
-android/app/build/
-android/.idea/
-android/local.properties
+# Website (not needed for mobile build)
+website
 
-# Node modules (already excluded by default, but explicit)
-node_modules/
+# APK files
+*.apk
+*.aab
+application-*
 
-# OS files
-.DS_Store
-Thumbs.db
+# Documentation
+*.md
+!README.md
+docs
+research
 
-website/
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# Test files
+__tests__
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Temporary files
+*.log
+*.tmp
+.env.local
+.env.*.local
+
+# Sample/seed data (optional - remove if you need these in the app)
+sample-data.json
