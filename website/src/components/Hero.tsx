@@ -96,7 +96,7 @@ export const Hero = () => {
           className="relative order-2 lg:order-2 flex justify-center"
         >
           <div className="relative">
-            <div className="relative w-[260px] xs:w-[280px] md:w-[320px] max-w-full aspect-[9/19] border-[6px] border-neutral-800 rounded-[0.5rem] bg-black shadow-[0_0_60px_-20px_rgba(59,130,246,0.15)] overflow-hidden z-10">
+            <div className="relative w-[180px] xs:w-[220px] sm:w-[250px] md:w-[280px] max-w-full aspect-[9/19] border-[6px] border-neutral-800 rounded-[0.5rem] bg-black shadow-[0_0_60px_-20px_rgba(59,130,246,0.15)] overflow-hidden z-10">
               <div className="w-full h-full bg-neutral-900">
                 <img
                   src="/hero-app.jpg"

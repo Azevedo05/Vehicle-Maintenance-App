@@ -40,9 +40,8 @@ const FeatureItem = ({
 }) => {
   return (
     <div
-      className={`flex flex-col ${
-        index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
-      } items-center gap-12 lg:gap-32`}
+      className={`flex flex-col ${index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
+        } items-center gap-12 lg:gap-32`}
     >
       {/* Image Side - Slide In Animation */}
       <motion.div
@@ -54,7 +53,7 @@ const FeatureItem = ({
       >
         <div className="relative z-10">
           <div
-            className="relative w-[260px] xs:w-[280px] md:w-[320px] max-w-full aspect-[9/19] rounded-[0.5rem] border-[6px] border-neutral-800 bg-black overflow-hidden group-hover:-translate-y-2 transition-all duration-500"
+            className="relative w-[180px] xs:w-[220px] sm:w-[250px] md:w-[280px] max-w-full aspect-[9/19] rounded-[0.5rem] border-[6px] border-neutral-800 bg-black overflow-hidden group-hover:-translate-y-2 transition-all duration-500"
             style={{
               boxShadow: feature.glowColor
                 .split(",")

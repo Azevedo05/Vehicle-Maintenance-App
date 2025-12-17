@@ -68,7 +68,7 @@ export const Personalization = () => {
                 <div className="relative group/phone">
                   {/* Glow Effect - Removed as per user request */}
 
-                  <div className="relative w-[260px] md:w-[280px] max-w-full aspect-[9/19] rounded-[0.5rem] border-[3px] border-neutral-800 bg-black overflow-hidden shadow-2xl mb-8 group-hover:-translate-y-2 transition-transform duration-500">
+                  <div className="relative w-[180px] xs:w-[220px] md:w-[260px] max-w-full aspect-[9/19] rounded-[0.5rem] border-[3px] border-neutral-800 bg-black overflow-hidden shadow-2xl mb-8 group-hover:-translate-y-2 transition-transform duration-500">
                     <img
                       src={item.image}
                       alt={item.title}
