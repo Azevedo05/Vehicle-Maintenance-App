@@ -150,6 +150,7 @@ export default function AddFuelLogScreen() {
       Toast.show({
         type: "success",
         text1: t("common.success"),
+        props: { toastId: Date.now() },
       });
       router.back();
     } catch (error) {

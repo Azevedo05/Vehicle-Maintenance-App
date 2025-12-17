@@ -582,8 +582,6 @@ const createStyles = (
       backgroundColor: isDark
         ? "rgba(0, 0, 0, 0.9)"
         : "rgba(255, 255, 255, 0.95)",
-      borderWidth: 1,
-      borderColor: isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.1)",
     },
     menuItem: {
       flexDirection: "row",

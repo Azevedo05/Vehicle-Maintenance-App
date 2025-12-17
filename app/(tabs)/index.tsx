@@ -384,24 +384,9 @@ export default function VehiclesScreen() {
                           color: colors.text,
                           fontSize: 16,
                           fontWeight: "600",
-                          marginBottom: 4,
                         }}
                       >
                         {item.make} {item.model}
-                      </Text>
-                      <Text
-                        style={{
-                          color: colors.textSecondary,
-                          fontSize: 14,
-                          marginBottom: 2,
-                        }}
-                      >
-                        {item.make} {item.model} {item.year}
-                      </Text>
-                      <Text
-                        style={{ color: colors.textSecondary, fontSize: 12 }}
-                      >
-                        {formatDistance(item.currentMileage)}
                       </Text>
                     </View>
                   </TouchableOpacity>

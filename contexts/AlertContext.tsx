@@ -112,6 +112,7 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({
         props: {
           actionLabel: config.actionLabel,
           onAction: config.onAction,
+          toastId: Date.now(), // Unique ID to force animation restart
         },
         visibilityTime: config.durationMs ?? 4000,
       });

@@ -12,21 +12,28 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useVehicles } from "@/contexts/VehicleContext";
 import { useAppAlert } from "@/contexts/AlertContext";
-import { VehicleCategory, VEHICLE_CATEGORY_INFO } from "@/types/vehicle";
-import Link from "expo-router"; // Unused but keeping context if needed, actually just add the import
-
+import {
+  VehicleCategory,
+  VEHICLE_CATEGORY_INFO,
+  FuelType,
+  TransmissionType,
+} from "@/types/vehicle";
 import { ThemedBackground } from "@/components/ThemedBackground";
-import { DraggableImage } from "@/components/ui/DraggableImage";
 import { VehicleImage } from "@/components/ui/VehicleImage";
+import { Chip } from "@/components/ui/Chip";
 
 export default function EditVehicleScreen() {
   const { id } = useLocalSearchParams();
@@ -51,10 +58,36 @@ export default function EditVehicleScreen() {
   const [category, setCategory] = useState<VehicleCategory | undefined>(
     vehicle?.category
   );
+  const [fuelType, setFuelType] = useState<FuelType | undefined>(
+    vehicle?.fuelType
+  );
+  const [engine, setEngine] = useState(vehicle?.engine?.toString() || "");
+  const [transmission, setTransmission] = useState<
+    TransmissionType | undefined
+  >(vehicle?.transmission);
+  const [purchaseDate, setPurchaseDate] = useState<Date | undefined>(
+    vehicle?.purchaseDate ? new Date(vehicle.purchaseDate) : undefined
+  );
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [engineError, setEngineError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [photoPositions, setPhotoPositions] = useState<
     Record<string, { xRatio: number; yRatio: number; scale: number }>
   >(vehicle?.photoPositions || {});
+
+  const handleEngineChange = (value: string) => {
+    setEngine(value);
+    if (value.trim() === "") {
+      setEngineError(null);
+      return;
+    }
+    const numValue = parseInt(value.replace(/\D/g, ""), 10);
+    if (isNaN(numValue) || numValue < 50 || numValue > 13000) {
+      setEngineError(t("vehicles.invalid_engine_text"));
+    } else {
+      setEngineError(null);
+    }
+  };
 
   const styles = createStyles(colors);
 
@@ -131,6 +164,9 @@ export default function EditVehicleScreen() {
 
     setIsSubmitting(true);
     try {
+      const engineNum = engine
+        ? parseInt(engine.replace(/\D/g, ""), 10)
+        : undefined;
       await updateVehicle(vehicle.id, {
         make: make.trim(),
         model: model.trim(),
@@ -138,10 +174,17 @@ export default function EditVehicleScreen() {
         licensePlate: licensePlate.trim() || undefined,
         currentMileage: mileageNum,
         photo,
-        photoPosition: photo ? photoPositions[photo] : undefined, // Keep legacy field for backward compatibility if needed, or migration
+        photoPosition: photo ? photoPositions[photo] : undefined,
         photoPositions,
-        photos, // Ensure this uses 'photos' state, not 'vehicle.photos'
+        photos,
         category,
+        fuelType,
+        engine:
+          engineNum && engineNum >= 50 && engineNum <= 13000
+            ? engineNum
+            : undefined,
+        transmission: fuelType === "electric" ? "automatic" : transmission,
+        purchaseDate: purchaseDate?.getTime(),
       });
 
       router.back();
@@ -400,6 +443,105 @@ export default function EditVehicleScreen() {
                 />
               </View>
 
+              {/* Fuel Type */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>
+                  {t("fuel.type_label")} <Text style={styles.required}>*</Text>
+                </Text>
+                <View style={styles.categoryGrid}>
+                  {(["gasoline", "diesel", "gpl", "electric"] as const).map(
+                    (type) => (
+                      <Chip
+                        key={type}
+                        label={t(`fuel.type_${type}`)}
+                        active={fuelType === type}
+                        onPress={() => {
+                          setFuelType(type);
+                          if (type === "electric") {
+                            setTransmission("automatic");
+                          }
+                        }}
+                        style={styles.categoryChip}
+                      />
+                    )
+                  )}
+                </View>
+              </View>
+
+              {/* Engine - hidden for electric */}
+              {fuelType !== "electric" && (
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>{t("vehicles.engine")}</Text>
+                  <TextInput
+                    style={[styles.input, engineError && styles.inputError]}
+                    placeholder={t("vehicles.engine_placeholder")}
+                    value={engine}
+                    onChangeText={handleEngineChange}
+                    placeholderTextColor={colors.placeholder}
+                    keyboardType="numeric"
+                  />
+                  {engineError && (
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        color: colors.error,
+                        marginTop: 4,
+                      }}
+                    >
+                      {engineError}
+                    </Text>
+                  )}
+                </View>
+              )}
+
+              {/* Transmission */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>{t("vehicles.transmission")}</Text>
+                <View style={styles.categoryGrid}>
+                  {(["manual", "automatic"] as const).map((type) => (
+                    <Chip
+                      key={type}
+                      label={t(`vehicles.transmission_${type}`)}
+                      active={
+                        transmission === type ||
+                        (fuelType === "electric" && type === "automatic")
+                      }
+                      onPress={() => {
+                        if (fuelType === "electric" && type === "manual")
+                          return;
+                        setTransmission(type);
+                      }}
+                      style={
+                        fuelType === "electric" && type === "manual"
+                          ? { ...styles.categoryChip, opacity: 0.4 }
+                          : styles.categoryChip
+                      }
+                    />
+                  ))}
+                </View>
+              </View>
+
+              {/* Purchase Date */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>{t("vehicles.purchase_date")}</Text>
+                <TouchableOpacity
+                  style={styles.input}
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <Text
+                    style={
+                      purchaseDate
+                        ? { color: colors.text }
+                        : { color: colors.placeholder }
+                    }
+                  >
+                    {purchaseDate
+                      ? purchaseDate.toLocaleDateString()
+                      : t("maintenance.date_placeholder")}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>
                   {t("vehicles.category")}{" "}
@@ -410,37 +552,16 @@ export default function EditVehicleScreen() {
                     Object.keys(VEHICLE_CATEGORY_INFO) as VehicleCategory[]
                   ).map((cat) => {
                     const info = VEHICLE_CATEGORY_INFO[cat];
-                    const IconComponent = info.Icon;
                     return (
-                      <TouchableOpacity
+                      <Chip
                         key={cat}
-                        style={[
-                          styles.categoryButton,
-                          category === cat && styles.categoryButtonActive,
-                          {
-                            borderColor:
-                              category === cat ? info.color : colors.border,
-                          },
-                        ]}
-                        onPress={() =>
-                          setCategory(category === cat ? undefined : cat)
-                        }
-                      >
-                        <IconComponent
-                          size={20}
-                          color={
-                            category === cat ? info.color : colors.textSecondary
-                          }
-                        />
-                        <Text
-                          style={[
-                            styles.categoryLabel,
-                            category === cat && { color: info.color },
-                          ]}
-                        >
-                          {t(`vehicles.category_${cat}`)}
-                        </Text>
-                      </TouchableOpacity>
+                        label={t(`vehicles.category_${cat}`)}
+                        active={category === cat}
+                        onPress={() => setCategory(cat)}
+                        icon={info.Icon}
+                        iconColor={info.color}
+                        style={styles.categoryChip}
+                      />
                     );
                   })}
                 </View>
@@ -448,6 +569,65 @@ export default function EditVehicleScreen() {
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
+
+        {/* Date Picker */}
+        {showDatePicker &&
+          (Platform.OS === "ios" ? (
+            <Modal
+              transparent
+              visible={showDatePicker}
+              animationType="fade"
+              onRequestClose={() => setShowDatePicker(false)}
+            >
+              <TouchableOpacity
+                style={styles.modalOverlay}
+                activeOpacity={1}
+                onPress={() => setShowDatePicker(false)}
+              >
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalTitle}>
+                    {t("vehicles.purchase_date")}
+                  </Text>
+                  <DateTimePicker
+                    value={purchaseDate || new Date()}
+                    mode="date"
+                    display="spinner"
+                    onChange={(event: DateTimePickerEvent, date?: Date) => {
+                      if (date) setPurchaseDate(date);
+                    }}
+                    maximumDate={new Date()}
+                    themeVariant="dark"
+                  />
+                  <TouchableOpacity
+                    style={styles.modalCancelButton}
+                    onPress={() => setShowDatePicker(false)}
+                  >
+                    <Text
+                      style={[
+                        styles.modalCancelText,
+                        { color: colors.primary },
+                      ]}
+                    >
+                      {t("common.done")}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
+            </Modal>
+          ) : (
+            <DateTimePicker
+              value={purchaseDate || new Date()}
+              mode="date"
+              display="default"
+              onChange={(event: DateTimePickerEvent, date?: Date) => {
+                setShowDatePicker(false);
+                if (event.type === "set" && date) {
+                  setPurchaseDate(date);
+                }
+              }}
+              maximumDate={new Date()}
+            />
+          ))}
       </SafeAreaView>
     </ThemedBackground>
   );
@@ -608,28 +788,46 @@ const createStyles = (colors: any) =>
       borderWidth: 1,
       borderColor: colors.border,
     },
+    inputError: {
+      borderColor: colors.error,
+    },
     categoryGrid: {
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 12,
     },
-    categoryButton: {
-      flexDirection: "row",
-      alignItems: "center",
-      paddingVertical: 10,
-      paddingHorizontal: 14,
-      borderRadius: 8,
-      borderWidth: 2,
-      gap: 6,
+    categoryChip: {
       minWidth: "48%",
       flex: 1,
     },
-    categoryButtonActive: {
-      backgroundColor: colors.card,
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
     },
-    categoryLabel: {
-      fontSize: 14,
-      fontWeight: "500",
+    modalContent: {
+      backgroundColor: colors.card,
+      borderRadius: 24,
+      padding: 24,
+      width: "100%",
+      maxWidth: 340,
+      gap: 16,
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: "700",
       color: colors.text,
+      textAlign: "center",
+    },
+    modalCancelButton: {
+      paddingVertical: 12,
+      alignItems: "center",
+    },
+    modalCancelText: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.error,
     },
   });

@@ -63,8 +63,8 @@ export const StatisticsByCategory = ({
                 </View>
               </View>
               <Text style={styles.listItemValue}>
-                {currencySymbol}
                 {category.totalSpent.toFixed(2)}
+                {currencySymbol}
               </Text>
             </View>
           );

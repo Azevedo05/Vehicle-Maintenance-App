@@ -13,7 +13,7 @@ const features = [
     description:
       "Dive deep into every detail. From tracking real-time mileage to managing specific fuel types, access a granular view of your vehicle's health and specifications with elegance and ease.",
     image: "/mockups/details.jpg",
-    glowColor: "0_0_30px_rgba(147,51,234,0.25),0_0_60px_rgba(147,51,234,0.12)",
+    glowColor: "0_0_30px_rgba(34,197,94,0.25),0_0_60px_rgba(34,197,94,0.12)",
   },
   {
     title: "Intelligent Care Reminders",

@@ -16,6 +16,7 @@ interface CustomToastProps {
   actionLabel?: string;
   onAction?: () => void;
   description?: string;
+  toastId?: number; // Unique ID to force animation restart
 }
 
 // Extend BaseToastProps to include our internal props structure from the library
@@ -50,7 +51,7 @@ const ToastMessage = ({
       easing: Easing.linear,
       useNativeDriver: false, // Width can't use native driver
     }).start();
-  }, [text1, type, props?.actionLabel]); // Restart animation when content changes
+  }, [text1, text2, type, props?.actionLabel, props?.toastId]); // toastId ensures animation restarts even with same content
 
   const handleAction = () => {
     if (props?.onAction) {
@@ -59,18 +60,40 @@ const ToastMessage = ({
     }
   };
 
+  // Determine if this is a short/simple toast (only text1, no text2 or action)
+  const isCompact = !text2 && !props?.actionLabel;
+
   return (
     <View
       style={[
         styles.container,
         { backgroundColor: colors.card, shadowColor: "#000" },
+        isCompact && styles.containerCompact,
       ]}
     >
-      <View style={styles.contentContainer}>
+      <View
+        style={[
+          styles.contentContainer,
+          isCompact && styles.contentContainerCompact,
+        ]}
+      >
         {/* Icon logic removed */}
-        <View style={styles.textContainer}>
+        <View
+          style={[
+            styles.textContainer,
+            isCompact && styles.textContainerCompact,
+          ]}
+        >
           {text1 && (
-            <Text style={[styles.title, { color: colors.text }]}>{text1}</Text>
+            <Text
+              style={[
+                styles.title,
+                { color: colors.text },
+                isCompact && styles.titleCompact,
+              ]}
+            >
+              {text1}
+            </Text>
           )}
           {text2 && (
             <Text
@@ -98,24 +121,26 @@ const ToastMessage = ({
         )}
       </View>
 
-      {/* Progress Bar */}
-      <View style={styles.progressBarContainer}>
-        <Animated.View
-          style={{
-            height: "100%",
-            backgroundColor:
-              type === "success"
-                ? colors.primary
-                : type === "error"
-                ? "#ef4444"
-                : colors.text,
-            width: progress.interpolate({
-              inputRange: [0, 1],
-              outputRange: ["0%", "100%"],
-            }),
-          }}
-        />
-      </View>
+      {/* Progress Bar - hidden for compact toasts */}
+      {!isCompact && (
+        <View style={styles.progressBarContainer}>
+          <Animated.View
+            style={{
+              height: "100%",
+              backgroundColor:
+                type === "success"
+                  ? colors.primary
+                  : type === "error"
+                  ? "#ef4444"
+                  : colors.text,
+              width: progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: ["0%", "100%"],
+              }),
+            }}
+          />
+        </View>
+      )}
     </View>
   );
 };
@@ -169,6 +194,26 @@ const styles = StyleSheet.create({
     right: 0,
     height: 4,
     zIndex: 10,
+  },
+  // Compact styles for short toasts (only text1, no text2 or action)
+  containerCompact: {
+    width: "auto",
+    alignSelf: "center",
+    minWidth: 120,
+    maxWidth: "70%",
+  },
+  contentContainerCompact: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    justifyContent: "center",
+  },
+  textContainerCompact: {
+    flex: 0,
+    alignItems: "center",
+  },
+  titleCompact: {
+    marginBottom: 0,
+    textAlign: "center",
   },
 });
 

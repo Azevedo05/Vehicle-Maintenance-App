@@ -74,6 +74,7 @@ export const MaintenanceFilters = ({
               onPress={() => onClearFilters()}
             >
               <Text
+                numberOfLines={1}
                 style={[
                   styles.categoryChipText,
                   selectedVehicleIds.length === 0 &&
@@ -94,6 +95,7 @@ export const MaintenanceFilters = ({
                 onPress={() => onSelectVehicle(vehicle.id)}
               >
                 <Text
+                  numberOfLines={1}
                   style={[
                     styles.categoryChipText,
                     selectedVehicleIds.includes(vehicle.id) &&
@@ -112,44 +114,55 @@ export const MaintenanceFilters = ({
           <Text style={styles.filterSectionTitle}>
             {t("maintenance.select_type")}
           </Text>
-          <View style={styles.categoryChips}>
+          <View style={styles.sortOptionsList}>
             <TouchableOpacity
               style={[
-                styles.categoryChip,
-                selectedTypes.length === 0 && styles.categoryChipActive,
+                styles.sortOptionItem,
+                selectedTypes.length === 0 && styles.sortOptionItemActive,
               ]}
               onPress={() => onClearFilters()}
             >
               <Text
                 style={[
-                  styles.categoryChipText,
-                  selectedTypes.length === 0 && styles.categoryChipTextActive,
+                  styles.sortOptionText,
+                  selectedTypes.length === 0 && styles.sortOptionTextActive,
                 ]}
               >
                 {t("vehicles.filter_all")}
               </Text>
+              {selectedTypes.length === 0 && (
+                <View style={styles.sortOptionIndicator} />
+              )}
             </TouchableOpacity>
-            {Object.entries(MAINTENANCE_TYPES).map(([key, type]) => (
-              <TouchableOpacity
-                key={key}
-                style={[
-                  styles.categoryChip,
-                  selectedTypes.includes(key as MaintenanceType) &&
-                    styles.categoryChipActive,
-                ]}
-                onPress={() => onSelectType(key as MaintenanceType)}
-              >
-                <Text
-                  style={[
-                    styles.categoryChipText,
-                    selectedTypes.includes(key as MaintenanceType) &&
-                      styles.categoryChipTextActive,
-                  ]}
-                >
-                  {getMaintenanceTypeLabel(key as MaintenanceType, t)}
-                </Text>
-              </TouchableOpacity>
-            ))}
+            {Object.entries(MAINTENANCE_TYPES).map(
+              ([key, type], index, arr) => {
+                const isSelected = selectedTypes.includes(
+                  key as MaintenanceType
+                );
+                const isLast = index === arr.length - 1;
+                return (
+                  <TouchableOpacity
+                    key={key}
+                    style={[
+                      styles.sortOptionItem,
+                      isSelected && styles.sortOptionItemActive,
+                      isLast && { borderBottomWidth: 0 },
+                    ]}
+                    onPress={() => onSelectType(key as MaintenanceType)}
+                  >
+                    <Text
+                      style={[
+                        styles.sortOptionText,
+                        isSelected && styles.sortOptionTextActive,
+                      ]}
+                    >
+                      {getMaintenanceTypeLabel(key as MaintenanceType, t)}
+                    </Text>
+                    {isSelected && <View style={styles.sortOptionIndicator} />}
+                  </TouchableOpacity>
+                );
+              }
+            )}
           </View>
         </View>
       </ScrollView>

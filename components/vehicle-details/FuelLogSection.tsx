@@ -113,12 +113,12 @@ export const FuelLogSection = ({ vehicleId }: FuelLogSectionProps) => {
                   {formatDate(log.date)} • {log.volume.toFixed(1)} {volumeUnit}
                 </Text>
                 <Text style={styles.recordCost}>
-                  {currencySymbol}
                   {log.totalCost.toFixed(2)}
+                  {currencySymbol}
                 </Text>
                 <Text style={styles.recordNotes} numberOfLines={1}>
-                  {currencySymbol}
-                  {log.pricePerUnit?.toFixed(3)}/{volumeUnit} •{" "}
+                  {log.pricePerUnit?.toFixed(3)}
+                  {currencySymbol}/{volumeUnit} •{" "}
                   {t(`fuel.type_${log.fuelType}`)}
                 </Text>
               </View>

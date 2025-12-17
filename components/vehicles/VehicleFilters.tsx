@@ -65,6 +65,7 @@ export const VehicleFilters = ({
               onPress={() => onClearFilters()}
             >
               <Text
+                numberOfLines={1}
                 style={[
                   styles.categoryChipText,
                   selectedCategories.length === 0 &&
@@ -92,6 +93,7 @@ export const VehicleFilters = ({
                       color={isActive ? "#FFFFFF" : colors.text}
                     />
                     <Text
+                      numberOfLines={1}
                       style={[
                         styles.categoryChipText,
                         isActive && styles.categoryChipTextActive,

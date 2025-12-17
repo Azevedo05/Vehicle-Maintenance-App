@@ -129,8 +129,8 @@ export const MaintenanceHistory = ({ vehicleId }: MaintenanceHistoryProps) => {
                 </Text>
                 {record.cost !== undefined && (
                   <Text style={styles.recordCost}>
-                    {currencySymbol}
                     {record.cost.toFixed(2)}
+                    {currencySymbol}
                   </Text>
                 )}
                 {record.notes && (

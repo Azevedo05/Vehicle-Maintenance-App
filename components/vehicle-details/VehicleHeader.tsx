@@ -80,24 +80,41 @@ export const VehicleHeader = ({ vehicle }: VehicleHeaderProps) => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.badgeRow}>
-        <View style={styles.yearBadge}>
-          <Text style={styles.yearBadgeText}>{vehicle.year}</Text>
-        </View>
-        {vehicle.fuelType && (
-          <View style={styles.pillBadge}>
-            <Text style={styles.pillBadgeText}>
-              {t(`fuel.type_${vehicle.fuelType}`)}
-            </Text>
-          </View>
-        )}
-        {vehicle.category && (
-          <View style={styles.pillBadge}>
-            <Text style={styles.pillBadgeText}>
-              {t(`vehicles.category_${vehicle.category}`)}
-            </Text>
-          </View>
-        )}
+      {/* Specs Grid - Modern stacked label-value design */}
+      <View style={styles.specsGrid}>
+        {[
+          { label: t("vehicles.year"), value: String(vehicle.year) },
+          vehicle.fuelType && {
+            label: t("fuel.fuel"),
+            value: t(`fuel.type_${vehicle.fuelType}`),
+          },
+          vehicle.transmission && {
+            label: t("vehicles.transmission"),
+            value: t(`vehicles.transmission_${vehicle.transmission}`),
+          },
+          vehicle.engine && {
+            label: t("vehicles.engine"),
+            value: `${vehicle.engine.toLocaleString()} cc`,
+          },
+          vehicle.category && {
+            label: t("vehicles.category"),
+            value: t(`vehicles.category_${vehicle.category}`),
+          },
+          vehicle.purchaseDate && {
+            label: t("vehicles.purchase_date"),
+            value: new Date(vehicle.purchaseDate).toLocaleDateString(),
+          },
+        ]
+          .filter(
+            (item): item is { label: string; value: string } =>
+              !!item && typeof item === "object"
+          )
+          .map((spec, index) => (
+            <View key={spec.label} style={styles.specItem}>
+              <Text style={styles.specLabel}>{spec.label}</Text>
+              <Text style={styles.specValue}>{spec.value}</Text>
+            </View>
+          ))}
       </View>
 
       <View style={styles.mileageContainer}>
@@ -151,36 +168,31 @@ const createStyles = (colors: any) =>
       padding: 4,
       // No background, matching list header style
     },
-    badgeRow: {
+    specsGrid: {
       flexDirection: "row",
-      alignItems: "center",
-      gap: 10,
       flexWrap: "wrap",
+      marginTop: 8,
+      paddingTop: 16,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      gap: 0,
     },
-    yearBadge: {
-      backgroundColor: colors.surface,
-      borderRadius: 50,
-      paddingHorizontal: 14,
-      paddingVertical: 6,
-      borderWidth: 1,
-      borderColor: colors.border,
+    specItem: {
+      width: "33.33%",
+      paddingVertical: 12,
+      paddingHorizontal: 4,
     },
-    yearBadgeText: {
-      fontSize: 13,
+    specLabel: {
+      fontSize: 11,
       color: colors.textSecondary,
-      fontWeight: "600",
+      fontWeight: "500",
+      textTransform: "uppercase",
+      letterSpacing: 0.5,
+      marginBottom: 4,
     },
-    pillBadge: {
-      backgroundColor: colors.surface,
-      borderRadius: 50,
-      paddingHorizontal: 14,
-      paddingVertical: 6,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    pillBadgeText: {
-      fontSize: 13,
-      color: colors.textSecondary,
+    specValue: {
+      fontSize: 15,
+      color: colors.text,
       fontWeight: "600",
     },
     mileageContainer: {

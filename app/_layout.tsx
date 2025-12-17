@@ -4,6 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import * as SystemUI from "expo-system-ui";
 import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PaperProvider } from "react-native-paper";
 import {
   useFonts,
@@ -191,8 +192,10 @@ export default function RootLayout() {
                 <VehicleProvider>
                   <AlertProvider>
                     <GestureHandlerRootView style={{ flex: 1 }}>
-                      <RootLayoutContent />
-                      <Toast config={toastConfig} />
+                      <BottomSheetModalProvider>
+                        <RootLayoutContent />
+                        <Toast config={toastConfig} />
+                      </BottomSheetModalProvider>
                     </GestureHandlerRootView>
                   </AlertProvider>
                 </VehicleProvider>

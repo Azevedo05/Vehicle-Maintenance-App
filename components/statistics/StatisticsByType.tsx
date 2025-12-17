@@ -48,8 +48,8 @@ export const StatisticsByType = ({
                 <Text style={styles.typeCountHeader}>({type.count})</Text>
               </View>
               <Text style={styles.listItemValue}>
-                {currencySymbol}
                 {type.totalSpent.toFixed(2)}
+                {currencySymbol}
               </Text>
             </View>
 

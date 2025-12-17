@@ -1,4 +1,5 @@
 export type VehicleCategory = "personal" | "work" | "family" | "other";
+export type TransmissionType = "manual" | "automatic";
 
 export interface Vehicle {
   id: string;
@@ -25,6 +26,9 @@ export interface Vehicle {
   color?: string;
   vin?: string;
   fuelType?: FuelType;
+  engine?: number; // cc (50-13000)
+  transmission?: TransmissionType;
+  purchaseDate?: number; // timestamp
   category?: VehicleCategory;
   archived?: boolean;
   customOrder?: number;

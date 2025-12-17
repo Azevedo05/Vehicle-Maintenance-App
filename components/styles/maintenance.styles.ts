@@ -234,9 +234,10 @@ export const createStyles = (colors: any) =>
       borderColor: colors.primary,
     },
     categoryChipText: {
-      fontSize: 14,
+      fontSize: 13,
       color: colors.text,
       fontWeight: "500" as const,
+      flexShrink: 1,
     },
     categoryChipTextActive: {
       color: "#FFFFFF",

@@ -32,8 +32,8 @@ export const StatisticsOverview = ({
         <Card style={[styles.card, styles.cardHalf]}>
           <Text style={styles.cardLabel}>{t("statistics.total_spent")}</Text>
           <Text style={styles.cardValue}>
-            {currencySymbol}
             {overallStats.totalSpent.toFixed(2)}
+            {currencySymbol}
           </Text>
         </Card>
         <Card style={[styles.card, styles.cardHalf]}>
@@ -47,16 +47,16 @@ export const StatisticsOverview = ({
             {t("statistics.monthly_average")}
           </Text>
           <Text style={styles.cardValue}>
-            {currencySymbol}
             {overallStats.averageMonthlySpent.toFixed(2)}
+            {currencySymbol}
           </Text>
           <Text style={styles.cardSubtext}>{t("statistics.per_month")}</Text>
         </Card>
         <Card style={[styles.card, styles.cardHalf]}>
           <Text style={styles.cardLabel}>{t("statistics.this_year")}</Text>
           <Text style={styles.cardValue}>
-            {currencySymbol}
             {overallStats.thisYearSpent.toFixed(2)}
+            {currencySymbol}
           </Text>
           <Text style={styles.cardSubtext}>
             {overallStats.thisYearCount} {t("statistics.maintenance_count")}

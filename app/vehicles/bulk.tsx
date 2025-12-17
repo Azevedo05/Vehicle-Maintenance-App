@@ -159,7 +159,6 @@ export default function BulkOperationsScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
-            <Text style={styles.title}>{t("vehicles.bulk_operations")}</Text>
             <Text style={styles.subtitle}>
               {t("vehicles.bulk_description")}
             </Text>

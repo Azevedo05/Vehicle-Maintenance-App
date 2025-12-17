@@ -166,6 +166,10 @@ export const [PreferencesProvider, usePreferences] = createContextHook(() => {
   const formatCurrency = useCallback(
     (value: number): string => {
       const symbol = CURRENCY_SYMBOLS[preferences.currency];
+      // EUR uses symbol after value (European format: 12.50€)
+      if (preferences.currency === "EUR") {
+        return `${value.toFixed(2)}${symbol}`;
+      }
       return `${symbol}${value.toFixed(2)}`;
     },
     [preferences.currency]

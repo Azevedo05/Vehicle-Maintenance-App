@@ -85,6 +85,7 @@
 - [ ] **Maintenance Calendar**: Calendar view to visualize upcoming maintenance dates.
 - [ ] **Voice Integration**: Voice commands for adding records/tasks (e.g., "Add gas log").
 - [ ] **AI Insights**: Personalized suggestions based on usage patterns (e.g., fuel efficiency tips).
+- [ ] **In-App Update System**: For distribution outside Play Store - check user version vs. latest GitHub release, show update prompt, and open download link automatically when user taps "Update".
 
 ## 13. Final Polish & Data Injection
 
@@ -113,4 +114,11 @@
 - [x] **Support various license plate types**: Support various license plate types (e.g., PT, EU, US, etc.)
 - [x] **Blur**: The delete blur must cover the entire screen.
 - [x] **Overdue Timestamp**: Capture creation timestamp and include the exact date/time it became overdue in the description of the new overdue reminder and for maintenance tasks
-- [ ] **Euro Symbol Placement**: Display currency after the number (12€) instead of before (€12) for Portuguese locale.
+- [x] **Euro Symbol Placement**: Display currency after the number (12€) instead of before (€12) for Portuguese locale.
+- [x] **Category Button Toggle**: Prevent category button from deactivating when clicking an already selected category (unlike fuel type button behavior) in the Add/Edit Vehicle form.
+- [x] **Toast Notifications Review**: Fix toast notification bugs in Notification Settings - progress bar sometimes glitches or doesn't appear at all.
+- [x] **Vehicle Details Dropdown Styling**: Fix dropdown button in vehicle details page showing visible borders/edges.
+- [x] **Auto-detect Device Language**: Detect device language on first launch - start in Portuguese if device is set to any Portuguese variant (PT, BR, etc.), otherwise default to English.
+- [x] **Filter Menu Drag Area**: Migrated to @gorhom/bottom-sheet library for professional bottom sheet behavior with proper gesture handling.
+- [x] **Reminders Filter Menu Bottom**: Fixed by migrating to @gorhom/bottom-sheet - modal now extends to screen edge.
+- [x] **Filter Button Single Line**: Maintenance type filters now use vertical list format (Instagram/Google style) for full readability.

@@ -52,6 +52,14 @@
     "camera": "Câmara",
     "gallery": "Galeria",
     "km": "km",
+    "engine": "Cilindrada",
+    "engine_placeholder": "ex., 1600",
+    "transmission": "Transmissão",
+    "transmission_manual": "Manual",
+    "transmission_automatic": "Automática",
+    "purchase_date": "Data de Compra",
+    "invalid_engine": "Cilindrada Inválida",
+    "invalid_engine_text": "Por favor, introduza uma cilindrada válida (50-13000 cc).",
     "permission_needed": "Permissão necessária",
     "permission_text": "Permita o acesso às suas fotos para selecionar uma imagem do veículo.",
     "missing_info": "Informação em Falta",
@@ -81,6 +89,7 @@
     "no_results": "Nenhum veículo encontrado",
     "no_results_text": "Experimente alterar os filtros ou adicionar um novo veículo.",
     "compare_vehicles": "Comparar Veículos",
+    "compare_description": "Selecione 2 ou mais veículos para comparar os custos de manutenção, quilometragem e tarefas pendentes lado a lado.",
     "select_to_compare": "Selecione veículos para comparar",
     "comparison": "Comparação",
     "select_two_prompt": "Selecione pelo menos dois veículos para comparar métricas.",
@@ -283,6 +292,7 @@
     "no_data_text": "Comece a registar manutenções para ver insights e tendências dos seus gastos"
   },
   "fuel": {
+    "fuel": "Combustível",
     "section_title": "Abastecimentos",
     "section_title_electric": "Carregamentos",
     "refuel_title": "Abastecimento",
@@ -535,7 +545,7 @@
     "snoozed_title": "Lembrete Adiado"
   },
   "onboarding": {
-    "welcome_pretitle": "Bem-vindo ao,",
+    "welcome_pretitle": "Bem-vindo à,",
     "welcome_subtitle": "Acompanhe a saúde do seu veículo,\nmanutenção e combustível num só lugar.",
     "features_title": "Tudo o que precisa",
     "feature_vehicles": "Gerir veículos ilimitados",

@@ -161,15 +161,15 @@ export const StatisticsFuel = ({
         <Card style={styles.fuelStatCard}>
           <Text style={styles.cardLabel}>{t("fuel.total_spent")}</Text>
           <Text style={styles.cardValue}>
-            {currencySymbol}
             {fuelStats.totalCost.toFixed(2)}
+            {currencySymbol}
           </Text>
         </Card>
         <Card style={styles.fuelStatCard}>
           <Text style={styles.cardLabel}>{t("fuel.avg_cost_fill")}</Text>
           <Text style={styles.cardValue}>
-            {currencySymbol}
             {fuelStats.averageCostPerFill.toFixed(2)}
+            {currencySymbol}
           </Text>
         </Card>
       </View>
@@ -193,8 +193,8 @@ export const StatisticsFuel = ({
                   style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
                 >
                   <Text style={styles.listItemValue}>
-                    {currencySymbol}
                     {vehicle.totalCost.toFixed(2)}
+                    {currencySymbol}
                   </Text>
                   <ChevronRight size={16} color={colors.textSecondary} />
                 </View>

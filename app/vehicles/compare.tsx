@@ -117,9 +117,8 @@ export default function CompareVehiclesScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
-            <Text style={styles.title}>{t("vehicles.compare_vehicles")}</Text>
             <Text style={styles.subtitle}>
-              {t("vehicles.select_to_compare")}
+              {t("vehicles.compare_description")}
             </Text>
           </View>
 
@@ -229,8 +228,8 @@ export default function CompareVehiclesScreen() {
                         {t("statistics.total_spent")}
                       </Text>
                       <Text style={styles.metricValue}>
-                        {currencySymbol}
                         {vehicle.totalSpent.toFixed(2)}
+                        {currencySymbol}
                       </Text>
                     </View>
                     <View style={styles.metricRow}>

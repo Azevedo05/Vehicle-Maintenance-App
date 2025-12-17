@@ -57,8 +57,8 @@ export const StatisticsByVehicle = ({
               </View>
               <View style={styles.listItemRight}>
                 <Text style={styles.listItemValue}>
-                  {currencySymbol}
                   {vehicle.totalSpent.toFixed(2)}
+                  {currencySymbol}
                 </Text>
                 <ChevronRight size={20} color={colors.textSecondary} />
               </View>
