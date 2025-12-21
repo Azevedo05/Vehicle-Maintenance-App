@@ -1,14 +1,22 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import {
-  FlatList,
   Keyboard,
   TouchableOpacity,
   View,
   Text,
   useWindowDimensions,
+  ScrollView,
 } from "react-native";
+import { FlashList } from "@shopify/flash-list";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Plus, Car, ChevronUp, ChevronDown } from "lucide-react-native";
+import {
+  Plus,
+  Car,
+  ChevronUp,
+  ChevronDown,
+  GripVertical,
+  Check,
+} from "lucide-react-native";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import Svg, { Path } from "react-native-svg";
@@ -20,6 +28,10 @@ import Animated, {
   withTiming,
   Easing,
 } from "react-native-reanimated";
+import Sortable, {
+  type SortableGridRenderItem,
+  type OrderChangeCallback,
+} from "react-native-sortables";
 
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -39,6 +51,7 @@ import { VehicleListSkeleton } from "@/components/vehicles/VehicleListSkeleton";
 import { VehicleListFooter } from "@/components/vehicles/VehicleListFooter";
 import { AnimatedItem } from "@/components/ui/AnimatedItem";
 import { SwipeableRow } from "@/components/ui/SwipeableRow";
+import { VehicleImage } from "@/components/ui/VehicleImage";
 import { ThemedBackground } from "@/components/ThemedBackground";
 
 export default function VehiclesScreen() {
@@ -72,7 +85,7 @@ export default function VehiclesScreen() {
   const [selectionMode, setSelectionMode] = useState(false); // Kept for future use if needed, though not fully implemented in extraction
   const [sortOption, setSortOption] = useState<VehicleSortOption>("custom");
   const [isReorderMode, setIsReorderMode] = useState(false);
-  const flatListRef = React.useRef<FlatList>(null);
+  const flatListRef = React.useRef<any>(null);
 
   const handleScrollToTop = () => {
     flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
@@ -188,38 +201,10 @@ export default function VehiclesScreen() {
       setSortOption("custom");
 
       // Normalize order on entry
-      const currentIds = filteredVehicles.map((v) => v.id);
-      reorderVehicles(currentIds);
+      // const currentIds = filteredVehicles.map((v) => v.id);
+      // reorderVehicles(currentIds);
     }
     setIsReorderMode((prev) => !prev);
-  };
-
-  const moveItemUp = (index: number) => {
-    if (index === 0) return;
-
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-    // Create new order of IDs
-    const currentIds = filteredVehicles.map((v) => v.id);
-    const [id] = currentIds.splice(index, 1);
-    currentIds.splice(index - 1, 0, id);
-
-    // Atomic bulk update
-    reorderVehicles(currentIds);
-  };
-
-  const moveItemDown = (index: number) => {
-    if (index === filteredVehicles.length - 1) return;
-
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-    // Create new order of IDs
-    const currentIds = filteredVehicles.map((v) => v.id);
-    const [id] = currentIds.splice(index, 1);
-    currentIds.splice(index + 1, 0, id);
-
-    // Atomic bulk update
-    reorderVehicles(currentIds);
   };
 
   const renderItemSeparator = () => <View style={styles.itemSeparator} />;
@@ -241,6 +226,77 @@ export default function VehiclesScreen() {
         }}
       />
     </AnimatedItem>
+  );
+
+  // Render function for draggable mode (react-native-sortables)
+  const renderSortableItem = useCallback<SortableGridRenderItem<Vehicle>>(
+    ({ item }) => (
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          height: 56,
+          paddingHorizontal: 16,
+        }}
+      >
+        {/* Card */}
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: colors.card,
+            borderRadius: 14,
+            paddingVertical: 12,
+            paddingHorizontal: 14,
+            flexDirection: "row",
+            alignItems: "center",
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}
+        >
+          {/* Vehicle Info - Just text, no icon */}
+          <Text
+            style={{
+              flex: 1,
+              color: colors.text,
+              fontSize: 15,
+              fontWeight: "600",
+              fontFamily: "Inter_600SemiBold",
+            }}
+            numberOfLines={1}
+          >
+            {item.make} {item.model}
+          </Text>
+        </View>
+
+        {/* Drag Handle - Right side */}
+        <Sortable.Handle>
+          <View
+            style={{
+              width: 40,
+              height: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+              marginLeft: 8,
+            }}
+          >
+            <GripVertical size={20} color={colors.textSecondary} />
+          </View>
+        </Sortable.Handle>
+      </View>
+    ),
+    [colors]
+  );
+
+  // Handle drag end callback - persist new order
+  const handleDragEnd = useCallback(
+    ({ indexToKey }: { indexToKey: string[] }) => {
+      if (hapticsEnabled) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+      // indexToKey contains vehicle ids in the new order
+      reorderVehicles(indexToKey);
+    },
+    [hapticsEnabled, reorderVehicles]
   );
 
   const renderListHeader = () => (
@@ -285,125 +341,79 @@ export default function VehiclesScreen() {
         edges={["top"]}
       >
         {isReorderMode ? (
-          <FlatList
-            data={filteredVehicles}
-            renderItem={({ item, index }) => (
-              <AnimatedItem index={index} key={item.id}>
-                <View
+          <View style={{ flex: 1 }}>
+            {/* Header with title and confirm button */}
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                paddingHorizontal: 16,
+                paddingTop: 8,
+                paddingBottom: 16,
+              }}
+            >
+              <View>
+                <Text
                   style={{
-                    marginBottom: 12,
-                    flexDirection: "row",
-                    alignItems: "center",
+                    fontSize: 24,
+                    fontWeight: "700",
+                    fontFamily: "Inter_700Bold",
+                    color: colors.text,
                   }}
                 >
-                  <View style={{ marginRight: 12, gap: 8 }}>
-                    <TouchableOpacity
-                      onPress={() => moveItemUp(index)}
-                      disabled={index === 0}
-                      style={{
-                        width: 44,
-                        height: 44,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        backgroundColor: colors.card,
-                        borderRadius: 8,
-                        opacity: index === 0 ? 0.4 : 1,
-                        borderWidth: 1,
-                        borderColor:
-                          index === 0 ? colors.border : colors.primary,
-                      }}
-                    >
-                      <ChevronUp
-                        size={20}
-                        color={
-                          index === 0 ? colors.textSecondary : colors.primary
-                        }
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => moveItemDown(index)}
-                      disabled={index === filteredVehicles.length - 1}
-                      style={{
-                        width: 44,
-                        height: 44,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        backgroundColor: colors.card,
-                        borderRadius: 8,
-                        opacity:
-                          index === filteredVehicles.length - 1 ? 0.4 : 1,
-                        borderWidth: 1,
-                        borderColor:
-                          index === filteredVehicles.length - 1
-                            ? colors.border
-                            : colors.primary,
-                      }}
-                    >
-                      <ChevronDown
-                        size={20}
-                        color={
-                          index === filteredVehicles.length - 1
-                            ? colors.textSecondary
-                            : colors.primary
-                        }
-                      />
-                    </TouchableOpacity>
-                  </View>
-                  <TouchableOpacity
-                    onPress={() =>
-                      !isReorderMode && router.push(`/vehicle/${item.id}`)
-                    }
-                    disabled={isReorderMode}
-                    activeOpacity={isReorderMode ? 1 : 0.7}
-                    style={{
-                      flex: 1,
-                      backgroundColor: colors.card,
-                      borderRadius: 12,
-                      padding: 16,
-                      flexDirection: "row",
-                      alignItems: "center",
-                      opacity: isReorderMode ? 0.8 : 1,
-                    }}
-                  >
-                    <View
-                      style={{
-                        marginRight: 12,
-                        width: 60,
-                        height: 60,
-                        borderRadius: 8,
-                        backgroundColor: colors.background,
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Car size={32} color={colors.textSecondary} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text
-                        style={{
-                          color: colors.text,
-                          fontSize: 16,
-                          fontWeight: "600",
-                        }}
-                      >
-                        {item.make} {item.model}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              </AnimatedItem>
-            )}
-            keyExtractor={(item) => item.id}
-            ListHeaderComponent={renderListHeader}
-            ListEmptyComponent={
+                  {t("vehicles.reorderTitle", "Reordenar")}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontFamily: "Inter_400Regular",
+                    color: colors.textSecondary,
+                    marginTop: 4,
+                  }}
+                >
+                  {t("vehicles.reorderHint", "Arraste para reordenar")}
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={handleToggleReorderMode}
+                style={{
+                  backgroundColor: colors.primary,
+                  width: 44,
+                  height: 44,
+                  borderRadius: 22,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                activeOpacity={0.8}
+              >
+                <Check size={24} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Sortable List */}
+            {filteredVehicles.length > 0 ? (
+              <Sortable.Grid
+                columns={1}
+                data={filteredVehicles}
+                renderItem={renderSortableItem}
+                customHandle
+                rowGap={8}
+                dragActivationDelay={0}
+                overDrag="none"
+                onDragEnd={handleDragEnd}
+                onDragStart={() => {
+                  if (hapticsEnabled) {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  }
+                }}
+              />
+            ) : (
               <VehicleListEmpty hasVehicles={vehicles.length > 0} />
-            }
-            contentContainerStyle={[styles.scrollContent, { flexGrow: 1 }]}
-            style={styles.scrollView}
-            showsVerticalScrollIndicator={false}
-          />
+            )}
+          </View>
         ) : (
-          <FlatList
+          <FlashList
             ref={flatListRef}
             data={filteredVehicles}
             renderItem={renderNormalItem}
@@ -420,12 +430,7 @@ export default function VehiclesScreen() {
               <VehicleListEmpty hasVehicles={vehicles.length > 0} />
             }
             contentContainerStyle={[styles.scrollContent, { flexGrow: 1 }]}
-            style={styles.scrollView}
             showsVerticalScrollIndicator={false}
-            initialNumToRender={10}
-            maxToRenderPerBatch={10}
-            windowSize={10}
-            removeClippedSubviews={true}
           />
         )}
 

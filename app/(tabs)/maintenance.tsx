@@ -5,12 +5,12 @@ import * as Haptics from "expo-haptics";
 import React, { useMemo, useState, useRef } from "react";
 import {
   ActivityIndicator,
-  FlatList,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { FlashList } from "@shopify/flash-list";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useLocalization } from "@/contexts/LocalizationContext";
@@ -424,7 +424,7 @@ export default function MaintenanceScreen() {
         style={[styles.container, { backgroundColor: "transparent" }]}
         edges={["top"]}
       >
-        <FlatList
+        <FlashList
           data={listData}
           renderItem={renderTaskItem}
           keyExtractor={(item, index) =>
@@ -436,11 +436,7 @@ export default function MaintenanceScreen() {
           ListHeaderComponent={renderListHeader}
           ListEmptyComponent={renderListEmpty}
           contentContainerStyle={styles.scrollContent}
-          style={styles.scrollView}
           showsVerticalScrollIndicator={false}
-          initialNumToRender={10}
-          maxToRenderPerBatch={10}
-          windowSize={10}
         />
 
         {/* Filter Modal */}

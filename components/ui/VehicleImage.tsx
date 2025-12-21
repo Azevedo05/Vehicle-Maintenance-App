@@ -85,15 +85,18 @@ export const VehicleImage = ({
       imageSize.width > 0 &&
       imageSize.height > 0
     ) {
+      const scaledWidth = imageSize.width * position.scale;
+      const scaledHeight = imageSize.height * position.scale;
+
       offsetX.value = ratioToOffset(
         position.xRatio,
         containerSize.width,
-        imageSize.width
+        scaledWidth
       );
       offsetY.value = ratioToOffset(
         position.yRatio,
         containerSize.height,
-        imageSize.height
+        scaledHeight
       );
       scale.value = position.scale;
     }
@@ -177,6 +180,8 @@ export const VehicleImage = ({
     });
 
   const animatedStyle = useAnimatedStyle(() => ({
+    width: imageSize.width * scale.value,
+    height: imageSize.height * scale.value,
     transform: [{ translateX: offsetX.value }, { translateY: offsetY.value }],
   }));
 
@@ -219,12 +224,7 @@ export const VehicleImage = ({
       <GestureDetector gesture={pan}>
         <View style={styles.mask}>
           {sizesReady ? (
-            <Animated.View
-              style={[
-                animatedStyle,
-                { width: imageSize.width, height: imageSize.height },
-              ]}
-            >
+            <Animated.View style={animatedStyle}>
               <Image
                 source={{ uri }}
                 style={{ width: "100%", height: "100%" }}

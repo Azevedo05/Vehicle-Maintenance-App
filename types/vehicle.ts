@@ -23,6 +23,19 @@ export interface Vehicle {
       scale: number;
     }
   >;
+  detailsPhotoPosition?: {
+    xRatio: number;
+    yRatio: number;
+    scale: number;
+  };
+  detailsPhotoPositions?: Record<
+    string,
+    {
+      xRatio: number;
+      yRatio: number;
+      scale: number;
+    }
+  >;
   color?: string;
   vin?: string;
   fuelType?: FuelType;

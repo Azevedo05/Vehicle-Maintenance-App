@@ -122,3 +122,11 @@
 - [x] **Filter Menu Drag Area**: Migrated to @gorhom/bottom-sheet library for professional bottom sheet behavior with proper gesture handling.
 - [x] **Reminders Filter Menu Bottom**: Fixed by migrating to @gorhom/bottom-sheet - modal now extends to screen edge.
 - [x] **Filter Button Single Line**: Maintenance type filters now use vertical list format (Instagram/Google style) for full readability.
+- [x] **Implement Drag-and-Drop Vehicle Sorting**: Re-implement sorting using `DraggableFlatList` (fix crash issue).
+
+## 17. Image Position Selector (Completed ✅)
+
+- [x] **Create ImagePositionModal Component**: Instagram-style modal for adjusting image position with pinch-to-zoom and pan gestures.
+- [x] **Integrate with Add/Edit Vehicle**: Open modal after image selection to choose crop position.
+- [x] **Sync Position with VehicleImage**: Ensure the selected position is correctly applied when displaying the image.
+- [x] **Stepper for Two Positions**: Two-step wizard to set list card position (Step 1) and details page position (Step 2).

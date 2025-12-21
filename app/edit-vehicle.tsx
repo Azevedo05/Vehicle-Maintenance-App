@@ -33,6 +33,7 @@ import {
 } from "@/types/vehicle";
 import { ThemedBackground } from "@/components/ThemedBackground";
 import { VehicleImage } from "@/components/ui/VehicleImage";
+import { ImagePositionModal } from "@/components/ui/ImagePositionModal";
 import { Chip } from "@/components/ui/Chip";
 
 export default function EditVehicleScreen() {
@@ -74,6 +75,11 @@ export default function EditVehicleScreen() {
   const [photoPositions, setPhotoPositions] = useState<
     Record<string, { xRatio: number; yRatio: number; scale: number }>
   >(vehicle?.photoPositions || {});
+  const [detailsPhotoPositions, setDetailsPhotoPositions] = useState<
+    Record<string, { xRatio: number; yRatio: number; scale: number }>
+  >(vehicle?.detailsPhotoPositions || {});
+  const [pendingImage, setPendingImage] = useState<string | null>(null);
+  const [showPositionModal, setShowPositionModal] = useState(false);
 
   const handleEngineChange = (value: string) => {
     setEngine(value);
@@ -118,11 +124,37 @@ export default function EditVehicleScreen() {
 
     if (!result.canceled) {
       const newUri = result.assets[0].uri;
-      setPhotos((prev) => [...prev, newUri]);
-      if (!photo) {
-        setPhoto(newUri);
-      }
+      // Open position modal instead of adding directly
+      setPendingImage(newUri);
+      setShowPositionModal(true);
     }
+  };
+
+  const handlePositionConfirm = (result: {
+    listPosition: { xRatio: number; yRatio: number; scale: number };
+    detailsPosition: { xRatio: number; yRatio: number; scale: number };
+  }) => {
+    if (pendingImage) {
+      setPhotos((prev) => [...prev, pendingImage]);
+      setPhotoPositions((prev) => ({
+        ...prev,
+        [pendingImage]: result.listPosition,
+      }));
+      setDetailsPhotoPositions((prev) => ({
+        ...prev,
+        [pendingImage]: result.detailsPosition,
+      }));
+      if (!photo) {
+        setPhoto(pendingImage);
+      }
+      setPendingImage(null);
+      setShowPositionModal(false);
+    }
+  };
+
+  const handlePositionCancel = () => {
+    setPendingImage(null);
+    setShowPositionModal(false);
   };
 
   const handleSubmit = async () => {
@@ -176,6 +208,8 @@ export default function EditVehicleScreen() {
         photo,
         photoPosition: photo ? photoPositions[photo] : undefined,
         photoPositions,
+        detailsPhotoPosition: photo ? detailsPhotoPositions[photo] : undefined,
+        detailsPhotoPositions,
         photos,
         category,
         fuelType,
@@ -264,17 +298,9 @@ export default function EditVehicleScreen() {
                     <VehicleImage
                       uri={photo}
                       position={photoPositions[photo]}
-                      onPositionChange={(pos) => {
-                        setPhotoPositions((prev) => ({
-                          ...prev,
-                          [photo]: pos,
-                        }));
-                      }}
                       aspectRatio={16 / 9}
-                      editable={true}
                       borderTopRadius={16}
                       borderBottomRadius={16}
-                      dragLabel={t("common.drag_adjust")}
                     />
 
                     {/* Top overlay buttons */}
@@ -628,6 +654,16 @@ export default function EditVehicleScreen() {
               maximumDate={new Date()}
             />
           ))}
+
+        {/* Image Position Modal */}
+        {pendingImage && (
+          <ImagePositionModal
+            visible={showPositionModal}
+            imageUri={pendingImage}
+            onConfirm={handlePositionConfirm}
+            onCancel={handlePositionCancel}
+          />
+        )}
       </SafeAreaView>
     </ThemedBackground>
   );

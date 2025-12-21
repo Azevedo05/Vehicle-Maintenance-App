@@ -59,69 +59,71 @@ import { VehicleImage } from "@/components/ui/VehicleImage";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-const PaginationDot = ({
-  index,
-  scrollX,
-  activeColor,
-  inactiveColor,
-}: {
-  index: number;
-  scrollX: SharedValue<number>;
-  activeColor: string;
-  inactiveColor: string;
-}) => {
-  const animatedStyle = useAnimatedStyle(() => {
-    // Calculate the input range based on the scroll position
-    // Each page is SCREEN_WIDTH wide
-    const inputRange = [
-      (index - 1) * SCREEN_WIDTH,
-      index * SCREEN_WIDTH,
-      (index + 1) * SCREEN_WIDTH,
-    ];
+const PaginationDot = React.memo(
+  ({
+    index,
+    scrollX,
+    activeColor,
+    inactiveColor,
+  }: {
+    index: number;
+    scrollX: SharedValue<number>;
+    activeColor: string;
+    inactiveColor: string;
+  }) => {
+    const animatedStyle = useAnimatedStyle(() => {
+      // Calculate the input range based on the scroll position
+      // Each page is SCREEN_WIDTH wide
+      const inputRange = [
+        (index - 1) * SCREEN_WIDTH,
+        index * SCREEN_WIDTH,
+        (index + 1) * SCREEN_WIDTH,
+      ];
 
-    // Interpolate width (scale effect) - subtle expansion
-    const width = interpolate(
-      scrollX.value,
-      inputRange,
-      [8, 24, 8], // Increased active width for better visibility
-      Extrapolation.CLAMP
+      // Interpolate width (scale effect) - subtle expansion
+      const width = interpolate(
+        scrollX.value,
+        inputRange,
+        [8, 24, 8], // Increased active width for better visibility
+        Extrapolation.CLAMP
+      );
+
+      // Interpolate opacity/color
+      const opacity = interpolate(
+        scrollX.value,
+        inputRange,
+        [0.4, 1, 0.4], // Slightly reduced inactive opacity for contrast
+        Extrapolation.CLAMP
+      );
+
+      // Interpolate background color
+      const backgroundColor = interpolateColor(scrollX.value, inputRange, [
+        inactiveColor,
+        activeColor,
+        inactiveColor,
+      ]);
+
+      return {
+        width,
+        backgroundColor,
+        opacity,
+      };
+    });
+
+    return (
+      <Animated.View
+        style={[
+          {
+            height: 8,
+            borderRadius: 4,
+            marginHorizontal: 3, // Reduced spacing (too far apart previously)
+          },
+          animatedStyle,
+        ]}
+      />
     );
-
-    // Interpolate opacity/color
-    const opacity = interpolate(
-      scrollX.value,
-      inputRange,
-      [0.4, 1, 0.4], // Slightly reduced inactive opacity for contrast
-      Extrapolation.CLAMP
-    );
-
-    // Interpolate background color
-    const backgroundColor = interpolateColor(scrollX.value, inputRange, [
-      inactiveColor,
-      activeColor,
-      inactiveColor,
-    ]);
-
-    return {
-      width,
-      backgroundColor,
-      opacity,
-    };
-  });
-
-  return (
-    <Animated.View
-      style={[
-        {
-          height: 8,
-          borderRadius: 4,
-          marginHorizontal: 3, // Reduced spacing (too far apart previously)
-        },
-        animatedStyle,
-      ]}
-    />
-  );
-};
+  }
+);
 
 export default function VehicleDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -296,7 +298,10 @@ export default function VehicleDetailScreen() {
                       <View key={index} style={styles.vehicleImage}>
                         <VehicleImage
                           uri={uri}
-                          position={vehicle?.photoPositions?.[uri]}
+                          position={
+                            vehicle?.detailsPhotoPositions?.[uri] ||
+                            vehicle?.photoPositions?.[uri]
+                          }
                           height={isMinimalist ? SCREEN_HEIGHT * 0.6 : 400}
                         />
                       </View>

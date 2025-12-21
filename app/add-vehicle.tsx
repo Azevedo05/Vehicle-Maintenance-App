@@ -36,6 +36,7 @@ import { useFormValidation } from "@/hooks/useFormValidation";
 import { Input } from "@/components/ui/Input";
 import { Chip } from "@/components/ui/Chip";
 import { VehicleImage } from "@/components/ui/VehicleImage";
+import { ImagePositionModal } from "@/components/ui/ImagePositionModal";
 import { ThemedBackground } from "@/components/ThemedBackground";
 import Toast from "react-native-toast-message";
 
@@ -67,6 +68,11 @@ export default function AddVehicleScreen() {
   const [photoPositions, setPhotoPositions] = useState<
     Record<string, { xRatio: number; yRatio: number; scale: number }>
   >({});
+  const [detailsPhotoPositions, setDetailsPhotoPositions] = useState<
+    Record<string, { xRatio: number; yRatio: number; scale: number }>
+  >({});
+  const [pendingImage, setPendingImage] = useState<string | null>(null);
+  const [showPositionModal, setShowPositionModal] = useState(false);
 
   const handleEngineChange = (value: string) => {
     setEngine(value);
@@ -129,11 +135,37 @@ export default function AddVehicleScreen() {
 
     if (!result.canceled) {
       const newUri = result.assets[0].uri;
-      setPhotos((prev) => [...prev, newUri]);
-      if (!photo) {
-        setPhoto(newUri);
-      }
+      // Open position modal instead of adding directly
+      setPendingImage(newUri);
+      setShowPositionModal(true);
     }
+  };
+
+  const handlePositionConfirm = (result: {
+    listPosition: { xRatio: number; yRatio: number; scale: number };
+    detailsPosition: { xRatio: number; yRatio: number; scale: number };
+  }) => {
+    if (pendingImage) {
+      setPhotos((prev) => [...prev, pendingImage]);
+      setPhotoPositions((prev) => ({
+        ...prev,
+        [pendingImage]: result.listPosition,
+      }));
+      setDetailsPhotoPositions((prev) => ({
+        ...prev,
+        [pendingImage]: result.detailsPosition,
+      }));
+      if (!photo) {
+        setPhoto(pendingImage);
+      }
+      setPendingImage(null);
+      setShowPositionModal(false);
+    }
+  };
+
+  const handlePositionCancel = () => {
+    setPendingImage(null);
+    setShowPositionModal(false);
   };
 
   const handleSubmit = async () => {
@@ -188,6 +220,8 @@ export default function AddVehicleScreen() {
         photo,
         photoPosition: photo ? photoPositions[photo] : undefined,
         photoPositions,
+        detailsPhotoPosition: photo ? detailsPhotoPositions[photo] : undefined,
+        detailsPhotoPositions,
         photos,
         category,
         fuelType,
@@ -278,17 +312,9 @@ export default function AddVehicleScreen() {
                     <VehicleImage
                       uri={photo}
                       position={photoPositions[photo]}
-                      onPositionChange={(pos) => {
-                        setPhotoPositions((prev) => ({
-                          ...prev,
-                          [photo]: pos,
-                        }));
-                      }}
                       aspectRatio={16 / 9}
-                      editable={true}
                       borderTopRadius={16}
                       borderBottomRadius={16}
-                      dragLabel={t("common.drag_adjust")}
                     />
                     <View style={styles.mainLabel}>
                       <Text style={styles.mainLabelText}>
@@ -661,6 +687,16 @@ export default function AddVehicleScreen() {
               maximumDate={new Date()}
             />
           ))}
+
+        {/* Image Position Modal */}
+        {pendingImage && (
+          <ImagePositionModal
+            visible={showPositionModal}
+            imageUri={pendingImage}
+            onConfirm={handlePositionConfirm}
+            onCancel={handlePositionCancel}
+          />
+        )}
       </SafeAreaView>
     </ThemedBackground>
   );

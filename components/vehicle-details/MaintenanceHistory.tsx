@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from "react";
-import { View, Text, TouchableOpacity, FlatList } from "react-native";
+import React, { useMemo, useState, useCallback } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { FlashList } from "@shopify/flash-list";
 import { Calendar, ChevronRight } from "lucide-react-native";
 import { router } from "expo-router";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -61,37 +62,40 @@ export const MaintenanceHistory = ({ vehicleId }: MaintenanceHistoryProps) => {
     });
   }, [allRecords, recordSortOption, t]);
 
-  const handleDeleteRecord = (recordId: string) => {
-    showAlert({
-      title: t("common.delete"),
-      message: t("maintenance.delete_confirm"),
-      buttons: [
-        { text: t("common.cancel"), style: "cancel" },
-        {
-          text: t("common.delete"),
-          style: "destructive",
-          onPress: async () => {
-            await deleteRecord(recordId);
-            showToast({
-              message: t("maintenance.delete_success"),
-              actionLabel: t("common.undo"),
-              onAction: async () => {
-                await restoreLastSnapshot();
-              },
-            });
+  const handleDeleteRecord = useCallback(
+    (recordId: string) => {
+      showAlert({
+        title: t("common.delete"),
+        message: t("maintenance.delete_confirm"),
+        buttons: [
+          { text: t("common.cancel"), style: "cancel" },
+          {
+            text: t("common.delete"),
+            style: "destructive",
+            onPress: async () => {
+              await deleteRecord(recordId);
+              showToast({
+                message: t("maintenance.delete_success"),
+                actionLabel: t("common.undo"),
+                onAction: async () => {
+                  await restoreLastSnapshot();
+                },
+              });
+            },
           },
-        },
-      ],
-    });
-  };
+        ],
+      });
+    },
+    [showAlert, showToast, deleteRecord, restoreLastSnapshot, t]
+  );
 
-  const formatDate = (timestamp: number) => {
+  const formatDate = useCallback((timestamp: number) => {
     const date = new Date(timestamp);
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
-  };
+  }, []);
 
   return (
     <View style={styles.section}>
@@ -103,7 +107,7 @@ export const MaintenanceHistory = ({ vehicleId }: MaintenanceHistoryProps) => {
           <Text style={styles.emptyText}>{t("maintenance.empty_history")}</Text>
         </View>
       ) : (
-        <FlatList
+        <FlashList
           data={records}
           renderItem={({ item: record }) => (
             <TouchableOpacity
@@ -144,10 +148,6 @@ export const MaintenanceHistory = ({ vehicleId }: MaintenanceHistoryProps) => {
           )}
           keyExtractor={(item) => item.id}
           scrollEnabled={false}
-          initialNumToRender={10}
-          maxToRenderPerBatch={10}
-          windowSize={10}
-          removeClippedSubviews={true}
         />
       )}
     </View>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -145,36 +145,43 @@ export const QuickReminders = ({ vehicleId }: QuickRemindersProps) => {
     }
   };
 
-  const handleCompleteReminder = async (reminder: Reminder) => {
-    showAlert({
-      title: t("quick_reminders.complete_confirmation_title"),
-      message: t("quick_reminders.complete_confirmation_message"),
-      buttons: [
-        {
-          text: t("quick_reminders.cancel"),
-          style: "cancel",
-        },
-        {
-          text: t("quick_reminders.confirm"),
-          style: "destructive",
-          onPress: async () => {
-            // Cancel notification
-            if (reminder.notificationId) {
-              await Notifications.cancelScheduledNotificationAsync(
-                reminder.notificationId
-              ).catch((err) =>
-                console.log("Failed to cancel notification:", err)
-              );
-            }
-            if (selectedReminder?.id === reminder.id) {
-              setSelectedReminder(null);
-            }
-            await deleteQuickReminder(reminder.id);
+  const handleCompleteReminder = useCallback(
+    async (reminder: Reminder) => {
+      showAlert({
+        title: t("quick_reminders.complete_confirmation_title"),
+        message: t("quick_reminders.complete_confirmation_message"),
+        buttons: [
+          {
+            text: t("quick_reminders.cancel"),
+            style: "cancel",
           },
-        },
-      ],
-    });
-  };
+          {
+            text: t("quick_reminders.confirm"),
+            style: "destructive",
+            onPress: async () => {
+              // Cancel notification
+              if (reminder.notificationId) {
+                await Notifications.cancelScheduledNotificationAsync(
+                  reminder.notificationId
+                ).catch((err) =>
+                  console.log("Failed to cancel notification:", err)
+                );
+              }
+              setSelectedReminder((current) =>
+                current?.id === reminder.id ? null : current
+              );
+              await deleteQuickReminder(reminder.id);
+            },
+          },
+        ],
+      });
+    },
+    [showAlert, deleteQuickReminder, t]
+  );
+
+  const handlePressReminder = useCallback((reminder: Reminder) => {
+    setSelectedReminder(reminder);
+  }, []);
 
   const styles = createStyles(colors);
 
@@ -202,7 +209,7 @@ export const QuickReminders = ({ vehicleId }: QuickRemindersProps) => {
             <ReminderCard
               key={reminder.id}
               reminder={reminder}
-              onPress={setSelectedReminder}
+              onPress={handlePressReminder}
               onComplete={handleCompleteReminder}
             />
           ))}

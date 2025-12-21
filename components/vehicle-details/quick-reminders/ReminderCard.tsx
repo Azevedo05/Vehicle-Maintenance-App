@@ -12,7 +12,7 @@ interface ReminderCardProps {
   onComplete: (reminder: Reminder) => void;
 }
 
-export const ReminderCard = ({
+const ReminderCardComponent = ({
   reminder,
   onPress,
   onComplete,
@@ -80,6 +80,8 @@ export const ReminderCard = ({
     </TouchableOpacity>
   );
 };
+
+export const ReminderCard = React.memo(ReminderCardComponent);
 
 const styles = StyleSheet.create({
   stickyNote: {

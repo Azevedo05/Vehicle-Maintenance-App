@@ -496,7 +496,8 @@
     "descending": "Descending",
     "specifications": "Vehicle Specifications",
     "back_to_top": "Back to Top",
-    "drag_adjust": "Drag to adjust"
+    "drag_adjust": "Drag to adjust",
+    "adjust_position": "Adjust position"
   },
   "quick_reminders": {
     "title": "New Reminder",
