@@ -18,10 +18,11 @@ export const createImagePositionModalStyles = (colors: Colors) =>
       alignItems: "center",
       justifyContent: "space-between",
       paddingHorizontal: 20,
-      height: 64,
+      paddingBottom: 12, // Add some bottom padding since top is handled by insets
       borderBottomWidth: 1,
       borderBottomColor: "rgba(255,255,255,0.08)",
       backgroundColor: "#000",
+      zIndex: 100, // Ensure it sits on top
     },
     headerContent: {
       flexDirection: "row",
@@ -31,8 +32,7 @@ export const createImagePositionModalStyles = (colors: Colors) =>
     workspace: {
       flex: 1,
       backgroundColor: "#050505",
-      justifyContent: "center",
-      alignItems: "center",
+      // Removed justifyContent: 'center' and alignItems: 'center' to fix header position
       position: "relative",
     },
     iconButton: {
@@ -197,8 +197,8 @@ export const createImagePositionModalStyles = (colors: Colors) =>
     },
     detailsCurveContainer: {
       position: "absolute",
-      left: 0,
-      right: 0,
+      left: -2, // Slight overflow to prevent image bleed on edges
+      right: -2,
       bottom: 0,
       zIndex: 20,
     },
@@ -219,6 +219,8 @@ export const createImagePositionModalStyles = (colors: Colors) =>
       shadowOpacity: 0.8,
       shadowRadius: 24,
       elevation: 40,
+      zIndex: 101, // Ensure controls are always on top
+      position: "relative",
     },
     controlsContent: {
       paddingHorizontal: 20,
