@@ -1,18 +1,10 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import createContextHook from "@nkzw/create-context-hook";
-import { useCallback, useEffect, useRef, useState } from "react";
-
 import { FuelLog, Vehicle } from "@/types/vehicle";
 import { MaintenanceRecord, MaintenanceTask } from "@/types/maintenance";
 import { Reminder } from "@/components/vehicle-details/quick-reminders/types";
-
-const STORAGE_KEYS = {
-  VEHICLES: "@vehicles",
-  TASKS: "@maintenance_tasks",
-  RECORDS: "@maintenance_records",
-  FUEL_LOGS: "@fuel_logs",
-  QUICK_REMINDERS: "@quick_reminders",
-};
+import { VehicleStorage } from "@/services/VehicleStorage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import createContextHook from "@nkzw/create-context-hook";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export const [VehicleProvider, useVehicles] = createContextHook(() => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -35,61 +27,32 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
 
   const loadData = async () => {
     try {
-      const [
-        vehiclesData,
-        tasksData,
-        recordsData,
-        fuelLogsData,
-        quickRemindersData,
-      ] = await Promise.all([
-        AsyncStorage.getItem(STORAGE_KEYS.VEHICLES),
-        AsyncStorage.getItem(STORAGE_KEYS.TASKS),
-        AsyncStorage.getItem(STORAGE_KEYS.RECORDS),
-        AsyncStorage.getItem(STORAGE_KEYS.FUEL_LOGS),
-        AsyncStorage.getItem(STORAGE_KEYS.QUICK_REMINDERS),
-      ]);
+      const data = await VehicleStorage.loadAllData();
+      setVehicles(data.vehicles);
+      setTasks(data.tasks);
+      setRecords(data.records);
+      setFuelLogs(data.fuelLogs);
 
-      if (vehiclesData) setVehicles(JSON.parse(vehiclesData));
-      else setVehicles([]);
-
-      if (tasksData) setTasks(JSON.parse(tasksData));
-      else setTasks([]);
-
-      if (recordsData) setRecords(JSON.parse(recordsData));
-      else setRecords([]);
-
-      if (fuelLogsData) setFuelLogs(JSON.parse(fuelLogsData));
-      else setFuelLogs([]);
-
-      // Load Quick Reminders (with migration check)
-      if (quickRemindersData) {
-        setQuickReminders(JSON.parse(quickRemindersData));
+      if (data.quickReminders) {
+        setQuickReminders(data.quickReminders);
       } else {
-        // Migration: Check for legacy per-vehicle keys
-        // We need vehiclesData loaded to know IDs, but we have it properly here
-        const loadedVehicles = vehiclesData ? JSON.parse(vehiclesData) : [];
-        if (loadedVehicles.length > 0) {
+        // Migração de lembretes antigos
+        if (data.vehicles.length > 0) {
           const migratedReminders: Reminder[] = [];
-          for (const v of loadedVehicles) {
-            const key = `@quick_reminders_${v.id}`;
-            const legacyData = await AsyncStorage.getItem(key);
+          for (const v of data.vehicles) {
+            const legacyData = await AsyncStorage.getItem(
+              `@quick_reminders_${v.id}`
+            );
             if (legacyData) {
-              const parsed: Omit<Reminder, "vehicleId">[] =
-                JSON.parse(legacyData);
-              // Add vehicleId and push
+              const parsed = JSON.parse(legacyData);
               migratedReminders.push(
-                ...parsed.map((r) => ({ ...r, vehicleId: v.id }))
+                ...parsed.map((r: Reminder) => ({ ...r, vehicleId: v.id }))
               );
-              // Optional: Remove legacy key? maybe keep for safety for now
             }
           }
           if (migratedReminders.length > 0) {
             setQuickReminders(migratedReminders);
-            // Save immediately to new key
-            await AsyncStorage.setItem(
-              STORAGE_KEYS.QUICK_REMINDERS,
-              JSON.stringify(migratedReminders)
-            );
+            await VehicleStorage.saveQuickReminders(migratedReminders);
           } else {
             setQuickReminders([]);
           }
@@ -98,7 +61,7 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
         }
       }
     } catch (error) {
-      console.error("Error loading data:", error);
+      console.error("Erro ao carregar dados:", error);
     } finally {
       setIsLoading(false);
     }
@@ -110,60 +73,28 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
   }, []);
 
   const saveVehicles = useCallback(async (newVehicles: Vehicle[]) => {
-    try {
-      await AsyncStorage.setItem(
-        STORAGE_KEYS.VEHICLES,
-        JSON.stringify(newVehicles)
-      );
-      setVehicles(newVehicles);
-    } catch (error) {
-      console.error("Error saving vehicles:", error);
-    }
+    await VehicleStorage.saveVehicles(newVehicles);
+    setVehicles(newVehicles);
   }, []);
 
   const saveTasks = useCallback(async (newTasks: MaintenanceTask[]) => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(newTasks));
-      setTasks(newTasks);
-    } catch (error) {
-      console.error("Error saving tasks:", error);
-    }
+    await VehicleStorage.saveTasks(newTasks);
+    setTasks(newTasks);
   }, []);
 
   const saveRecords = useCallback(async (newRecords: MaintenanceRecord[]) => {
-    try {
-      await AsyncStorage.setItem(
-        STORAGE_KEYS.RECORDS,
-        JSON.stringify(newRecords)
-      );
-      setRecords(newRecords);
-    } catch (error) {
-      console.error("Error saving records:", error);
-    }
+    await VehicleStorage.saveRecords(newRecords);
+    setRecords(newRecords);
   }, []);
 
   const saveFuelLogs = useCallback(async (newFuelLogs: FuelLog[]) => {
-    try {
-      await AsyncStorage.setItem(
-        STORAGE_KEYS.FUEL_LOGS,
-        JSON.stringify(newFuelLogs)
-      );
-      setFuelLogs(newFuelLogs);
-    } catch (error) {
-      console.error("Error saving fuel logs:", error);
-    }
+    await VehicleStorage.saveFuelLogs(newFuelLogs);
+    setFuelLogs(newFuelLogs);
   }, []);
 
   const saveQuickReminders = useCallback(async (newReminders: Reminder[]) => {
-    try {
-      await AsyncStorage.setItem(
-        STORAGE_KEYS.QUICK_REMINDERS,
-        JSON.stringify(newReminders)
-      );
-      setQuickReminders(newReminders);
-    } catch (error) {
-      console.error("Error saving quick reminders:", error);
-    }
+    await VehicleStorage.saveQuickReminders(newReminders);
+    setQuickReminders(newReminders);
   }, []);
 
   const takeSnapshot = useCallback(() => {
@@ -252,10 +183,12 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
   const deleteVehicle = useCallback(
     async (id: string) => {
       takeSnapshot();
-      await saveVehicles(vehicles.filter((v) => v.id !== id));
-      await saveTasks(tasks.filter((t) => t.vehicleId !== id));
-      await saveRecords(records.filter((r) => r.vehicleId !== id));
-      await saveFuelLogs(fuelLogs.filter((f) => f.vehicleId !== id));
+      await saveVehicles(vehicles.filter((v: Vehicle) => v.id !== id));
+      await saveTasks(tasks.filter((t: MaintenanceTask) => t.vehicleId !== id));
+      await saveRecords(
+        records.filter((r: MaintenanceRecord) => r.vehicleId !== id)
+      );
+      await saveFuelLogs(fuelLogs.filter((f: FuelLog) => f.vehicleId !== id));
     },
     [
       vehicles,
@@ -325,10 +258,16 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
       // Save current state before a destructive bulk operation
       takeSnapshot();
       const idSet = new Set(ids);
-      await saveVehicles(vehicles.filter((v) => !idSet.has(v.id)));
-      await saveTasks(tasks.filter((t) => !idSet.has(t.vehicleId)));
-      await saveRecords(records.filter((r) => !idSet.has(r.vehicleId)));
-      await saveFuelLogs(fuelLogs.filter((f) => !idSet.has(f.vehicleId)));
+      await saveVehicles(vehicles.filter((v: Vehicle) => !idSet.has(v.id)));
+      await saveTasks(
+        tasks.filter((t: MaintenanceTask) => !idSet.has(t.vehicleId))
+      );
+      await saveRecords(
+        records.filter((r: MaintenanceRecord) => !idSet.has(r.vehicleId))
+      );
+      await saveFuelLogs(
+        fuelLogs.filter((f: FuelLog) => !idSet.has(f.vehicleId))
+      );
     },
     [
       vehicles,
@@ -496,8 +435,8 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
   const getRecordsByVehicle = useCallback(
     (vehicleId: string) =>
       records
-        .filter((r) => r.vehicleId === vehicleId)
-        .sort((a, b) => b.date - a.date),
+        .filter((r: MaintenanceRecord) => r.vehicleId === vehicleId)
+        .sort((a: MaintenanceRecord, b: MaintenanceRecord) => b.date - a.date),
     [records]
   );
 
@@ -509,16 +448,16 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
   const getFuelLogsByVehicle = useCallback(
     (vehicleId: string) =>
       fuelLogs
-        .filter((log) => log.vehicleId === vehicleId)
-        .sort((a, b) => b.date - a.date),
+        .filter((log: FuelLog) => log.vehicleId === vehicleId)
+        .sort((a: FuelLog, b: FuelLog) => b.date - a.date),
     [fuelLogs]
   );
 
   const getQuickRemindersByVehicle = useCallback(
     (vehicleId: string) =>
       quickReminders
-        .filter((r) => r.vehicleId === vehicleId)
-        .sort((a, b) => a.dueAt - b.dueAt),
+        .filter((r: Reminder) => r.vehicleId === vehicleId)
+        .sort((a: Reminder, b: Reminder) => a.dueAt - b.dueAt),
     [quickReminders]
   );
 
@@ -526,12 +465,16 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
     (vehicleId?: string) => {
       const now = Date.now();
       const filteredTasks = vehicleId
-        ? tasks.filter((t) => t.vehicleId === vehicleId && !t.isCompleted)
-        : tasks.filter((t) => !t.isCompleted);
+        ? tasks.filter(
+            (t: MaintenanceTask) => t.vehicleId === vehicleId && !t.isCompleted
+          )
+        : tasks.filter((t: MaintenanceTask) => !t.isCompleted);
 
       return filteredTasks
-        .map((task) => {
-          const vehicle = vehicles.find((v) => v.id === task.vehicleId);
+        .map((task: MaintenanceTask) => {
+          const vehicle = vehicles.find(
+            (v: Vehicle) => v.id === task.vehicleId
+          );
           if (!vehicle) return null;
 
           let isDue = false;
@@ -555,8 +498,8 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
             milesUntilDue,
           };
         })
-        .filter((item): item is NonNullable<typeof item> => item !== null)
-        .sort((a, b) => {
+        .filter((item: any): item is NonNullable<typeof item> => item !== null)
+        .sort((a: any, b: any) => {
           if (a.isDue !== b.isDue) return a.isDue ? -1 : 1;
           if (a.daysUntilDue !== undefined && b.daysUntilDue !== undefined) {
             return a.daysUntilDue - b.daysUntilDue;

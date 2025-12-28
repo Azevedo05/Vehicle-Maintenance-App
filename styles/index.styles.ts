@@ -114,6 +114,81 @@ export const createStyles = (colors: any) =>
     filterChipTextActive: {
       color: "#FFFFFF",
     },
+    categoryChips: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+      paddingVertical: 4,
+    },
+    categoryChip: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.card,
+    },
+    categoryChipActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    categoryChipText: {
+      fontSize: 13,
+      color: colors.text,
+      fontWeight: "500" as const,
+    },
+    categoryChipTextActive: {
+      color: "#FFFFFF",
+    },
+    sortOptionsList: {
+      gap: 8,
+    },
+    sortOptionItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: 14,
+      borderRadius: 12,
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    sortOptionItemActive: {
+      borderColor: colors.primary,
+      backgroundColor: colors.primary + "08",
+    },
+    sortOptionText: {
+      fontSize: 15,
+      color: colors.text,
+      fontWeight: "500" as const,
+    },
+    sortOptionTextActive: {
+      color: colors.primary,
+      fontWeight: "600" as const,
+    },
+    sortDirectionBadge: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 8,
+      backgroundColor: colors.primary + "15",
+    },
+    sortDirectionText: {
+      fontSize: 12,
+      color: colors.primary,
+      fontWeight: "600" as const,
+    },
+    sortOptionIndicator: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.primary,
+    },
     modalHeaderRow: {
       flexDirection: "row",
       justifyContent: "space-between",
@@ -266,11 +341,11 @@ export const createStyles = (colors: any) =>
     },
     addButton: {
       position: "absolute",
-      right: 16,
-      bottom: 16,
-      width: 56,
-      height: 56,
-      borderRadius: 28,
+      right: 20,
+      bottom: 100, // Aligned with scrollContent paddingBottom
+      width: 60,
+      height: 60,
+      borderRadius: 30,
       backgroundColor: colors.primary,
       justifyContent: "center",
       alignItems: "center",
@@ -278,7 +353,8 @@ export const createStyles = (colors: any) =>
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.3,
       shadowRadius: 8,
-      elevation: 8,
+      elevation: 10,
+      zIndex: 1000,
     },
     modalTitle: {
       fontSize: 16,
@@ -385,5 +461,21 @@ export const createStyles = (colors: any) =>
     actionDescription: {
       fontSize: 13,
       color: colors.textSecondary,
+    },
+    divider: {
+      height: 1,
+      backgroundColor: colors.border,
+      marginVertical: 8,
+    },
+    filterBadge: {
+      position: "absolute",
+      top: -4,
+      right: -4,
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+      backgroundColor: colors.primary,
+      borderWidth: 2,
+      borderColor: colors.surface,
     },
   });

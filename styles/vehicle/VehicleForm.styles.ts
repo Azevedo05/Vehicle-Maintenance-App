@@ -1,0 +1,236 @@
+import { StyleSheet, Platform } from "react-native";
+import { Colors } from "@/contexts/ThemeContext";
+
+export const createFormStyles = (colors: Colors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    keyboardView: {
+      flex: 1,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      padding: 16,
+    },
+    photoSection: {
+      width: "100%",
+      marginBottom: 24,
+      gap: 16,
+    },
+    mainPhotoContainer: {
+      width: "100%",
+      aspectRatio: 16 / 9,
+      borderRadius: 16,
+      overflow: "hidden",
+    },
+    photoWrapper: {
+      width: "100%",
+      height: "100%",
+      position: "relative" as const,
+    },
+    photo: {
+      width: "100%",
+      height: "100%",
+      backgroundColor: colors.border,
+    },
+    mainLabel: {
+      position: "absolute",
+      bottom: 12,
+      left: 12,
+      backgroundColor: "rgba(0,0,0,0.6)",
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 8,
+    },
+    mainLabelText: {
+      color: "#FFFFFF",
+      fontSize: 12,
+      fontWeight: "600" as const,
+    },
+    photoPlaceholder: {
+      width: "100%",
+      height: "100%",
+      borderRadius: 16,
+      backgroundColor: colors.surface,
+      borderWidth: 2,
+      borderColor: colors.border,
+      borderStyle: "dashed" as const,
+      justifyContent: "center" as const,
+      alignItems: "center" as const,
+      gap: 12,
+    },
+    photoPlaceholderText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      fontWeight: "600" as const,
+    },
+    galleryScroll: {
+      maxHeight: 110,
+    },
+    galleryContent: {
+      gap: 16,
+      paddingHorizontal: 12,
+      paddingVertical: 12,
+    },
+    galleryItemContainer: {
+      position: "relative" as const,
+    },
+    galleryItem: {
+      width: 80,
+      height: 80,
+      borderRadius: 12,
+      overflow: "hidden",
+      borderWidth: 2,
+      borderColor: colors.border,
+    },
+    galleryItemSelected: {
+      borderColor: colors.primary,
+      borderWidth: 3,
+    },
+    galleryImage: {
+      width: "100%",
+      height: "100%",
+    },
+    removeThumbButton: {
+      position: "absolute" as const,
+      top: -6,
+      right: -6,
+      backgroundColor: colors.error,
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      justifyContent: "center",
+      alignItems: "center",
+      borderWidth: 1.5,
+      borderColor: colors.background,
+    },
+    addMoreButton: {
+      width: 80,
+      height: 80,
+      borderRadius: 12,
+      backgroundColor: colors.surface,
+      borderWidth: 2,
+      borderColor: colors.border,
+      borderStyle: "dashed" as const,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    form: {
+      gap: 16,
+    },
+    inputGroup: {
+      gap: 8,
+    },
+    label: {
+      fontSize: 16,
+      fontWeight: "600" as const,
+      color: colors.text,
+      flexShrink: 1,
+      flexWrap: "wrap",
+    },
+    required: {
+      color: colors.error,
+    },
+    input: {
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      padding: 16,
+      fontSize: 16,
+      color: colors.text,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    inputError: {
+      borderColor: colors.error,
+    },
+    errorText: {
+      fontSize: 12,
+      color: colors.error,
+      marginTop: 4,
+    },
+    categoryGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 12,
+    },
+    categoryChip: {
+      width: "47%",
+    },
+    disabledChip: {
+      opacity: 0.4,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
+    },
+    modalContent: {
+      backgroundColor: colors.card,
+      borderRadius: 24,
+      padding: 24,
+      width: "100%",
+      maxWidth: 340,
+      gap: 24,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 16,
+      elevation: 10,
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: "700",
+      color: colors.text,
+      textAlign: "center",
+      marginBottom: 8,
+    },
+    modalOptions: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      gap: 16,
+    },
+    modalOption: {
+      alignItems: "center",
+      gap: 12,
+      padding: 16,
+      borderRadius: 16,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      minWidth: 110,
+    },
+    modalIconContainer: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: colors.primary + "15",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    modalOptionText: {
+      fontSize: 15,
+      fontWeight: "600",
+      color: colors.text,
+    },
+    modalCancelButton: {
+      paddingVertical: 12,
+      alignItems: "center",
+    },
+    modalCancelText: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.error,
+    },
+    errorContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
+    },
+  });

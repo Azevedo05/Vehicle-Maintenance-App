@@ -3,7 +3,7 @@ import { View, Text } from "react-native";
 
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
-import { createStyles } from "@/components/styles/statistics.styles";
+import { createStyles } from "@/styles/statistics.styles";
 import { getMaintenanceTypeLabel, MaintenanceType } from "@/types/maintenance";
 import { Card } from "@/components/ui/Card";
 

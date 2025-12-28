@@ -9,7 +9,7 @@ import {
 
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
-import { createStyles } from "@/components/styles/index.styles";
+import { createStyles } from "@/styles/index.styles";
 import { ReorderModeButton } from "@/components/ui/ReorderModeButton";
 
 interface VehicleListHeaderProps {

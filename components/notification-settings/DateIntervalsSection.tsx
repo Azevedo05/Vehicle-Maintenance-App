@@ -4,7 +4,7 @@ import { Calendar, Plus, X } from "lucide-react-native";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useAppAlert } from "@/contexts/AlertContext";
-import { createNotificationSettingsStyles } from "./NotificationSettingsStyles";
+import { createNotificationSettingsStyles } from "@/styles/settings/NotificationSettingsStyles";
 
 interface DateIntervalsSectionProps {
   intervals: number[];

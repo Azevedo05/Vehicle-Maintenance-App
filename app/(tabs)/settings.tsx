@@ -13,13 +13,14 @@ import { DataManagementSettings } from "@/components/settings/DataManagementSett
 import { AboutSection } from "@/components/settings/AboutSection";
 import { HapticSettings } from "@/components/settings/HapticSettings";
 import { BuyMeCoffee } from "@/components/settings/BuyMeCoffee";
+import { createSettingsStyles } from "@/styles/settings.styles";
 
 import { ThemedBackground } from "@/components/ThemedBackground";
 
 export default function SettingsScreen() {
   const { colors } = useTheme();
   const { t } = useLocalization();
-  const styles = createStyles(colors);
+  const styles = createSettingsStyles(colors);
 
   return (
     <ThemedBackground>
@@ -49,27 +50,3 @@ export default function SettingsScreen() {
     </ThemedBackground>
   );
 }
-
-const createStyles = (colors: any) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    scrollView: {
-      flex: 1,
-    },
-    scrollContent: {
-      paddingHorizontal: 16,
-      paddingBottom: 100,
-    },
-    header: {
-      paddingTop: 8,
-      marginBottom: 16,
-    },
-    screenTitle: {
-      fontSize: 28,
-      fontWeight: "700",
-      color: colors.text,
-    },
-  });

@@ -148,6 +148,15 @@ export const createStyles = (colors: any) =>
       alignItems: "center",
       marginBottom: 6,
     },
+    typeTitleRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+    },
+    typeCountHeader: {
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
     typeBreakdown: {
       fontSize: 13,
       color: colors.textSecondary,

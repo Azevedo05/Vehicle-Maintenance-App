@@ -1,6 +1,7 @@
 import { StyleSheet } from "react-native";
+import { Colors } from "@/contexts/ThemeContext";
 
-export const createStyles = (colors: any) =>
+export const createStyles = (colors: Colors) =>
   StyleSheet.create({
     container: {
       flex: 1,

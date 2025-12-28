@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Modal, FlatList } from "react-native";
 import { Clock } from "lucide-react-native";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
-import { createNotificationSettingsStyles } from "./NotificationSettingsStyles";
+import { createNotificationSettingsStyles } from "@/styles/settings/NotificationSettingsStyles";
 import { TimePicker } from "@/components/ui/TimePicker";
 
 interface NotificationTimeSectionProps {

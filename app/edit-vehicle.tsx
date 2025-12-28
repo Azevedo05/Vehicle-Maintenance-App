@@ -1,6 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import { Camera, X, Check, Plus, Trash2 } from "lucide-react-native";
+import { Camera, X, Check, Images, Plus, Trash2 } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -31,10 +31,12 @@ import {
   FuelType,
   TransmissionType,
 } from "@/types/vehicle";
+import { Chip } from "@/components/ui/Chip";
+import { createFormStyles } from "@/styles/vehicle/VehicleForm.styles";
+import { useVehicleImageHandling } from "@/hooks/useVehicleImageHandling";
 import { ThemedBackground } from "@/components/ThemedBackground";
 import { VehicleImage } from "@/components/ui/VehicleImage";
 import { ImagePositionModal } from "@/components/ui/ImagePositionModal";
-import { Chip } from "@/components/ui/Chip";
 
 export default function EditVehicleScreen() {
   const { id } = useLocalSearchParams();
@@ -49,12 +51,31 @@ export default function EditVehicleScreen() {
   const [model, setModel] = useState(vehicle?.model || "");
   const [year, setYear] = useState(vehicle?.year.toString() || "");
   const [licensePlate, setLicensePlate] = useState(vehicle?.licensePlate || "");
+  const {
+    photo,
+    setPhoto,
+    photos,
+    setPhotos,
+    photoPositions,
+    detailsPhotoPositions,
+    pendingImage,
+    showPositionModal,
+    setShowPositionModal,
+    showPhotoOptions,
+    setShowPhotoOptions,
+    pickImage,
+    handlePositionConfirm,
+    handlePositionCancel,
+    removePhoto,
+  } = useVehicleImageHandling({
+    initialPhoto: vehicle?.photo,
+    initialPhotos: vehicle?.photos || (vehicle?.photo ? [vehicle.photo] : []),
+    initialPhotoPositions: vehicle?.photoPositions || {},
+    initialDetailsPositions: vehicle?.detailsPhotoPositions || {},
+  });
+
   const [currentMileage, setCurrentMileage] = useState(
     vehicle?.currentMileage.toString() || ""
-  );
-  const [photo, setPhoto] = useState<string | undefined>(vehicle?.photo);
-  const [photos, setPhotos] = useState<string[]>(
-    vehicle?.photos || (vehicle?.photo ? [vehicle.photo] : [])
   );
   const [category, setCategory] = useState<VehicleCategory | undefined>(
     vehicle?.category
@@ -72,14 +93,6 @@ export default function EditVehicleScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [engineError, setEngineError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [photoPositions, setPhotoPositions] = useState<
-    Record<string, { xRatio: number; yRatio: number; scale: number }>
-  >(vehicle?.photoPositions || {});
-  const [detailsPhotoPositions, setDetailsPhotoPositions] = useState<
-    Record<string, { xRatio: number; yRatio: number; scale: number }>
-  >(vehicle?.detailsPhotoPositions || {});
-  const [pendingImage, setPendingImage] = useState<string | null>(null);
-  const [showPositionModal, setShowPositionModal] = useState(false);
 
   const handleEngineChange = (value: string) => {
     setEngine(value);
@@ -95,7 +108,7 @@ export default function EditVehicleScreen() {
     }
   };
 
-  const styles = createStyles(colors);
+  const styles = createFormStyles(colors);
 
   if (!vehicle) {
     return (
@@ -104,58 +117,6 @@ export default function EditVehicleScreen() {
       </View>
     );
   }
-
-  const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (status !== "granted") {
-      showAlert({
-        title: t("vehicles.permission_needed"),
-        message: t("vehicles.permission_text"),
-      });
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: false,
-      quality: 0.8,
-    });
-
-    if (!result.canceled) {
-      const newUri = result.assets[0].uri;
-      // Open position modal instead of adding directly
-      setPendingImage(newUri);
-      setShowPositionModal(true);
-    }
-  };
-
-  const handlePositionConfirm = (result: {
-    listPosition: { xRatio: number; yRatio: number; scale: number };
-    detailsPosition: { xRatio: number; yRatio: number; scale: number };
-  }) => {
-    if (pendingImage) {
-      setPhotos((prev) => [...prev, pendingImage]);
-      setPhotoPositions((prev) => ({
-        ...prev,
-        [pendingImage]: result.listPosition,
-      }));
-      setDetailsPhotoPositions((prev) => ({
-        ...prev,
-        [pendingImage]: result.detailsPosition,
-      }));
-      if (!photo) {
-        setPhoto(pendingImage);
-      }
-      setPendingImage(null);
-      setShowPositionModal(false);
-    }
-  };
-
-  const handlePositionCancel = () => {
-    setPendingImage(null);
-    setShowPositionModal(false);
-  };
 
   const handleSubmit = async () => {
     if (
@@ -319,7 +280,7 @@ export default function EditVehicleScreen() {
                           padding: 8,
                           borderRadius: 20,
                         }}
-                        onPress={pickImage}
+                        onPress={() => setShowPhotoOptions(true)}
                       >
                         <Camera size={20} color="#FFF" />
                       </TouchableOpacity>
@@ -332,7 +293,10 @@ export default function EditVehicleScreen() {
                     </View>
                   </Animated.View>
                 ) : (
-                  <TouchableOpacity onPress={pickImage} activeOpacity={0.7}>
+                  <TouchableOpacity
+                    onPress={() => setShowPhotoOptions(true)}
+                    activeOpacity={0.7}
+                  >
                     <Animated.View
                       entering={FadeIn}
                       exiting={FadeOut}
@@ -377,15 +341,7 @@ export default function EditVehicleScreen() {
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={styles.removeThumbButton}
-                        onPress={() => {
-                          const newPhotos = photos.filter((p) => p !== uri);
-                          setPhotos(newPhotos);
-                          if (photo === uri) {
-                            setPhoto(
-                              newPhotos.length > 0 ? newPhotos[0] : undefined
-                            );
-                          }
-                        }}
+                        onPress={() => removePhoto(uri)}
                       >
                         <X size={12} color="#FFFFFF" />
                       </TouchableOpacity>
@@ -393,7 +349,7 @@ export default function EditVehicleScreen() {
                   ))}
                   <TouchableOpacity
                     style={styles.addMoreButton}
-                    onPress={pickImage}
+                    onPress={() => setShowPhotoOptions(true)}
                   >
                     <Plus size={24} color={colors.primary} />
                   </TouchableOpacity>
@@ -664,206 +620,57 @@ export default function EditVehicleScreen() {
             onCancel={handlePositionCancel}
           />
         )}
+
+        {/* Photo Options Modal */}
+        <Modal
+          visible={showPhotoOptions}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowPhotoOptions(false)}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setShowPhotoOptions(false)}
+          >
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{t("vehicles.add_photo")}</Text>
+              <View style={styles.modalOptions}>
+                <TouchableOpacity
+                  style={styles.modalOption}
+                  onPress={() => pickImage("camera")}
+                >
+                  <View style={styles.modalIconContainer}>
+                    <Camera size={28} color={colors.primary} />
+                  </View>
+                  <Text style={styles.modalOptionText}>
+                    {t("vehicles.camera")}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.modalOption}
+                  onPress={() => pickImage("library")}
+                >
+                  <View style={styles.modalIconContainer}>
+                    <Images size={28} color={colors.primary} />
+                  </View>
+                  <Text style={styles.modalOptionText}>
+                    {t("vehicles.gallery")}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                style={styles.modalCancelButton}
+                onPress={() => setShowPhotoOptions(false)}
+              >
+                <Text style={styles.modalCancelText}>{t("common.cancel")}</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </Modal>
       </SafeAreaView>
     </ThemedBackground>
   );
 }
-
-const createStyles = (colors: any) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    errorContainer: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      padding: 20,
-      backgroundColor: colors.background,
-    },
-    errorText: {
-      fontSize: 18,
-      fontWeight: "600" as const,
-      color: colors.text,
-    },
-    keyboardView: {
-      flex: 1,
-    },
-    scrollView: {
-      flex: 1,
-    },
-    scrollContent: {
-      padding: 16,
-    },
-    photoSection: {
-      width: "100%",
-      marginBottom: 24,
-      gap: 16,
-    },
-    mainPhotoContainer: {
-      width: "100%",
-      aspectRatio: 16 / 9,
-      borderRadius: 16,
-      overflow: "hidden",
-    },
-    photoWrapper: {
-      width: "100%",
-      height: "100%",
-      position: "relative" as const,
-    },
-    photo: {
-      width: "100%",
-      height: "100%",
-      backgroundColor: colors.border,
-    },
-    mainLabel: {
-      position: "absolute",
-      bottom: 12,
-      left: 12,
-      backgroundColor: "rgba(0,0,0,0.6)",
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 8,
-    },
-    mainLabelText: {
-      color: "#FFFFFF",
-      fontSize: 12,
-      fontWeight: "600" as const,
-    },
-    photoPlaceholder: {
-      width: "100%",
-      height: "100%",
-      borderRadius: 16,
-      backgroundColor: colors.surface,
-      borderWidth: 2,
-      borderColor: colors.border,
-      borderStyle: "dashed" as const,
-      justifyContent: "center" as const,
-      alignItems: "center" as const,
-    },
-    galleryScroll: {
-      maxHeight: 110, // Increased to accommodate padding
-    },
-    galleryContent: {
-      gap: 16, // Increased gap
-      paddingHorizontal: 12, // Increased padding
-      paddingVertical: 12, // Added vertical padding for the buttons
-    },
-    galleryItemContainer: {
-      position: "relative" as const,
-    },
-    galleryItem: {
-      width: 80,
-      height: 80,
-      borderRadius: 12,
-      overflow: "hidden",
-      borderWidth: 2,
-      borderColor: colors.border,
-    },
-    galleryItemSelected: {
-      borderColor: colors.primary,
-      borderWidth: 3,
-    },
-    galleryImage: {
-      width: "100%",
-      height: "100%",
-    },
-    removeThumbButton: {
-      position: "absolute" as const,
-      top: -6,
-      right: -6,
-      backgroundColor: colors.error,
-      width: 20,
-      height: 20,
-      borderRadius: 10,
-      justifyContent: "center",
-      alignItems: "center",
-      borderWidth: 1.5,
-      borderColor: colors.background,
-    },
-    addMoreButton: {
-      width: 80,
-      height: 80,
-      borderRadius: 12,
-      backgroundColor: colors.surface,
-      borderWidth: 2,
-      borderColor: colors.border,
-      borderStyle: "dashed" as const,
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    photoPlaceholderText: {
-      marginTop: 8,
-      fontSize: 14,
-      color: colors.textSecondary,
-      fontWeight: "500" as const,
-    },
-    form: {
-      gap: 16,
-    },
-    inputGroup: {
-      gap: 8,
-    },
-    label: {
-      fontSize: 16,
-      fontWeight: "600" as const,
-      color: colors.text,
-      flexShrink: 1,
-      flexWrap: "wrap",
-    },
-    required: {
-      color: colors.error,
-    },
-    input: {
-      backgroundColor: colors.surface,
-      borderRadius: 12,
-      padding: 16,
-      fontSize: 16,
-      color: colors.text,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    inputError: {
-      borderColor: colors.error,
-    },
-    categoryGrid: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      gap: 12,
-    },
-    categoryChip: {
-      minWidth: "48%",
-      flex: 1,
-    },
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: "rgba(0,0,0,0.5)",
-      justifyContent: "center",
-      alignItems: "center",
-      padding: 20,
-    },
-    modalContent: {
-      backgroundColor: colors.card,
-      borderRadius: 24,
-      padding: 24,
-      width: "100%",
-      maxWidth: 340,
-      gap: 16,
-    },
-    modalTitle: {
-      fontSize: 18,
-      fontWeight: "700",
-      color: colors.text,
-      textAlign: "center",
-    },
-    modalCancelButton: {
-      paddingVertical: 12,
-      alignItems: "center",
-    },
-    modalCancelText: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: colors.error,
-    },
-  });

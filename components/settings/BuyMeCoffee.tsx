@@ -5,7 +5,7 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { usePreferences } from "@/contexts/PreferencesContext";
-import { createSettingsStyles } from "./SettingsStyles";
+import { createSettingsStyles } from "@/styles/settings/SettingsSections.styles";
 
 const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/eVqeVe7TVf4R6Cyabwcs803";
 

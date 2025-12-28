@@ -39,6 +39,8 @@ import { VehicleImage } from "@/components/ui/VehicleImage";
 import { ImagePositionModal } from "@/components/ui/ImagePositionModal";
 import { ThemedBackground } from "@/components/ThemedBackground";
 import Toast from "react-native-toast-message";
+import { createFormStyles } from "@/styles/vehicle/VehicleForm.styles";
+import { useVehicleImageHandling } from "@/hooks/useVehicleImageHandling";
 
 export default function AddVehicleScreen() {
   const { addVehicle, restoreLastSnapshot } = useVehicles();
@@ -50,8 +52,24 @@ export default function AddVehicleScreen() {
   const [year, setYear] = useState("");
   const [licensePlate, setLicensePlate] = useState("");
   const [currentMileage, setCurrentMileage] = useState("");
-  const [photo, setPhoto] = useState<string | undefined>(undefined);
-  const [photos, setPhotos] = useState<string[]>([]);
+  const {
+    photo,
+    setPhoto,
+    photos,
+    setPhotos,
+    photoPositions,
+    detailsPhotoPositions,
+    pendingImage,
+    showPositionModal,
+    setShowPositionModal,
+    showPhotoOptions,
+    setShowPhotoOptions,
+    pickImage,
+    handlePositionConfirm,
+    handlePositionCancel,
+    removePhoto,
+  } = useVehicleImageHandling();
+
   const [fuelType, setFuelType] = useState<FuelType | undefined>(undefined);
   const [engine, setEngine] = useState("");
   const [transmission, setTransmission] = useState<
@@ -64,15 +82,6 @@ export default function AddVehicleScreen() {
     undefined
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
-  const [photoPositions, setPhotoPositions] = useState<
-    Record<string, { xRatio: number; yRatio: number; scale: number }>
-  >({});
-  const [detailsPhotoPositions, setDetailsPhotoPositions] = useState<
-    Record<string, { xRatio: number; yRatio: number; scale: number }>
-  >({});
-  const [pendingImage, setPendingImage] = useState<string | null>(null);
-  const [showPositionModal, setShowPositionModal] = useState(false);
 
   const handleEngineChange = (value: string) => {
     setEngine(value);
@@ -95,77 +104,10 @@ export default function AddVehicleScreen() {
     licensePlate,
     currentMileage,
   });
-  const styles = createStyles(colors);
+  const styles = createFormStyles(colors);
 
   const handleImageSelection = () => {
     setShowPhotoOptions(true);
-  };
-
-  const pickImage = async (source: "camera" | "library") => {
-    setShowPhotoOptions(false);
-    let permissionResult;
-
-    if (source === "camera") {
-      permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-    } else {
-      permissionResult =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-    }
-
-    if (permissionResult.status !== "granted") {
-      showAlert({
-        title: t("vehicles.permission_needed"),
-        message: t("vehicles.permission_text"),
-      });
-      return;
-    }
-
-    let result;
-    const options: ImagePicker.ImagePickerOptions = {
-      mediaTypes: ["images"],
-      allowsEditing: false,
-      quality: 0.8,
-    };
-
-    if (source === "camera") {
-      result = await ImagePicker.launchCameraAsync(options);
-    } else {
-      result = await ImagePicker.launchImageLibraryAsync(options);
-    }
-
-    if (!result.canceled) {
-      const newUri = result.assets[0].uri;
-      // Open position modal instead of adding directly
-      setPendingImage(newUri);
-      setShowPositionModal(true);
-    }
-  };
-
-  const handlePositionConfirm = (result: {
-    listPosition: { xRatio: number; yRatio: number; scale: number };
-    detailsPosition: { xRatio: number; yRatio: number; scale: number };
-  }) => {
-    if (pendingImage) {
-      setPhotos((prev) => [...prev, pendingImage]);
-      setPhotoPositions((prev) => ({
-        ...prev,
-        [pendingImage]: result.listPosition,
-      }));
-      setDetailsPhotoPositions((prev) => ({
-        ...prev,
-        [pendingImage]: result.detailsPosition,
-      }));
-      if (!photo) {
-        setPhoto(pendingImage);
-      }
-      setPendingImage(null);
-      setShowPositionModal(false);
-    }
-  };
-
-  const handlePositionCancel = () => {
-    setPendingImage(null);
-    setShowPositionModal(false);
   };
 
   const handleSubmit = async () => {
@@ -366,15 +308,7 @@ export default function AddVehicleScreen() {
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={styles.removeThumbButton}
-                        onPress={() => {
-                          const newPhotos = photos.filter((p) => p !== uri);
-                          setPhotos(newPhotos);
-                          if (photo === uri) {
-                            setPhoto(
-                              newPhotos.length > 0 ? newPhotos[0] : undefined
-                            );
-                          }
-                        }}
+                        onPress={() => removePhoto(uri)}
                       >
                         <X size={12} color="#FFFFFF" />
                       </TouchableOpacity>
@@ -382,7 +316,7 @@ export default function AddVehicleScreen() {
                   ))}
                   <TouchableOpacity
                     style={styles.addMoreButton}
-                    onPress={handleImageSelection}
+                    onPress={() => setShowPhotoOptions(true)}
                   >
                     <Plus size={24} color={colors.primary} />
                   </TouchableOpacity>
@@ -701,231 +635,3 @@ export default function AddVehicleScreen() {
     </ThemedBackground>
   );
 }
-
-const createStyles = (colors: any) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    keyboardView: {
-      flex: 1,
-    },
-    scrollView: {
-      flex: 1,
-    },
-    scrollContent: {
-      padding: 16,
-    },
-    photoSection: {
-      width: "100%",
-      marginBottom: 24,
-      gap: 16,
-    },
-    mainPhotoContainer: {
-      width: "100%",
-      aspectRatio: 16 / 9,
-      borderRadius: 16,
-      overflow: "hidden",
-    },
-    photoWrapper: {
-      width: "100%",
-      height: "100%",
-      position: "relative" as const,
-    },
-    photo: {
-      width: "100%",
-      height: "100%",
-      backgroundColor: colors.border,
-    },
-    mainLabel: {
-      position: "absolute",
-      bottom: 12,
-      left: 12,
-      backgroundColor: "rgba(0,0,0,0.6)",
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 8,
-    },
-    mainLabelText: {
-      color: "#FFFFFF",
-      fontSize: 12,
-      fontWeight: "600" as const,
-    },
-    photoPlaceholder: {
-      width: "100%",
-      height: "100%",
-      borderRadius: 16,
-      backgroundColor: colors.surface,
-      borderWidth: 2,
-      borderColor: colors.border,
-      borderStyle: "dashed" as const,
-      justifyContent: "center" as const,
-      alignItems: "center" as const,
-      gap: 12,
-    },
-    photoPlaceholderText: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      fontWeight: "600" as const,
-    },
-    galleryScroll: {
-      maxHeight: 110, // Increased to accommodate padding
-    },
-    galleryContent: {
-      gap: 16, // Increased gap
-      paddingHorizontal: 12, // Increased padding
-      paddingVertical: 12, // Added vertical padding for the buttons
-    },
-    galleryItemContainer: {
-      position: "relative" as const,
-    },
-    galleryItem: {
-      width: 80,
-      height: 80,
-      borderRadius: 12,
-      overflow: "hidden",
-      borderWidth: 2,
-      borderColor: colors.border,
-    },
-    galleryItemSelected: {
-      borderColor: colors.primary,
-      borderWidth: 3,
-    },
-    galleryImage: {
-      width: "100%",
-      height: "100%",
-    },
-    removeThumbButton: {
-      position: "absolute" as const,
-      top: -6,
-      right: -6,
-      backgroundColor: colors.error,
-      width: 20,
-      height: 20,
-      borderRadius: 10,
-      justifyContent: "center",
-      alignItems: "center",
-      borderWidth: 1.5,
-      borderColor: colors.background,
-    },
-    addMoreButton: {
-      width: 80,
-      height: 80,
-      borderRadius: 12,
-      backgroundColor: colors.surface,
-      borderWidth: 2,
-      borderColor: colors.border,
-      borderStyle: "dashed" as const,
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    form: {
-      gap: 16,
-    },
-    inputGroup: {
-      gap: 8,
-    },
-    label: {
-      fontSize: 16,
-      fontWeight: "600" as const,
-      color: colors.text,
-      flexShrink: 1,
-      flexWrap: "wrap",
-    },
-    required: {
-      color: colors.error,
-    },
-    input: {
-      backgroundColor: colors.surface,
-      borderRadius: 12,
-      padding: 16,
-      fontSize: 16,
-      color: colors.text,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    inputError: {
-      borderColor: colors.error,
-    },
-    errorText: {
-      fontSize: 12,
-      color: colors.error,
-      marginTop: 4,
-    },
-    categoryGrid: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      gap: 12,
-    },
-    categoryChip: {
-      width: "47%",
-    },
-    disabledChip: {
-      opacity: 0.4,
-    },
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: "rgba(0,0,0,0.5)",
-      justifyContent: "center",
-      alignItems: "center",
-      padding: 20,
-    },
-    modalContent: {
-      backgroundColor: colors.card,
-      borderRadius: 24,
-      padding: 24,
-      width: "100%",
-      maxWidth: 340,
-      gap: 24,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.25,
-      shadowRadius: 16,
-      elevation: 10,
-    },
-    modalTitle: {
-      fontSize: 18,
-      fontWeight: "700",
-      color: colors.text,
-      textAlign: "center",
-      marginBottom: 8,
-    },
-    modalOptions: {
-      flexDirection: "row",
-      justifyContent: "space-around",
-      gap: 16,
-    },
-    modalOption: {
-      alignItems: "center",
-      gap: 12,
-      padding: 16,
-      borderRadius: 16,
-      backgroundColor: colors.surface,
-      borderWidth: 1,
-      borderColor: colors.border,
-      minWidth: 110,
-    },
-    modalIconContainer: {
-      width: 56,
-      height: 56,
-      borderRadius: 28,
-      backgroundColor: colors.primary + "15",
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    modalOptionText: {
-      fontSize: 15,
-      fontWeight: "600",
-      color: colors.text,
-    },
-    modalCancelButton: {
-      paddingVertical: 12,
-      alignItems: "center",
-    },
-    modalCancelText: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: colors.error,
-    },
-  });

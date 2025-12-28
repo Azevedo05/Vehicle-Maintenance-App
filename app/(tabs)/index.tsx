@@ -39,7 +39,7 @@ import { usePreferences } from "@/contexts/PreferencesContext";
 import { useVehicles } from "@/contexts/VehicleContext";
 import { useAppAlert } from "@/contexts/AlertContext";
 import { Vehicle, VehicleCategory, VehicleSortOption } from "@/types/vehicle";
-import { createStyles } from "@/components/styles/index.styles";
+import { createStyles } from "@/styles/index.styles";
 
 import { VehicleListItem } from "@/components/vehicles/VehicleListItem";
 import { VehicleListHeader } from "@/components/vehicles/VehicleListHeader";
@@ -435,29 +435,27 @@ export default function VehiclesScreen() {
         )}
 
         {!isKeyboardVisible && !isReorderMode && (
-          <>
-            <>
-              <Animated.View style={[styles.addButton, animatedFabStyle]}>
-                <TouchableOpacity
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                  onPress={() => {
-                    if (hapticsEnabled) {
-                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                    }
-                    router.push("/add-vehicle");
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <Plus size={28} color="#FFFFFF" />
-                </TouchableOpacity>
-              </Animated.View>
-            </>
-          </>
+          <Animated.View
+            style={[styles.addButton, animatedFabStyle, { zIndex: 999 }]}
+          >
+            <TouchableOpacity
+              style={{
+                width: "100%",
+                height: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onPress={() => {
+                if (hapticsEnabled) {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                }
+                router.push("/add-vehicle");
+              }}
+              activeOpacity={0.8}
+            >
+              <Plus size={28} color="#FFFFFF" />
+            </TouchableOpacity>
+          </Animated.View>
         )}
 
         <VehicleFilters

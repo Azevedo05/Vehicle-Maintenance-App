@@ -124,9 +124,52 @@
 - [x] **Filter Button Single Line**: Maintenance type filters now use vertical list format (Instagram/Google style) for full readability.
 - [x] **Implement Drag-and-Drop Vehicle Sorting**: Re-implement sorting using `DraggableFlatList` (fix crash issue).
 
-## 17. Image Position Selector (Completed ✅)
+## 17. Image Position Selector (In Progress 🔄)
 
 - [x] **Create ImagePositionModal Component**: Instagram-style modal for adjusting image position with pinch-to-zoom and pan gestures.
 - [x] **Integrate with Add/Edit Vehicle**: Open modal after image selection to choose crop position.
 - [x] **Sync Position with VehicleImage**: Ensure the selected position is correctly applied when displaying the image.
 - [x] **Stepper for Two Positions**: Two-step wizard to set list card position (Step 1) and details page position (Step 2).
+- [x] **Add Confirmation Page**: Third step showing previews of both card and banner positions before confirming.
+
+### ⏳ Pending Tasks (To Do Later):
+
+> ⚠️ **Note**: Research best practices online for image cropping/positioning implementation in React Native before continuing.
+
+#### Relevant Files:
+
+- `components/ui/ImagePositionModal.tsx` - Main position selection modal (3 steps)
+- `components/ui/VehicleImage.tsx` - Component that renders images with applied position
+- `app/vehicle/[id].tsx` - Vehicle details page (uses banner)
+- `app/(tabs)/index.tsx` - Vehicle list (uses cards)
+- `contexts/VehicleContext.tsx` - Where vehicle data is stored
+
+#### Tasks:
+
+- [x] **Fix Preview Rendering**: Confirmation page previews (Card/Banner) show identical images despite different positions being saved. Verify VehicleImage correctly applies saved positions.
+
+  - Done: Fixed `VehicleImage.tsx` initialization and logic mismatch.
+
+- [x] **Visual Polish for Confirmation Page**: Improve layout and design of confirmation page - better spacing, clearer visual distinction between card and banner previews.
+
+  - Done: Redesigned Step 3 with vertical stacked previews and better spacing.
+
+- [x] **Verify End-to-End Position Storage**: Ensure positions are correctly:
+
+  1. Saved to vehicle data when confirmed
+  2. Retrieved and applied on vehicle list cards
+  3. Retrieved and applied on vehicle details page banner
+
+  - Done: Verified in `add-vehicle.tsx`, `edit-vehicle.tsx`, and display components.
+
+- [x] **Debug Position Values**: Logs show different x/y ratios being saved, but VehicleImage may not be interpreting them correctly for smaller preview sizes.
+
+  - Done: Unified formulas between Modal and `VehicleImage`.
+
+- [x] **Refactor Large Files**: Identify very large files and split them into smaller components/modules to maintain good code practices.
+  - [x] `ImagePositionModal.tsx`: Extracted `DetailsSkeleton` and simplified styles.
+  - [x] `app/vehicle/[id].tsx`: Extracted styles and simplified layout.
+  - [x] `VehicleContext.tsx`: Extracted persistence logic into `VehicleStorage.ts`.
+  - [x] `app/add-vehicle.tsx` & `app/edit-vehicle.tsx`: Extracted shared styles and created `useVehicleImageHandling` hook.
+  - [x] `app/add-task.tsx`: Extracted styles into `TaskForm.styles.ts`.
+  - Suggestions: Done - successfully commonized UI styles and logic for forms.

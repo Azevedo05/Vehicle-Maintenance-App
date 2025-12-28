@@ -16,7 +16,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { useAppAlert } from "@/contexts/AlertContext";
-import { createNotificationSettingsStyles } from "@/components/notification-settings/NotificationSettingsStyles";
+import { createNotificationSettingsStyles } from "@/styles/settings/NotificationSettingsStyles";
 import { NotificationTimeSection } from "@/components/notification-settings/NotificationTimeSection";
 import { DateIntervalsSection } from "@/components/notification-settings/DateIntervalsSection";
 import { OverdueIntervalsSection } from "@/components/notification-settings/OverdueIntervalsSection";

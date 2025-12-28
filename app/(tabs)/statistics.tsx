@@ -12,7 +12,7 @@ import {
   calculateTypeStats,
   calculateCategoryStats,
 } from "@/utils/statistics";
-import { createStyles } from "@/components/styles/statistics.styles";
+import { createStyles } from "@/styles/statistics.styles";
 import { ThemedBackground } from "@/components/ThemedBackground";
 
 import { StatisticsOverview } from "@/components/statistics/StatisticsOverview";

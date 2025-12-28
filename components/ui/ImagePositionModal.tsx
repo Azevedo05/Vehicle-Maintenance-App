@@ -1,27 +1,39 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
   Modal,
   TouchableOpacity,
   Text,
-  LayoutChangeEvent,
-  Image as RNImage,
   Dimensions,
+  Image as RNImage,
+  ScrollView,
 } from "react-native";
-import {
-  Gesture,
-  GestureDetector,
-  GestureHandlerRootView,
-} from "react-native-gesture-handler";
+import Slider from "@react-native-community/slider";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  withTiming,
 } from "react-native-reanimated";
 import { Image } from "expo-image";
-import { X, Check, ChevronRight, Move } from "lucide-react-native";
+import {
+  X,
+  Check,
+  ChevronRight,
+  Maximize2,
+  AlignCenter,
+  ChevronUp,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight as ChevronRightIcon,
+  MoveHorizontal,
+  MoveVertical,
+} from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/contexts/ThemeContext";
+import { VehicleImage } from "./VehicleImage";
+import { DetailsSkeleton } from "./DetailsSkeleton";
+import { createImagePositionModalStyles } from "@/styles/ui/ImagePositionModal.styles";
 
 interface ImagePosition {
   xRatio: number;
@@ -45,10 +57,7 @@ interface ImagePositionModalProps {
   detailsAspectRatio?: number;
 }
 
-const SCREEN_WIDTH = Dimensions.get("window").width;
-const SCREEN_HEIGHT = Dimensions.get("window").height;
-
-type Step = 1 | 2;
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export const ImagePositionModal = ({
   visible,
@@ -62,250 +71,157 @@ export const ImagePositionModal = ({
 }: ImagePositionModalProps) => {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const styles = createImagePositionModalStyles(colors);
 
-  const [step, setStep] = useState<Step>(1);
-  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
-  const [imageNaturalSize, setImageNaturalSize] = useState({
-    width: 0,
-    height: 0,
-  });
+  const [step, setStep] = useState<1 | 2>(1);
   const [isReady, setIsReady] = useState(false);
-
-  // Saved positions from each step
+  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
+  const [containerHeight, setContainerHeight] = useState(0);
   const [savedListPosition, setSavedListPosition] =
     useState<ImagePosition | null>(null);
 
-  // Current step's aspect ratio
   const currentAspectRatio = step === 1 ? listAspectRatio : detailsAspectRatio;
-
-  // Shared values for animations
-  const offsetX = useSharedValue(0);
-  const offsetY = useSharedValue(0);
-  const savedOffsetX = useSharedValue(0);
-  const savedOffsetY = useSharedValue(0);
-  const scale = useSharedValue(1);
-  const savedScale = useSharedValue(1);
-
-  // Frame dimensions based on current step
-  const padding = 24;
+  const padding = step === 1 ? 24 : 0;
   const frameWidth = SCREEN_WIDTH - padding * 2;
-  const frameHeight = frameWidth / currentAspectRatio;
+  // Step 2 usa uma altura fixa como a página real de detalhes
+  // Usamos 350 para caber melhor em ecrãs pequenos mantendo o aspeto "alto"
+  const bannerHeight = 350;
+  const frameHeight =
+    step === 1 ? frameWidth / currentAspectRatio : bannerHeight;
 
-  // Base image size for current frame
-  const [baseImageSize, setBaseImageSize] = useState({ width: 0, height: 0 });
+  const [baseSize, setBaseSize] = useState({ width: 0, height: 0 });
 
-  // Load image dimensions
+  // Estado de controlo - usando shared values (para animação) e React state (para leitura)
+  const scale = useSharedValue(1);
+  const posX = useSharedValue(0.5);
+  const posY = useSharedValue(0.5);
+
+  // Mirrors do estado React para leitura fiável
+  const [currentScale, setCurrentScale] = useState(1);
+  const [currentPosX, setCurrentPosX] = useState(0.5);
+  const [currentPosY, setCurrentPosY] = useState(0.5);
+
+  // Load Image Size
   useEffect(() => {
     if (visible && imageUri) {
       setIsReady(false);
       setStep(1);
-      setSavedListPosition(null);
-      setImageNaturalSize({ width: 0, height: 0 });
-
       RNImage.getSize(
         imageUri,
-        (width, height) => {
-          setImageNaturalSize({ width, height });
+        (w, h) => {
+          setImageSize({ width: w, height: h });
         },
-        (error) => {
-          console.error("Failed to get image size:", error);
-        }
+        (err) => console.error(err)
       );
     }
   }, [visible, imageUri]);
 
-  // Calculate base image size when natural size or aspect ratio changes
+  // Calculate Base Size (Cover)
   useEffect(() => {
-    if (imageNaturalSize.width > 0 && imageNaturalSize.height > 0) {
-      const imageAspect = imageNaturalSize.width / imageNaturalSize.height;
+    if (imageSize.width > 0) {
+      const imgAspect = imageSize.width / imageSize.height;
       const frameAspect = frameWidth / frameHeight;
-
-      let baseWidth, baseHeight;
-      if (imageAspect > frameAspect) {
-        baseHeight = frameHeight;
-        baseWidth = baseHeight * imageAspect;
+      let bw, bh;
+      if (imgAspect > frameAspect) {
+        bh = frameHeight;
+        bw = bh * imgAspect;
       } else {
-        baseWidth = frameWidth;
-        baseHeight = baseWidth / imageAspect;
+        bw = frameWidth;
+        bh = bw / imgAspect;
       }
-
-      setBaseImageSize({ width: baseWidth, height: baseHeight });
+      setBaseSize({ width: bw, height: bh });
     }
-  }, [imageNaturalSize, frameWidth, frameHeight]);
+  }, [imageSize, frameWidth, frameHeight]);
 
-  // Initialize position when base size is calculated
+  // Initial values for current step
   useEffect(() => {
-    if (
-      baseImageSize.width > 0 &&
-      baseImageSize.height > 0 &&
-      containerSize.height > 0
-    ) {
-      const initialPosition =
-        step === 1 ? initialListPosition : initialDetailsPosition;
-      const initialScale = initialPosition?.scale || 1;
+    if (baseSize.width > 0 && containerHeight > 0) {
+      const initial = step === 1 ? initialListPosition : initialDetailsPosition;
+      const newScale = initial?.scale || 1;
+      const newPosX = initial?.xRatio ?? 0.5;
+      const newPosY = initial?.yRatio ?? 0.5;
 
-      scale.value = initialScale;
-      savedScale.value = initialScale;
+      // Update both shared values and React state
+      scale.value = newScale;
+      posX.value = newPosX;
+      posY.value = newPosY;
+      setCurrentScale(newScale);
+      setCurrentPosX(newPosX);
+      setCurrentPosY(newPosY);
 
-      const imgWidth = baseImageSize.width * initialScale;
-      const imgHeight = baseImageSize.height * initialScale;
-
-      if (initialPosition) {
-        const maxOffsetX = frameWidth - imgWidth;
-        const maxOffsetY = frameHeight - imgHeight;
-        offsetX.value = initialPosition.xRatio * maxOffsetX;
-        offsetY.value = initialPosition.yRatio * maxOffsetY;
-      } else {
-        // Center
-        offsetX.value = (frameWidth - imgWidth) / 2;
-        offsetY.value = (frameHeight - imgHeight) / 2;
-      }
-
-      savedOffsetX.value = offsetX.value;
-      savedOffsetY.value = offsetY.value;
       setIsReady(true);
     }
-  }, [
-    baseImageSize,
-    containerSize,
-    step,
-    initialListPosition,
-    initialDetailsPosition,
-  ]);
+  }, [step, baseSize, containerHeight]);
 
-  const onContainerLayout = (event: LayoutChangeEvent) => {
-    const { width, height } = event.nativeEvent.layout;
-    setContainerSize({ width, height });
-  };
-
-  // Pinch gesture
-  const pinchGesture = Gesture.Pinch()
-    .onStart(() => {
-      savedScale.value = scale.value;
-    })
-    .onUpdate((event) => {
-      scale.value = Math.max(1, Math.min(savedScale.value * event.scale, 5));
-    })
-    .onEnd(() => {
-      savedScale.value = scale.value;
-      const imgWidth = baseImageSize.width * scale.value;
-      const imgHeight = baseImageSize.height * scale.value;
-      const minX = frameWidth - imgWidth;
-      const minY = frameHeight - imgHeight;
-      offsetX.value = Math.min(0, Math.max(minX, offsetX.value));
-      offsetY.value = Math.min(0, Math.max(minY, offsetY.value));
-      savedOffsetX.value = offsetX.value;
-      savedOffsetY.value = offsetY.value;
-    });
-
-  // Pan gesture
-  const panGesture = Gesture.Pan()
-    .minPointers(1)
-    .maxPointers(2)
-    .onStart(() => {
-      savedOffsetX.value = offsetX.value;
-      savedOffsetY.value = offsetY.value;
-    })
-    .onUpdate((event) => {
-      const imgWidth = baseImageSize.width * scale.value;
-      const imgHeight = baseImageSize.height * scale.value;
-      const minX = frameWidth - imgWidth;
-      const minY = frameHeight - imgHeight;
-
-      const newX = savedOffsetX.value + event.translationX;
-      const newY = savedOffsetY.value + event.translationY;
-
-      offsetX.value = Math.min(0, Math.max(minX, newX));
-      offsetY.value = Math.min(0, Math.max(minY, newY));
-    })
-    .onEnd(() => {
-      savedOffsetX.value = offsetX.value;
-      savedOffsetY.value = offsetY.value;
-    });
-
-  const composedGesture = Gesture.Simultaneous(pinchGesture, panGesture);
-
+  // Animated Style for the Image
   const animatedImageStyle = useAnimatedStyle(() => {
-    const imgWidth = baseImageSize.width * scale.value;
-    const imgHeight = baseImageSize.height * scale.value;
+    const s = scale.value;
+    const currentW = baseSize.width * s;
+    const currentH = baseSize.height * s;
+
+    // Full freedom image movement
+    const tx = posX.value * (frameWidth + currentW) - currentW;
+    const ty = posY.value * (frameHeight + currentH) - currentH;
 
     return {
-      width: imgWidth,
-      height: imgHeight,
-      transform: [{ translateX: offsetX.value }, { translateY: offsetY.value }],
+      width: currentW,
+      height: currentH,
+      transform: [{ translateX: tx }, { translateY: ty }],
     };
   });
 
-  // Get current position from animation values
-  const getCurrentPosition = useCallback((): ImagePosition => {
-    const imgWidth = baseImageSize.width * scale.value;
-    const imgHeight = baseImageSize.height * scale.value;
-    const maxOffsetX = frameWidth - imgWidth;
-    const maxOffsetY = frameHeight - imgHeight;
-
-    const xRatio = maxOffsetX !== 0 ? offsetX.value / maxOffsetX : 0;
-    const yRatio = maxOffsetY !== 0 ? offsetY.value / maxOffsetY : 0;
-
+  const getCurrentPosition = (): ImagePosition => {
+    // Read from React state (reliable) instead of shared values
     return {
-      xRatio: Math.max(0, Math.min(1, xRatio)),
-      yRatio: Math.max(0, Math.min(1, yRatio)),
-      scale: scale.value,
+      xRatio: currentPosX,
+      yRatio: currentPosY,
+      scale: currentScale,
     };
-  }, [baseImageSize, frameWidth, frameHeight]);
+  };
 
-  // Handle next step
-  const handleNext = useCallback(() => {
-    const currentPos = getCurrentPosition();
-    setSavedListPosition(currentPos);
-    setIsReady(false);
-    setStep(2);
-  }, [getCurrentPosition]);
+  // Helper to get clamped position values (keeps image covering the frame)
+  const getClampedPosition = (
+    axis: "x" | "y",
+    edge: "start" | "center" | "end"
+  ) => {
+    const s = scale.value;
+    const currentW = baseSize.width * s;
+    const currentH = baseSize.height * s;
+    const size = axis === "x" ? currentW : currentH;
+    const frame = axis === "x" ? frameWidth : frameHeight;
 
-  // Handle confirm
-  const handleConfirm = useCallback(() => {
-    const detailsPos = getCurrentPosition();
+    // Calculate the range that keeps image covering the frame
+    const minPos = frame / (frame + size); // right/bottom edge aligned
+    const maxPos = size / (frame + size); // left/top edge aligned
 
-    onConfirm({
-      listPosition: savedListPosition || detailsPos,
-      detailsPosition: detailsPos,
-    });
-  }, [getCurrentPosition, savedListPosition, onConfirm]);
+    if (edge === "start") return minPos;
+    if (edge === "end") return maxPos;
+    return 0.5; // center
+  };
 
-  // Frame position (centered in container)
+  const headerHeight = insets.top + 90;
+  // Step 2: image starts below the navigation header (simulating details page top)
   const frameTop =
-    containerSize.height > 0 ? (containerSize.height - frameHeight) / 2 : 100;
-  const frameLeft = padding;
+    step === 1
+      ? containerHeight > 0
+        ? (containerHeight - frameHeight) / 2
+        : 100
+      : headerHeight;
 
-  // Calculate full image dimensions for background preview
-  const getFullImageSize = () => {
-    if (imageNaturalSize.width === 0) return { width: 0, height: 0 };
-
-    const imageAspect = imageNaturalSize.width / imageNaturalSize.height;
-    const availableWidth = SCREEN_WIDTH;
-    const availableHeight = containerSize.height || SCREEN_HEIGHT * 0.6;
-
-    let w, h;
-    if (imageAspect > availableWidth / availableHeight) {
-      w = availableWidth;
-      h = w / imageAspect;
-    } else {
-      h = availableHeight;
-      w = h * imageAspect;
-    }
-    return { width: w, height: h };
-  };
-
-  const fullImageSize = getFullImageSize();
-
-  const stepTitles = {
-    1: "Posição na Lista",
-    2: "Posição nos Detalhes",
-  };
-
-  const stepHints = {
-    1: "Arraste para ajustar a imagem do cartão",
-    2: "Arraste para ajustar a imagem dos detalhes",
-  };
+  const PresetButton = ({
+    icon: Icon,
+    onPress,
+    label,
+  }: {
+    icon: any;
+    onPress: () => void;
+    label: string;
+  }) => (
+    <TouchableOpacity style={styles.presetButton} onPress={onPress}>
+      <Icon size={18} color="#FFF" />
+      <Text style={styles.presetLabel}>{label}</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <Modal
@@ -314,293 +230,243 @@ export const ImagePositionModal = ({
       presentationStyle="fullScreen"
       statusBarTranslucent
     >
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={[styles.container, { backgroundColor: "#000" }]}>
-          {/* Header */}
-          <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={onCancel}
-              activeOpacity={0.7}
-            >
-              <X size={24} color="#FFF" />
-            </TouchableOpacity>
-
-            <View style={styles.titleContainer}>
-              <Text style={styles.title}>{stepTitles[step]}</Text>
-              <Text style={styles.stepIndicator}>Passo {step} de 2</Text>
-            </View>
-
-            <TouchableOpacity
-              style={[
-                styles.headerButton,
-                styles.confirmButton,
-                { backgroundColor: colors.primary },
-              ]}
-              onPress={step === 1 ? handleNext : handleConfirm}
-              activeOpacity={0.7}
-            >
-              {step === 1 ? (
-                <ChevronRight size={24} color="#FFF" />
-              ) : (
-                <Check size={24} color="#FFF" />
-              )}
-            </TouchableOpacity>
-          </View>
-
-          {/* Image Area */}
-          <View style={styles.imageArea} onLayout={onContainerLayout}>
-            {/* Full image preview (background) */}
-            {imageNaturalSize.width > 0 && (
+      <View style={styles.container}>
+        {/* Workspace */}
+        <View
+          style={styles.workspace}
+          onLayout={(e) => setContainerHeight(e.nativeEvent.layout.height)}
+        >
+          {isReady && (
+            <View style={StyleSheet.absoluteFill}>
+              {/* Dimmed Background */}
               <View
                 style={[
-                  styles.fullImageContainer,
-                  {
-                    width: fullImageSize.width,
-                    height: fullImageSize.height,
-                    top:
-                      containerSize.height > 0
-                        ? (containerSize.height - fullImageSize.height) / 2
-                        : 0,
-                    left: (SCREEN_WIDTH - fullImageSize.width) / 2,
-                  },
+                  styles.backgroundFullCover,
+                  { top: frameTop, left: padding },
                 ]}
                 pointerEvents="none"
               >
-                <Image
-                  source={{ uri: imageUri }}
-                  style={{ width: "100%", height: "100%", opacity: 0.5 }}
-                  contentFit="cover"
-                />
+                <Animated.View style={animatedImageStyle}>
+                  <Image
+                    source={{ uri: imageUri }}
+                    style={{ width: "100%", height: "100%", opacity: 0.4 }}
+                  />
+                </Animated.View>
               </View>
-            )}
 
-            {isReady && (
-              <>
-                {/* Frame container */}
+              {/* Step 1 Central Focus Dimming Overlay */}
+              {step === 1 && (
                 <View
                   style={[
-                    styles.frameContainer,
-                    {
-                      top: frameTop,
-                      left: frameLeft,
-                      width: frameWidth,
-                      height: frameHeight,
-                    },
+                    StyleSheet.absoluteFill,
+                    { backgroundColor: "rgba(0,0,0,0.6)" },
                   ]}
+                  pointerEvents="none"
+                />
+              )}
+
+              {/* Active Frame area */}
+              <View
+                style={[
+                  styles.frameContainer,
+                  {
+                    top: frameTop,
+                    left: padding,
+                    width: frameWidth,
+                    height: frameHeight,
+                    borderRadius: step === 1 ? 24 : 0,
+                  },
+                ]}
+              >
+                <Animated.View
+                  style={[styles.imageWrapper, animatedImageStyle]}
                 >
-                  <GestureDetector gesture={composedGesture}>
-                    <Animated.View
-                      style={[styles.imageWrapper, animatedImageStyle]}
-                    >
-                      <Image
-                        source={{ uri: imageUri }}
-                        style={{ width: "100%", height: "100%" }}
-                        contentFit="cover"
-                      />
-                    </Animated.View>
-                  </GestureDetector>
-
+                  <Image
+                    source={{ uri: imageUri }}
+                    style={{ width: "100%", height: "100%" }}
+                  />
+                </Animated.View>
+                {step === 1 && (
                   <View style={styles.frameBorder} pointerEvents="none" />
-                </View>
-
-                {/* Overlays */}
-                <View
-                  style={[
-                    styles.overlay,
-                    { top: 0, left: 0, right: 0, height: frameTop },
-                  ]}
-                  pointerEvents="none"
-                />
-                <View
-                  style={[
-                    styles.overlay,
-                    {
-                      top: frameTop + frameHeight,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                    },
-                  ]}
-                  pointerEvents="none"
-                />
-                <View
-                  style={[
-                    styles.overlay,
-                    {
-                      top: frameTop,
-                      left: 0,
-                      width: frameLeft,
-                      height: frameHeight,
-                    },
-                  ]}
-                  pointerEvents="none"
-                />
-                <View
-                  style={[
-                    styles.overlay,
-                    {
-                      top: frameTop,
-                      right: 0,
-                      width: frameLeft,
-                      height: frameHeight,
-                    },
-                  ]}
-                  pointerEvents="none"
-                />
-              </>
-            )}
-
-            {!isReady && (
-              <View style={styles.loading}>
-                <Text style={styles.loadingText}>A carregar...</Text>
+                )}
               </View>
-            )}
-          </View>
 
-          {/* Bottom: Stepper + Hint */}
+              {/* Step 2 "Página de Detalhes" Mock Curve with Skeleton Content */}
+              {/* Step 2 "Página de Detalhes" Mock Curve with Skeleton Content */}
+              {step === 2 && (
+                <View
+                  style={[
+                    styles.detailsCurveContainer,
+                    { top: frameTop + frameHeight - 80, bottom: 0 },
+                  ]}
+                  pointerEvents="none"
+                >
+                  <DetailsSkeleton overlapping={false} />
+                </View>
+              )}
+
+              {/* Step 2 Header Overlay - hides image bleeding into header */}
+              {step === 2 && (
+                <View
+                  style={[styles.headerOverlay, { height: frameTop }]}
+                  pointerEvents="none"
+                />
+              )}
+            </View>
+          )}
+
+          {/* Header */}
+          <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+            <TouchableOpacity style={styles.headerButton} onPress={onCancel}>
+              <X size={24} color="#FFF" />
+            </TouchableOpacity>
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>
+                {step === 2 ? "Banner dos Detalhes" : "Miniatura dos Cartões"}
+              </Text>
+              <Text style={styles.stepIndicator}>
+                {`Ajuste o posicionamento • ${step}/2`}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={[styles.headerButton, { backgroundColor: colors.primary }]}
+              onPress={() => {
+                const current = getCurrentPosition();
+                if (step === 1) {
+                  setSavedListPosition(current);
+                  setStep(2);
+                  setIsReady(false);
+                } else {
+                  onConfirm({
+                    listPosition: savedListPosition!,
+                    detailsPosition: current,
+                  });
+                }
+              }}
+            >
+              <Check size={24} color="#FFF" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Step 3 removido conforme solicitado */}
+
+        {/* Painel de controlos flutuante para os passos 1 e 2 */}
+        {true && (
           <View
             style={[
-              styles.bottomContainer,
+              styles.controlsPanel,
               { paddingBottom: insets.bottom + 16 },
             ]}
           >
-            {/* Stepper dots */}
-            <View style={styles.stepper}>
-              <View
-                style={[styles.stepDot, step >= 1 && styles.stepDotActive]}
-              />
-              <View
-                style={[styles.stepLine, step >= 2 && styles.stepLineActive]}
-              />
-              <View
-                style={[styles.stepDot, step >= 2 && styles.stepDotActive]}
-              />
-            </View>
+            <View style={styles.controlsContent}>
+              {/* Zoom */}
+              <View style={styles.sliderRow}>
+                <Maximize2 size={16} color="rgba(255,255,255,0.4)" />
+                <Slider
+                  style={styles.slider}
+                  minimumValue={0.2}
+                  maximumValue={3}
+                  value={currentScale}
+                  onValueChange={(v: number) => {
+                    scale.value = v;
+                    setCurrentScale(v);
+                  }}
+                  minimumTrackTintColor={colors.primary}
+                  maximumTrackTintColor="rgba(255,255,255,0.1)"
+                  thumbTintColor="#FFF"
+                />
+              </View>
 
-            {/* Hint */}
-            <View style={styles.hintPill}>
-              <Move size={16} color="rgba(255,255,255,0.8)" />
-              <Text style={styles.hintText}>{stepHints[step]}</Text>
+              {/* X Position */}
+              <View style={styles.sliderRow}>
+                <MoveHorizontal size={16} color="rgba(255,255,255,0.4)" />
+                <Slider
+                  style={styles.slider}
+                  minimumValue={0}
+                  maximumValue={1}
+                  value={currentPosX}
+                  onValueChange={(v: number) => {
+                    posX.value = v;
+                    setCurrentPosX(v);
+                  }}
+                  minimumTrackTintColor="rgba(255,255,255,0.2)"
+                  maximumTrackTintColor="rgba(255,255,255,0.1)"
+                  thumbTintColor="#FFF"
+                />
+              </View>
+
+              {/* Y Position */}
+              <View style={styles.sliderRow}>
+                <MoveVertical size={16} color="rgba(255,255,255,0.4)" />
+                <Slider
+                  style={styles.slider}
+                  minimumValue={0}
+                  maximumValue={1}
+                  value={currentPosY}
+                  onValueChange={(v: number) => {
+                    posY.value = v;
+                    setCurrentPosY(v);
+                  }}
+                  minimumTrackTintColor="rgba(255,255,255,0.2)"
+                  maximumTrackTintColor="rgba(255,255,255,0.1)"
+                  thumbTintColor="#FFF"
+                />
+              </View>
+
+              {/* Quick Actions */}
+              <View style={styles.presetsWrapper}>
+                <PresetButton
+                  icon={AlignCenter}
+                  label="Centro"
+                  onPress={() => {
+                    posX.value = withTiming(0.5);
+                    posY.value = withTiming(0.5);
+                    setCurrentPosX(0.5);
+                    setCurrentPosY(0.5);
+                  }}
+                />
+                <PresetButton
+                  icon={ChevronUp}
+                  label="Topo"
+                  onPress={() => {
+                    const val = getClampedPosition("y", "end");
+                    posY.value = withTiming(val);
+                    setCurrentPosY(val);
+                  }}
+                />
+                <PresetButton
+                  icon={ChevronDown}
+                  label="Base"
+                  onPress={() => {
+                    const val = getClampedPosition("y", "start");
+                    posY.value = withTiming(val);
+                    setCurrentPosY(val);
+                  }}
+                />
+                <PresetButton
+                  icon={ChevronLeft}
+                  label="Esq."
+                  onPress={() => {
+                    const val = getClampedPosition("x", "end");
+                    posX.value = withTiming(val);
+                    setCurrentPosX(val);
+                  }}
+                />
+                <PresetButton
+                  icon={ChevronRightIcon}
+                  label="Dir."
+                  onPress={() => {
+                    const val = getClampedPosition("x", "start");
+                    posX.value = withTiming(val);
+                    setCurrentPosX(val);
+                  }}
+                />
+              </View>
             </View>
           </View>
-        </View>
-      </GestureHandlerRootView>
+        )}
+      </View>
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    zIndex: 100,
-  },
-  headerButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(255,255,255,0.15)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  confirmButton: {},
-  titleContainer: {
-    alignItems: "center",
-  },
-  title: {
-    color: "#FFF",
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  stepIndicator: {
-    color: "rgba(255,255,255,0.6)",
-    fontSize: 12,
-    marginTop: 2,
-  },
-  imageArea: {
-    flex: 1,
-    position: "relative",
-  },
-  fullImageContainer: {
-    position: "absolute",
-  },
-  frameContainer: {
-    position: "absolute",
-    overflow: "hidden",
-    borderRadius: 16,
-  },
-  imageWrapper: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-  },
-  overlay: {
-    position: "absolute",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  frameBorder: {
-    ...StyleSheet.absoluteFillObject,
-    borderWidth: 2,
-    borderColor: "rgba(255,255,255,0.6)",
-    borderRadius: 16,
-    zIndex: 10,
-  },
-  loading: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingText: {
-    color: "rgba(255,255,255,0.5)",
-    fontSize: 14,
-  },
-  bottomContainer: {
-    alignItems: "center",
-    paddingTop: 16,
-    gap: 16,
-    zIndex: 100,
-  },
-  stepper: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 0,
-  },
-  stepDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "rgba(255,255,255,0.3)",
-  },
-  stepDotActive: {
-    backgroundColor: "#3B82F6",
-  },
-  stepLine: {
-    width: 40,
-    height: 2,
-    backgroundColor: "rgba(255,255,255,0.3)",
-  },
-  stepLineActive: {
-    backgroundColor: "#3B82F6",
-  },
-  hintPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: "rgba(255,255,255,0.15)",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-  },
-  hintText: {
-    color: "rgba(255,255,255,0.8)",
-    fontSize: 14,
-    fontWeight: "500",
-  },
-});

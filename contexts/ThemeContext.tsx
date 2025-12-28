@@ -12,7 +12,7 @@ import {
 type ThemeMode = "light" | "dark" | "system";
 type ActiveTheme = "light" | "dark";
 
-interface Colors {
+export interface Colors {
   primary: string;
   background: string;
   surface: string;

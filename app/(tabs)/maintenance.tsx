@@ -30,7 +30,7 @@ import { MaintenanceListSkeleton } from "@/components/maintenance/MaintenanceLis
 import { MaintenanceFilters } from "@/components/maintenance/MaintenanceFilters";
 import { AnimatedItem } from "@/components/ui/AnimatedItem";
 import { SwipeableRow } from "@/components/ui/SwipeableRow";
-import { createStyles } from "@/components/styles/maintenance.styles";
+import { createStyles } from "@/styles/maintenance.styles";
 import { ThemedBackground } from "@/components/ThemedBackground";
 import { EmptyState } from "@/components/ui/EmptyState";
 

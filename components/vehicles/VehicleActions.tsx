@@ -5,7 +5,7 @@ import { ArrowRightLeft, ListChecks } from "lucide-react-native";
 import { BottomSheet } from "@/components/BottomSheet";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
-import { createStyles } from "@/components/styles/index.styles";
+import { createStyles } from "@/styles/index.styles";
 
 interface VehicleActionsProps {
   visible: boolean;

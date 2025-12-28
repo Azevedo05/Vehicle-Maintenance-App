@@ -9,7 +9,7 @@ import { useVehicles } from "@/contexts/VehicleContext";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { useAppAlert } from "@/contexts/AlertContext";
 import { getMaintenanceTypeLabel } from "@/types/maintenance";
-import { createVehicleDetailsStyles } from "./VehicleDetailsStyles";
+import { createVehicleDetailsStyles } from "@/styles/vehicle/VehicleDetailsStyles";
 
 interface MaintenanceHistoryProps {
   vehicleId: string;

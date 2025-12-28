@@ -7,7 +7,7 @@ import { useLocalization } from "@/contexts/LocalizationContext";
 import { useVehicles } from "@/contexts/VehicleContext";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { useAppAlert } from "@/contexts/AlertContext";
-import { createVehicleDetailsStyles } from "./VehicleDetailsStyles";
+import { createVehicleDetailsStyles } from "@/styles/vehicle/VehicleDetailsStyles";
 
 interface FuelLogSectionProps {
   vehicleId: string;

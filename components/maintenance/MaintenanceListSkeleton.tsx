@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import { useTheme } from "@/contexts/ThemeContext";
-import { createStyles } from "@/components/styles/maintenance.styles";
+import { createStyles } from "@/styles/maintenance.styles";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 export const MaintenanceListSkeleton = () => {

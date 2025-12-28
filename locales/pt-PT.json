@@ -3,6 +3,8 @@
     "vehicles": "Veículos",
     "reminders": "Lembretes",
     "statistics": "Estatísticas",
+    "settings": "Definições",
+    "preferences": "Preferências",
     "vehicle_types": "Tipos de Veículo"
   },
   "validation": {

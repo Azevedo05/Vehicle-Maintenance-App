@@ -46,6 +46,10 @@ export const VehicleImage = ({
 }: VehicleImageProps) => {
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
+  const [naturalSize, setNaturalSize] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
 
   // Convert ratio to pixel offset
   const ratioToOffset = (
@@ -54,10 +58,8 @@ export const VehicleImage = ({
     imageDim: number
   ) => {
     "worklet";
-    // ratio 0 = image edge at container start (offset = 0)
-    // ratio 1 = image opposite edge at container end (offset = container - image)
-    const maxOffset = containerDim - imageDim;
-    return ratio * maxOffset;
+    // Full freedom formula: offset = ratio * (container + image) - image
+    return ratio * (containerDim + imageDim) - imageDim;
   };
 
   // Convert pixel offset to ratio
@@ -66,9 +68,10 @@ export const VehicleImage = ({
     containerDim: number,
     imageDim: number
   ) => {
-    const maxOffset = containerDim - imageDim;
-    if (maxOffset === 0) return 0;
-    return Math.max(0, Math.min(1, offset / maxOffset));
+    // Inverse of ratioToOffset: ratio = (offset + image) / (container + image)
+    const totalSpan = containerDim + imageDim;
+    if (totalSpan <= 0) return 0.5;
+    return (offset + imageDim) / totalSpan;
   };
 
   const offsetX = useSharedValue(0);
@@ -76,7 +79,21 @@ export const VehicleImage = ({
   const scale = useSharedValue(position?.scale || 1);
   const context = useSharedValue({ x: 0, y: 0 });
 
-  // Update offsets when position or sizes change
+  // Calculate base image size (Cover) whenever container or natural image size changes
+  useEffect(() => {
+    if (containerSize.width > 0 && containerSize.height > 0 && naturalSize) {
+      const widthRatio = containerSize.width / naturalSize.width;
+      const heightRatio = containerSize.height / naturalSize.height;
+      const scaleFactor = Math.max(widthRatio, heightRatio);
+
+      setImageSize({
+        width: naturalSize.width * scaleFactor,
+        height: naturalSize.height * scaleFactor,
+      });
+    }
+  }, [containerSize, naturalSize]);
+
+  // Update offsets when position, image size, or container size changes
   useEffect(() => {
     if (
       position &&
@@ -125,16 +142,7 @@ export const VehicleImage = ({
 
   const onLoad = (event: { source: { width: number; height: number } }) => {
     const { width, height: h } = event.source;
-    if (containerSize.width > 0 && containerSize.height > 0) {
-      const widthRatio = containerSize.width / width;
-      const heightRatio = containerSize.height / h;
-      const scaleFactor = Math.max(widthRatio, heightRatio);
-
-      setImageSize({
-        width: width * scaleFactor,
-        height: h * scaleFactor,
-      });
-    }
+    setNaturalSize({ width, height: h });
   };
 
   const clamp = (value: number, min: number, max: number) => {
@@ -144,9 +152,11 @@ export const VehicleImage = ({
 
   const emitPositionChange = (x: number, y: number, s: number) => {
     if (onPositionChange) {
+      const currentW = imageSize.width * s;
+      const currentH = imageSize.height * s;
       onPositionChange({
-        xRatio: offsetToRatio(x, containerSize.width, imageSize.width),
-        yRatio: offsetToRatio(y, containerSize.height, imageSize.height),
+        xRatio: offsetToRatio(x, containerSize.width, currentW),
+        yRatio: offsetToRatio(y, containerSize.height, currentH),
         scale: s,
       });
     }
@@ -158,19 +168,24 @@ export const VehicleImage = ({
       context.value = { x: offsetX.value, y: offsetY.value };
     })
     .onUpdate((event) => {
-      const maxOffset = 0;
-      const minOffsetX = containerSize.width - imageSize.width;
-      const minOffsetY = containerSize.height - imageSize.height;
+      const currentW = imageSize.width * scale.value;
+      const currentH = imageSize.height * scale.value;
+
+      // Full freedom constraints
+      const maxOffsetX = containerSize.width;
+      const minOffsetX = -currentW;
+      const maxOffsetY = containerSize.height;
+      const minOffsetY = -currentH;
 
       offsetX.value = clamp(
         context.value.x + event.translationX,
         minOffsetX,
-        maxOffset
+        maxOffsetX
       );
       offsetY.value = clamp(
         context.value.y + event.translationY,
         minOffsetY,
-        maxOffset
+        maxOffsetY
       );
     })
     .onEnd(() => {

@@ -6,7 +6,7 @@ import { router } from "expo-router";
 import { BottomSheet } from "@/components/BottomSheet";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
-import { createStyles } from "@/components/styles/index.styles";
+import { createStyles } from "@/styles/index.styles";
 
 import { useVehicles } from "@/contexts/VehicleContext";
 import { useAppAlert } from "@/contexts/AlertContext";

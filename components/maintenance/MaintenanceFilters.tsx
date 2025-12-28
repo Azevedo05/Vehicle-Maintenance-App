@@ -5,7 +5,7 @@ import { ArrowUp, ArrowDown } from "lucide-react-native";
 import { BottomSheet } from "@/components/BottomSheet";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
-import { createStyles } from "@/components/styles/maintenance.styles";
+import { createStyles } from "@/styles/maintenance.styles";
 import { Vehicle } from "@/types/vehicle";
 import {
   MaintenanceType,

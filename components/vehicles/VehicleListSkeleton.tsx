@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import { useTheme } from "@/contexts/ThemeContext";
-import { createStyles } from "@/components/styles/index.styles";
+import { createStyles } from "@/styles/index.styles";
 import { Card } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
 

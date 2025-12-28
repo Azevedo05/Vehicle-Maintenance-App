@@ -29,6 +29,7 @@ import { Card } from "@/components/ui/Card";
 // import { SuccessAnimation } from "@/components/ui/SuccessAnimation"; // Removed
 import { ThemedBackground } from "@/components/ThemedBackground";
 import Toast from "react-native-toast-message";
+import { createRecordFormStyles } from "@/styles/record/RecordForm.styles";
 
 export default function AddRecordScreen() {
   const { vehicleId, taskId, recordId } = useLocalSearchParams();
@@ -222,16 +223,16 @@ export default function AddRecordScreen() {
     }
   };
 
-  const styles = createStyles(colors);
-
   if (!vehicle) {
-    const errorStyles = createStyles(colors);
+    const errorStyles = createRecordFormStyles(colors);
     return (
       <View style={errorStyles.errorContainer}>
         <Text style={errorStyles.errorText}>{t("vehicles.not_found")}</Text>
       </View>
     );
   }
+
+  const styles = createRecordFormStyles(colors);
 
   return (
     <ThemedBackground>
@@ -377,81 +378,3 @@ export default function AddRecordScreen() {
     </ThemedBackground>
   );
 }
-
-const createStyles = (colors: ReturnType<typeof useTheme>["colors"]) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    errorContainer: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      padding: 20,
-      backgroundColor: colors.background,
-    },
-    errorText: {
-      fontSize: 18,
-      fontWeight: "600" as const,
-      color: colors.text,
-    },
-    keyboardView: {
-      flex: 1,
-    },
-    scrollView: {
-      flex: 1,
-    },
-    scrollContent: {
-      padding: 16,
-    },
-    sectionTitle: {
-      fontSize: 20,
-      fontWeight: "700" as const,
-      color: colors.text,
-      marginBottom: 16,
-    },
-    typeGrid: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      gap: 8,
-      marginBottom: 24,
-      justifyContent: "space-between",
-    },
-    typeCard: {
-      width: "31%",
-      minWidth: 90,
-      padding: 12,
-      justifyContent: "center",
-      alignItems: "center",
-      minHeight: 60,
-      backgroundColor: colors.surface,
-    },
-    typeCardSelected: {
-      backgroundColor: colors.primary + "15",
-      borderColor: colors.primary,
-      borderWidth: 2,
-    },
-    typeLabel: {
-      fontSize: 12,
-      fontWeight: "600" as const,
-      color: colors.textSecondary,
-      textAlign: "center",
-      flexShrink: 1,
-    },
-    typeLabelSelected: {
-      color: colors.primary,
-    },
-    form: {
-      gap: 16,
-    },
-    textArea: {
-      minHeight: 100,
-    },
-    footer: {
-      padding: 16,
-      backgroundColor: colors.background,
-      borderTopWidth: 1,
-      borderTopColor: colors.border,
-    },
-  });

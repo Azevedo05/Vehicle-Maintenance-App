@@ -27,6 +27,7 @@ import { useLocalization } from "@/contexts/LocalizationContext";
 import { useAppAlert } from "@/contexts/AlertContext";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import { ThemedBackground } from "@/components/ThemedBackground";
+import { createTaskFormStyles } from "@/styles/task/TaskForm.styles";
 
 export default function AddTaskScreen() {
   const { vehicleId } = useLocalSearchParams();
@@ -207,7 +208,7 @@ export default function AddTaskScreen() {
   };
 
   if (!vehicle) {
-    const errorStyles = createStyles(colors);
+    const errorStyles = createTaskFormStyles(colors);
     return (
       <View style={errorStyles.errorContainer}>
         <Text style={errorStyles.errorText}>{t("vehicles.not_found")}</Text>
@@ -215,7 +216,7 @@ export default function AddTaskScreen() {
     );
   }
 
-  const styles = createStyles(colors);
+  const styles = createTaskFormStyles(colors);
 
   return (
     <ThemedBackground>
@@ -455,208 +456,3 @@ export default function AddTaskScreen() {
     </ThemedBackground>
   );
 }
-
-const createStyles = (colors: ReturnType<typeof useTheme>["colors"]) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    errorContainer: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      padding: 20,
-      backgroundColor: colors.background,
-    },
-    errorText: {
-      fontSize: 18,
-      fontWeight: "600" as const,
-      color: colors.text,
-    },
-    keyboardView: {
-      flex: 1,
-    },
-    scrollView: {
-      flex: 1,
-    },
-    scrollContent: {
-      padding: 16,
-    },
-    sectionTitle: {
-      fontSize: 20,
-      fontWeight: "700" as const,
-      color: colors.text,
-      marginBottom: 16,
-    },
-    typeGrid: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      gap: 8,
-      marginBottom: 24,
-      justifyContent: "space-between",
-    },
-    typeCard: {
-      width: "31%",
-      minWidth: 90,
-      backgroundColor: colors.surface,
-      borderRadius: 12,
-      padding: 12,
-      justifyContent: "center",
-      alignItems: "center",
-      borderWidth: 2,
-      borderColor: "transparent",
-      minHeight: 60,
-    },
-    typeCardSelected: {
-      borderColor: colors.primary,
-      backgroundColor: colors.primary + "15",
-    },
-    typeLabel: {
-      fontSize: 12,
-      fontWeight: "600" as const,
-      color: colors.textSecondary,
-      textAlign: "center",
-      flexShrink: 1,
-    },
-    typeLabelSelected: {
-      color: colors.primary,
-    },
-    form: {
-      gap: 16,
-    },
-    inputGroup: {
-      gap: 8,
-    },
-    label: {
-      fontSize: 16,
-      fontWeight: "600" as const,
-      color: colors.text,
-      flexShrink: 1,
-      flexWrap: "wrap",
-    },
-    labelWithAction: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: 4,
-    },
-    recommendedButton: {
-      backgroundColor: colors.primary + "15",
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 8,
-      borderWidth: 1,
-      borderColor: colors.primary + "30",
-    },
-    recommendedButtonText: {
-      fontSize: 12,
-      fontWeight: "600" as const,
-      color: colors.primary,
-    },
-    recommendedHint: {
-      backgroundColor: colors.warning + "10",
-      borderRadius: 12,
-      padding: 12,
-      marginBottom: 12,
-      borderWidth: 1,
-      borderColor: colors.warning,
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 12,
-    },
-    recommendedHintText: {
-      fontSize: 13,
-      color: colors.text,
-      fontWeight: "500" as const,
-    },
-    required: {
-      color: colors.error,
-    },
-    input: {
-      backgroundColor: colors.surface,
-      borderRadius: 12,
-      padding: 16,
-      fontSize: 16,
-      color: colors.text,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    segmentedControl: {
-      flexDirection: "row",
-      backgroundColor: colors.surface,
-      borderRadius: 12,
-      padding: 4,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    segment: {
-      flex: 1,
-      paddingVertical: 12,
-      borderRadius: 8,
-      alignItems: "center",
-    },
-    segmentSelected: {
-      backgroundColor: colors.primary,
-    },
-    segmentText: {
-      fontSize: 16,
-      fontWeight: "600" as const,
-      color: colors.textSecondary,
-    },
-    segmentTextSelected: {
-      color: "#FFFFFF",
-    },
-    infoCard: {
-      backgroundColor: colors.primary + "10",
-      borderRadius: 12,
-      padding: 12,
-      borderWidth: 1,
-      borderColor: colors.primary,
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 12,
-    },
-    iconContainer: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: colors.background,
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    textContainer: {
-      flex: 1,
-    },
-    cardTitle: {
-      fontSize: 12,
-      fontWeight: "700",
-      marginBottom: 2,
-      textTransform: "uppercase",
-      letterSpacing: 0.5,
-    },
-    cardText: {
-      fontSize: 14,
-      color: colors.text,
-      fontWeight: "500",
-    },
-    switchRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      backgroundColor: colors.surface,
-      borderRadius: 12,
-      padding: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    switchLabelContainer: {
-      flex: 1,
-      marginRight: 12,
-    },
-    switchDescription: {
-      fontSize: 13,
-      color: colors.textSecondary,
-      marginTop: 4,
-    },
-  });

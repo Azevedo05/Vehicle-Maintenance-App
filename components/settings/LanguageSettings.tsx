@@ -4,7 +4,7 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { usePreferences } from "@/contexts/PreferencesContext";
-import { createSettingsStyles } from "./SettingsStyles";
+import { createSettingsStyles } from "@/styles/settings/SettingsSections.styles";
 
 export const LanguageSettings = () => {
   const { colors } = useTheme();

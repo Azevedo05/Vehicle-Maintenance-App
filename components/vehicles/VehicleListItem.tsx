@@ -16,7 +16,7 @@ import { useLocalization } from "@/contexts/LocalizationContext";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { useVehicles } from "@/contexts/VehicleContext";
 import { Vehicle, VEHICLE_CATEGORY_INFO } from "@/types/vehicle";
-import { createStyles } from "@/components/styles/index.styles";
+import { createVehicleListItemStyles } from "@/styles/vehicles/VehicleListItem.styles";
 import { Reminder } from "@/components/vehicle-details/quick-reminders/types";
 import { VehicleImage } from "@/components/ui/VehicleImage";
 
@@ -33,7 +33,7 @@ const VehicleListItemComponent = ({
   const { t } = useLocalization();
   const { formatDistance } = usePreferences();
   const { getUpcomingTasks, getQuickRemindersByVehicle } = useVehicles();
-  const styles = createStyles(colors);
+  const styles = createVehicleListItemStyles(colors);
 
   const upcomingTasks = getUpcomingTasks(vehicle.id);
   const dueTasks = upcomingTasks.filter((t) => {
@@ -48,24 +48,12 @@ const VehicleListItemComponent = ({
 
   return (
     <Card
-      style={[
-        styles.vehicleCard,
-        {
-          borderRadius: 24, // More pronounced rounding
-          backgroundColor: colors.card,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.1,
-          shadowRadius: 12,
-          elevation: 4,
-          marginBottom: 16, // Ensure spacing between cards
-        },
-      ]}
+      style={styles.vehicleCard}
       onPress={() => router.push(`/vehicle/${vehicle.id}`)}
       onLongPress={() => onLongPress(vehicle.id)}
       mode="elevated"
     >
-      <View style={{ position: "relative" }}>
+      <View style={styles.imageContainer}>
         {vehicle.photo ? (
           <VehicleImage
             uri={vehicle.photo}
@@ -75,57 +63,23 @@ const VehicleListItemComponent = ({
             borderBottomRadius={24}
           />
         ) : (
-          <View
-            style={[
-              styles.vehicleImagePlaceholder,
-              {
-                height: 200,
-                borderTopLeftRadius: 24,
-                borderTopRightRadius: 24,
-                width: "100%",
-                backgroundColor: colors.primary + "10", // Subtle tint
-              },
-            ]}
-          >
+          <View style={styles.vehicleImagePlaceholder}>
             <Car size={64} color={colors.primary} />
           </View>
         )}
 
         {/* Overlay Badges */}
-        <View
-          style={{
-            position: "absolute",
-            top: 16,
-            right: 16,
-            flexDirection: "row",
-            gap: 10,
-            zIndex: 1,
-          }}
-        >
+        <View style={styles.badgeContainer}>
           {vehicle.archived &&
             (Platform.OS === "android" ? (
-              <View
-                style={{
-                  padding: 8,
-                  borderRadius: 20,
-                  backgroundColor: "rgba(0,0,0,0.6)",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
+              <View style={styles.archivedBadgeAndroid}>
                 <ArchiveRestore size={18} color={colors.warning} />
               </View>
             ) : (
               <BlurView
                 intensity={30}
                 tint="dark"
-                style={{
-                  padding: 8,
-                  borderRadius: 20,
-                  overflow: "hidden",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
+                style={styles.archivedBadgeIos}
               >
                 <ArchiveRestore size={18} color={colors.warning} />
               </BlurView>
@@ -151,95 +105,41 @@ const VehicleListItemComponent = ({
             if (overdueCount === 0 && upcomingTasksCount === 0) return null;
 
             const content = (
-              <View
-                style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
-              >
+              <View style={styles.statusPillContent}>
                 {/* Overdue Section */}
                 {overdueCount > 0 && (
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
+                  <View style={styles.statusSection}>
                     <AlertCircle
                       size={14}
                       color={colors.error}
                       fill={colors.error}
                     />
-                    <Text
-                      style={{
-                        color: "#FFFFFF",
-                        fontWeight: "700",
-                        fontSize: 13,
-                      }}
-                    >
-                      {overdueCount}
-                    </Text>
+                    <Text style={styles.statusText}>{overdueCount}</Text>
                   </View>
                 )}
 
                 {/* Separator if both exist */}
                 {overdueCount > 0 && upcomingTasksCount > 0 && (
-                  <View
-                    style={{
-                      width: 1,
-                      height: 12,
-                      backgroundColor: "rgba(255,255,255,0.2)",
-                    }}
-                  />
+                  <View style={styles.statusSeparator} />
                 )}
 
                 {/* Upcoming Section */}
                 {upcomingTasksCount > 0 && (
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
+                  <View style={styles.statusSection}>
                     <Clock size={14} color={colors.warning} />
-                    <Text
-                      style={{
-                        color: "#FFFFFF",
-                        fontWeight: "700",
-                        fontSize: 13,
-                      }}
-                    >
-                      {upcomingTasksCount}
-                    </Text>
+                    <Text style={styles.statusText}>{upcomingTasksCount}</Text>
                   </View>
                 )}
               </View>
             );
 
             return Platform.OS === "android" ? (
-              <View
-                style={{
-                  paddingVertical: 6,
-                  paddingHorizontal: 10,
-                  borderRadius: 16,
-                  backgroundColor: "rgba(0,0,0,0.7)",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                {content}
-              </View>
+              <View style={styles.statusPillAndroid}>{content}</View>
             ) : (
               <BlurView
                 intensity={40}
                 tint="systemThickMaterialDark"
-                style={{
-                  paddingVertical: 6,
-                  paddingHorizontal: 10,
-                  borderRadius: 16,
-                  overflow: "hidden",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
+                style={styles.statusPillIos}
               >
                 {content}
               </BlurView>
@@ -248,68 +148,28 @@ const VehicleListItemComponent = ({
         </View>
       </View>
 
-      <Card.Content style={{ paddingTop: 20, paddingBottom: 16 }}>
+      <Card.Content style={styles.cardContent}>
         {/* Header: Name+Year and Category */}
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
+        <View style={styles.headerRow}>
           {/* Left: Name and Year */}
-          <View
-            style={{
-              flex: 1,
-              flexDirection: "row",
-              flexWrap: "wrap",
-              alignItems: "baseline",
-              marginRight: 8,
-            }}
-          >
-            <Title
-              style={{
-                fontSize: 22,
-                fontWeight: "800",
-                color: colors.text,
-                lineHeight: 28,
-                letterSpacing: -0.5,
-                marginRight: 8,
-              }}
-            >
+          <View style={styles.titleContainer}>
+            <Title style={styles.title}>
               {vehicle.make} {vehicle.model}
             </Title>
-            <Text
-              style={{
-                fontSize: 16,
-                color: colors.textSecondary,
-                fontWeight: "500",
-              }}
-            >
-              {vehicle.year}
-            </Text>
+            <Text style={styles.year}>{vehicle.year}</Text>
           </View>
 
           {/* Right: Category Badge */}
           {categoryInfo && (
             <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 6,
-                backgroundColor: categoryInfo.color + "15",
-                paddingHorizontal: 10,
-                paddingVertical: 4,
-                borderRadius: 12,
-              }}
+              style={[
+                styles.categoryBadge,
+                { backgroundColor: categoryInfo.color + "15" },
+              ]}
             >
               <categoryInfo.Icon size={14} color={categoryInfo.color} />
               <Text
-                style={{
-                  fontSize: 12,
-                  fontWeight: "700",
-                  color: categoryInfo.color,
-                }}
+                style={[styles.categoryText, { color: categoryInfo.color }]}
               >
                 {t(`vehicles.category_${vehicle.category}`)}
               </Text>
