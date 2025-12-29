@@ -11,6 +11,7 @@ import { NotificationSettingsSection } from "@/components/settings/NotificationS
 import { UnitSettings } from "@/components/settings/UnitSettings";
 import { DataManagementSettings } from "@/components/settings/DataManagementSettings";
 import { AboutSection } from "@/components/settings/AboutSection";
+import { ContactSection } from "@/components/settings/ContactSection";
 import { HapticSettings } from "@/components/settings/HapticSettings";
 import { BuyMeCoffee } from "@/components/settings/BuyMeCoffee";
 import { createSettingsStyles } from "@/styles/settings.styles";
@@ -44,6 +45,7 @@ export default function SettingsScreen() {
           {/* <UnitSettings /> */}
           <DataManagementSettings />
           <BuyMeCoffee />
+          <ContactSection />
           <AboutSection />
         </ScrollView>
       </SafeAreaView>

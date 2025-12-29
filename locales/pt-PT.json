@@ -471,6 +471,18 @@
     "buy_me_coffee_description": "Apoia o desenvolvimento desta aplicação",
     "portfolio": "Portfólio"
   },
+  "contact": {
+    "title": "Contacte-nos",
+    "report_bug": "Reportar um Erro",
+    "report_bug_desc": "Encontrou um problema? Ajude-nos a corrigir.",
+    "suggest_feature": "Sugerir Melhoria",
+    "suggest_feature_desc": "Tem uma ideia? Gostaríamos de ouvir.",
+    "send_feedback": "Enviar Feedback",
+    "send_feedback_desc": "Diga-nos o que gosta ou não gosta.",
+    "subject_bug": "[Relatório de Erro] - Vehicle Maintenance App",
+    "subject_feature": "[Sugestão] - Vehicle Maintenance App",
+    "subject_feedback": "[Feedback] - Vehicle Maintenance App"
+  },
   "common": {
     "ready": "Tudo Pronto",
     "save": "Guardar",

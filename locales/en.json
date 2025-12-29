@@ -469,6 +469,18 @@
     "buy_me_coffee_description": "Support the development of this app",
     "portfolio": "Portfolio"
   },
+  "contact": {
+    "title": "Contact Us",
+    "report_bug": "Report a Bug",
+    "report_bug_desc": "Face a glitch? Help us squash it.",
+    "suggest_feature": "Suggest Improvement",
+    "suggest_feature_desc": "Have an idea? We'd love to hear it.",
+    "send_feedback": "Send Feedback",
+    "send_feedback_desc": "Tell us what you like or hate.",
+    "subject_bug": "[Bug Report] - Vehicle Maintenance App",
+    "subject_feature": "[Feature Request] - Vehicle Maintenance App",
+    "subject_feedback": "[Feedback] - Vehicle Maintenance App"
+  },
   "common": {
     "ready": "You're All Set",
     "save": "Save",

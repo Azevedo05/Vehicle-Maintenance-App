@@ -85,7 +85,7 @@
 - [ ] **Maintenance Calendar**: Calendar view to visualize upcoming maintenance dates.
 - [ ] **Voice Integration**: Voice commands for adding records/tasks (e.g., "Add gas log").
 - [ ] **AI Insights**: Personalized suggestions based on usage patterns (e.g., fuel efficiency tips).
-- [ ] **In-App Update System**: For distribution outside Play Store - check user version vs. latest GitHub release, show update prompt, and open download link automatically when user taps "Update".
+- [x] **In-App Update System**: For distribution outside Play Store - check user version vs. latest GitHub release, show update prompt, and open download link automatically when user taps "Update".
 
 ## 13. Final Polish & Data Injection
 

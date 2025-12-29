@@ -31,6 +31,7 @@ import {
   usePreferences,
 } from "@/contexts/PreferencesContext";
 import { useMaintenanceNotifications } from "@/hooks/useMaintenanceNotifications";
+import { useUpdateChecker } from "@/hooks/useUpdateChecker";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -42,6 +43,8 @@ function RootLayoutNav() {
 
   // Sync notifications with maintenance tasks
   useMaintenanceNotifications();
+  // Check for app updates
+  useUpdateChecker();
 
   return (
     <Stack screenOptions={{ headerBackTitle: t("common.back") }}>
