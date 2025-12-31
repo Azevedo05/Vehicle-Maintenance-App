@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { TextReveal } from "@/components/ui/text-reveal";
+import { ShieldCheck } from "lucide-react";
 
 export const Hero = () => {
   return (
@@ -82,6 +83,22 @@ export const Hero = () => {
                   Official Android Release{" "}
                   <span className="text-gray-600 mx-2">|</span> iOS Coming Soon
                 </span>
+              </div>
+
+              <div className="mt-6 p-4 rounded-xl border border-blue-500/20 bg-blue-500/[0.03] backdrop-blur-md w-fit transition-all hover:bg-blue-500/[0.06] group cursor-default">
+                <div className="flex items-center gap-2.5 mb-2">
+                  <ShieldCheck
+                    size={18}
+                    className="text-blue-400 group-hover:text-blue-300 transition-colors"
+                  />
+                  <span className="text-[12px] font-bold text-gray-100 uppercase tracking-wider leading-none">
+                    Verified Official Release
+                  </span>
+                </div>
+                <p className="text-[11px] text-gray-400 leading-relaxed max-w-[340px]">
+                  Safe to install. Android displays a standard security notice
+                  for direct APK downloads from outside the Play Store.
+                </p>
               </div>
             </div>
           </motion.div>

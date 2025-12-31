@@ -112,7 +112,7 @@ export default function Footer4Col() {
         <div className="mt-12 border-t pt-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
             <div className="flex flex-col sm:flex-row gap-2 text-sm text-secondary-foreground/70">
-              <p>&copy; 2025 {data.company.name}</p>
+              <p>&copy; 2025-2026 {data.company.name}</p>
               <span className="hidden sm:inline">&middot;</span>
               <p>All rights reserved.</p>
             </div>
