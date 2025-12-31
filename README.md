@@ -5,8 +5,8 @@
 **Vehicle Maintenance Management App**
 
 [![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red.svg)](./LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-iOS%20%7C%20Android-blue.svg)]()
-[![Built with Expo](https://img.shields.io/badge/Built%20with-Expo-4630EB.svg)](https://expo.dev)
+[![Platform](https://img.shields.io/badge/Platform-Android-blue.svg)]()
+[![Built with Expo](https://img.shields.io/badge/Built with-Expo-4630EB.svg)](https://expo.dev)
 
 [Website](https://shift-vehicle-maintenance.vercel.app/) • [Download APK](#-download) • [Report Bug](https://github.com/Azevedo05/Vehicle-Maintenance-App/issues)
 
@@ -18,7 +18,7 @@
 
 **Shift** is a native mobile application for vehicle maintenance management and tracking, featuring an intelligent notification system and full support for Portuguese (Portugal) and English.
 
-- **Platform**: Native iOS & Android app
+- **Platform**: Native Android app
 - **Framework**: Expo Router + React Native
 - **Privacy**: 100% offline - all data stays on your device
 
@@ -58,6 +58,18 @@ Coming soon to the App Store.
 - Log fuel consumption
 - Track fuel costs
 - Monitor fuel efficiency over time
+
+### ⏳ Quick Reminders
+
+- **Smart To-Do List**: Manage small checks like oil levels, tire pressure, or cleaning.
+- **Nagging Notifications**: Option for frequent reminders (e.g., every 2 hours) to ensure critical tasks aren't forgotten.
+- **Independent Tracking**: Separate from the main maintenance schedule for agility.
+
+### 🖼️ Advanced Image Handling
+
+- **Image Positioning**: Precise control over vehicle photo cropping.
+- **Dual-View Optimization**: Set different positions for list cards and details banners.
+- **Pinch-to-Zoom & Pan**: Intuitive gesture-based adjustment during vehicle setup.
 
 ### 🔔 Smart Notifications
 
@@ -131,7 +143,7 @@ Coming soon to the App Store.
 
 - Node.js 18+ or Bun
 - Expo CLI
-- iOS Simulator (Mac) or Android Emulator
+- Android Emulator or Physical Device
 
 ### Installation
 
@@ -168,21 +180,32 @@ bun start
 │   ├── (tabs)/                   # Tab navigation
 │   │   ├── index.tsx            # Home - Vehicle list
 │   │   ├── maintenance.tsx      # Scheduled maintenance
+│   │   ├── statistics.tsx       # Expenses and analytics
 │   │   └── settings.tsx         # Settings
 │   ├── vehicle/[id].tsx         # Vehicle details
-│   ├── record/[id].tsx          # Record details
-│   ├── add-vehicle.tsx          # Add vehicle
-│   ├── add-task.tsx             # Add task
-│   ├── add-record.tsx           # Add record
-│   └── add-fuel-log.tsx         # Add fuel log
+│   ├── record/[id].tsx          # Record detail view
+│   ├── add-vehicle.tsx          # New vehicle form
+│   ├── edit-vehicle.tsx         # Update vehicle details
+│   ├── add-task.tsx             # New maintenance task
+│   ├── add-record.tsx           # New maintenance record
+│   ├── add-fuel-log.tsx         # New fuel entry
+│   ├── notification-settings.tsx # Alert preferences
+│   └── onboarding.tsx           # First-launch experience
 ├── components/                   # Reusable UI components
-├── contexts/                     # React contexts (state management)
-├── hooks/                        # Custom hooks
-├── types/                        # TypeScript types
+│   ├── maintenance/             # Filters and list items
+│   ├── statistics/              # Charts and data blocks
+│   ├── vehicle-details/         # Specific details page sections
+│   ├── vehicles/                # List items and skeletons
+│   ├── onboarding/              # Welcome flow components
+│   └── ui/                      # Global UI (Buttons, Inputs, Modals)
+├── contexts/                     # Global state (Theme, Vehicles)
+├── services/                     # Persistence & Storage (AsyncStorage)
+├── hooks/                        # Custom business logic hooks
+├── types/                        # TypeScript definitions
 ├── locales/                      # Translations (EN/PT-PT)
-├── constants/                    # Constants
-├── assets/                       # Static assets
-└── website/                      # Marketing website
+├── assets/                       # Static media (icons, images)
+├── ROADMAP.md                    # Future development goals
+└── website/                      # React-based marketing website
 ```
 
 ---
