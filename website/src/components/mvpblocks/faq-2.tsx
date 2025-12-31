@@ -203,6 +203,8 @@ export default function Faq2() {
             </a>
             <a
               href="https://github.com/Azevedo05/Vehicle-Maintenance-App/releases/latest/download/Shift.apk"
+              target="_blank"
+              rel="noopener noreferrer"
               download
               className="border border-white/20 text-white hover:bg-white/10 inline-flex items-center justify-center rounded-lg px-8 py-3 font-bold transition-all hover:scale-105"
             >

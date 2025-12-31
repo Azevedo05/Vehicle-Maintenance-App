@@ -144,6 +144,8 @@ export default function Header1() {
               <a
                 href="https://github.com/Azevedo05/Vehicle-Maintenance-App/releases/latest/download/Shift.apk"
                 className="inline-flex items-center space-x-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-800 px-5 py-2 text-sm font-medium text-white transition-all duration-200 hover:shadow-lg lg:px-6 lg:py-2.5 lg:text-base"
+                target="_blank"
+                rel="noopener noreferrer"
                 download
               >
                 <span>Download</span>
@@ -201,6 +203,8 @@ export default function Header1() {
                     href="https://github.com/Azevedo05/Vehicle-Maintenance-App/releases/latest/download/Shift.apk"
                     className="block w-full rounded-lg bg-gradient-to-r from-blue-600 to-blue-800 py-2.5 text-center font-medium text-white transition-all duration-200 hover:shadow-lg"
                     onClick={() => setIsMobileMenuOpen(false)}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     download
                   >
                     Download
