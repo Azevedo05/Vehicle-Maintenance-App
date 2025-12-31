@@ -176,36 +176,15 @@ bun start
 ## 📁 Project Structure
 
 ```
-├── app/                           # App screens (Expo Router)
-│   ├── (tabs)/                   # Tab navigation
-│   │   ├── index.tsx            # Home - Vehicle list
-│   │   ├── maintenance.tsx      # Scheduled maintenance
-│   │   ├── statistics.tsx       # Expenses and analytics
-│   │   └── settings.tsx         # Settings
-│   ├── vehicle/[id].tsx         # Vehicle details
-│   ├── record/[id].tsx          # Record detail view
-│   ├── add-vehicle.tsx          # New vehicle form
-│   ├── edit-vehicle.tsx         # Update vehicle details
-│   ├── add-task.tsx             # New maintenance task
-│   ├── add-record.tsx           # New maintenance record
-│   ├── add-fuel-log.tsx         # New fuel entry
-│   ├── notification-settings.tsx # Alert preferences
-│   └── onboarding.tsx           # First-launch experience
+├── app/                           # App screens and routing
 ├── components/                   # Reusable UI components
-│   ├── maintenance/             # Filters and list items
-│   ├── statistics/              # Charts and data blocks
-│   ├── vehicle-details/         # Specific details page sections
-│   ├── vehicles/                # List items and skeletons
-│   ├── onboarding/              # Welcome flow components
-│   └── ui/                      # Global UI (Buttons, Inputs, Modals)
-├── contexts/                     # Global state (Theme, Vehicles)
-├── services/                     # Persistence & Storage (AsyncStorage)
-├── hooks/                        # Custom business logic hooks
+├── contexts/                     # Global state management
+├── services/                     # Persistence & Storage
+├── hooks/                        # Custom business logic
 ├── types/                        # TypeScript definitions
-├── locales/                      # Translations (EN/PT-PT)
-├── assets/                       # Static media (icons, images)
-├── ROADMAP.md                    # Future development goals
-└── website/                      # React-based marketing website
+├── locales/                      # Translations
+├── assets/                       # Static media
+└── website/                      # Marketing website
 ```
 
 ---
@@ -234,7 +213,7 @@ All data is stored **locally** on the device using AsyncStorage:
 
 This project is proprietary software. See the [LICENSE](./LICENSE) file for details.
 
-**All Rights Reserved** © 2024-2025 Gonçalo Azevedo
+**All Rights Reserved** © 2025-2026 Gonçalo Azevedo
 
 You may view the source code for educational purposes, but commercial use, redistribution, and derivative works require explicit written permission.
 

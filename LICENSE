@@ -2,7 +2,7 @@
 
 Version 1.0 - Effective Date: December 2024
 
-Copyright (c) 2024-2025 Gonçalo Azevedo. All Rights Reserved.
+Copyright (c) 2025-2026 Gonçalo Azevedo. All Rights Reserved.
 
 PLEASE READ THIS LICENSE AGREEMENT CAREFULLY BEFORE USING THIS SOFTWARE.
 
@@ -28,8 +28,7 @@ or uses the Software.
 "Commercial Use" means any use of the Software intended for or directed toward
 commercial advantage or monetary compensation.
 
-================================================================================
-2. OWNERSHIP AND INTELLECTUAL PROPERTY
+================================================================================ 2. OWNERSHIP AND INTELLECTUAL PROPERTY
 ================================================================================
 
 2.1 The Software, including but not limited to its source code, object code,
@@ -47,8 +46,7 @@ explicit written permission.
 
 2.4 Nothing in this Agreement grants you any ownership rights to the Software.
 
-================================================================================
-3. LICENSE GRANT
+================================================================================ 3. LICENSE GRANT
 ================================================================================
 
 3.1 Subject to the terms of this Agreement, the Licensor grants you a limited,
@@ -68,8 +66,7 @@ non-exclusive, non-transferable, revocable license to:
     f) Deploy the Software on any public server or make it publicly accessible;
     g) Use any part of the Software in your own projects without permission.
 
-================================================================================
-4. RESTRICTIONS
+================================================================================ 4. RESTRICTIONS
 ================================================================================
 
 You expressly agree NOT to:
@@ -102,8 +99,7 @@ without explicit written permission.
 4.8 CIRCUMVENTION: Remove, disable, or circumvent any security features,
 access controls, or usage restrictions built into the Software.
 
-================================================================================
-5. THIRD-PARTY COMPONENTS
+================================================================================ 5. THIRD-PARTY COMPONENTS
 ================================================================================
 
 5.1 The Software may include third-party open-source libraries and components
@@ -116,8 +112,7 @@ the Software created by the Licensor, not to third-party components.
 5.3 A list of third-party dependencies and their licenses can be found in the
 package.json files within this repository.
 
-================================================================================
-6. DISCLAIMER OF WARRANTIES
+================================================================================ 6. DISCLAIMER OF WARRANTIES
 ================================================================================
 
 6.1 THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTY OF
@@ -135,8 +130,7 @@ TO:
 6.3 YOU ASSUME ALL RISKS ASSOCIATED WITH USING THE SOFTWARE, INCLUDING BUT NOT
 LIMITED TO DATA LOSS, SYSTEM CRASHES, OR ANY OTHER DAMAGES.
 
-================================================================================
-7. LIMITATION OF LIABILITY
+================================================================================ 7. LIMITATION OF LIABILITY
 ================================================================================
 
 7.1 TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL THE
@@ -157,8 +151,7 @@ LIABILITY, OR OTHERWISE.
 LIMITATION OF LIABILITY, THE LICENSOR'S LIABILITY SHALL BE LIMITED TO THE
 MAXIMUM EXTENT PERMITTED BY LAW.
 
-================================================================================
-8. INDEMNIFICATION
+================================================================================ 8. INDEMNIFICATION
 ================================================================================
 
 8.1 You agree to indemnify, defend, and hold harmless the Licensor from and
@@ -170,8 +163,7 @@ expenses (including reasonable attorneys' fees) arising from:
     c) Your violation of any applicable laws or regulations;
     d) Your infringement of any third-party rights.
 
-================================================================================
-9. TERMINATION
+================================================================================ 9. TERMINATION
 ================================================================================
 
 9.1 This license is effective until terminated.
@@ -191,8 +183,7 @@ or conditions.
 
 9.5 Sections 2, 5, 6, 7, 8, 10, 11, and 12 shall survive termination.
 
-================================================================================
-10. PRIVACY AND DATA
+================================================================================ 10. PRIVACY AND DATA
 ================================================================================
 
 10.1 The Software stores all user data locally on the user's device.
@@ -205,8 +196,7 @@ users through the Software.
 10.4 The website may use standard analytics and cookies as described in the
 website's privacy policy.
 
-================================================================================
-11. GOVERNING LAW AND JURISDICTION
+================================================================================ 11. GOVERNING LAW AND JURISDICTION
 ================================================================================
 
 11.1 This Agreement shall be governed by and construed in accordance with the
@@ -217,8 +207,7 @@ to the exclusive jurisdiction of the courts of Portugal.
 
 11.3 You agree to submit to the personal jurisdiction of such courts.
 
-================================================================================
-12. GENERAL PROVISIONS
+================================================================================ 12. GENERAL PROVISIONS
 ================================================================================
 
 12.1 ENTIRE AGREEMENT: This Agreement constitutes the entire agreement between
@@ -242,8 +231,7 @@ constitutes acceptance of the modified terms.
 12.6 NO PARTNERSHIP: Nothing in this Agreement creates any partnership, joint
 venture, employer-employee, agency, or franchisor-franchisee relationship.
 
-================================================================================
-13. CONTACT INFORMATION
+================================================================================ 13. CONTACT INFORMATION
 ================================================================================
 
 For licensing inquiries, permissions requests, or questions about this

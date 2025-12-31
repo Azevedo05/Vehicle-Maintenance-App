@@ -19,7 +19,6 @@ import {
   importData,
   clearAllData,
   exportCategoryData,
-  loadSampleData,
 } from "@/utils/dataManagement";
 import { VEHICLE_CATEGORY_INFO, VehicleCategory } from "@/types/vehicle";
 import LoadingOverlay from "@/components/LoadingOverlay";
@@ -153,50 +152,6 @@ export const DataManagementSettings = () => {
     }
   };
 
-  const handleLoadSampleData = () => {
-    if (hapticsEnabled) {
-      Haptics.selectionAsync();
-    }
-    showAlert({
-      title: t("settings.load_sample_confirm"),
-      message: t("settings.load_sample_text"),
-      buttons: [
-        { text: t("common.cancel"), style: "cancel" },
-        {
-          text: t("settings.load_sample"),
-          style: "default",
-          onPress: async () => {
-            setIsImporting(true);
-            try {
-              const success = await loadSampleData();
-              if (success) {
-                // Force refresh of data
-                await restoreLastSnapshot();
-                showAlert({
-                  title: t("common.success"),
-                  message: t("settings.load_sample_success"),
-                });
-              } else {
-                showAlert({
-                  title: t("common.error"),
-                  message: t("settings.load_sample_error"),
-                });
-              }
-            } catch (error) {
-              console.error("Error loading sample data:", error);
-              showAlert({
-                title: t("common.error"),
-                message: t("settings.load_sample_error"),
-              });
-            } finally {
-              setIsImporting(false);
-            }
-          },
-        },
-      ],
-    });
-  };
-
   const handleClearData = () => {
     if (hapticsEnabled) {
       Haptics.selectionAsync(); // Selection for the button
@@ -251,7 +206,7 @@ export const DataManagementSettings = () => {
             onPress={handleExportData}
             activeOpacity={0.7}
           >
-            <Download size={20} color={colors.text} />
+            <Download size={20} color={colors.primary} />
             <View style={styles.notificationContent}>
               <Text style={styles.optionText}>{t("settings.export_data")}</Text>
               <Text style={styles.optionDescription}>
@@ -269,7 +224,7 @@ export const DataManagementSettings = () => {
             }}
             activeOpacity={0.7}
           >
-            <Database size={20} color={colors.text} />
+            <Database size={20} color={colors.primary} />
             <View style={styles.notificationContent}>
               <Text style={styles.optionText}>
                 {t("settings.export_category")}
@@ -286,28 +241,11 @@ export const DataManagementSettings = () => {
             onPress={handleImportData}
             activeOpacity={0.7}
           >
-            <Upload size={20} color={colors.text} />
+            <Upload size={20} color={colors.primary} />
             <View style={styles.notificationContent}>
               <Text style={styles.optionText}>{t("settings.import_data")}</Text>
               <Text style={styles.optionDescription}>
                 {t("settings.import_data_description")}
-              </Text>
-            </View>
-            <ChevronRight size={20} color={colors.textSecondary} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.optionButton}
-            onPress={handleLoadSampleData}
-            activeOpacity={0.7}
-          >
-            <Database size={20} color={colors.primary} />
-            <View style={styles.notificationContent}>
-              <Text style={[styles.optionText, { color: colors.primary }]}>
-                {t("settings.load_sample")}
-              </Text>
-              <Text style={styles.optionDescription}>
-                {t("settings.load_sample_description")}
               </Text>
             </View>
             <ChevronRight size={20} color={colors.textSecondary} />

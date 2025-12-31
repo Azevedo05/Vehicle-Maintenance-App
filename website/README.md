@@ -97,4 +97,4 @@ This project is part of the Shift app ecosystem.
 
 See the main [LICENSE](../LICENSE) file for details.
 
-**All Rights Reserved** © 2024-2025 Gonçalo Azevedo
+**All Rights Reserved** © 2025-2026 Gonçalo Azevedo

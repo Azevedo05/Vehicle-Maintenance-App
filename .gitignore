@@ -39,3 +39,6 @@ yarn-error.*
 # Private Roadmap
 ROADMAP.md
 
+# Sample & Test Data
+sample-data.json
+utils/seedData.ts

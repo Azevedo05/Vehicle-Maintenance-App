@@ -437,21 +437,6 @@ export async function clearAllData(): Promise<boolean> {
 }
 
 /**
- * Load sample data into the app
- */
-export async function loadSampleData(): Promise<boolean> {
-  try {
-    // We use require here to load the JSON file directly
-    const sampleData = require("../sample-data.json");
-    const jsonString = JSON.stringify(sampleData);
-    return await importData(jsonString);
-  } catch (error) {
-    console.error("Error loading sample data:", error);
-    return false;
-  }
-}
-
-/**
  * Get the size of stored data in bytes
  */
 export async function getDataSize(): Promise<number> {
