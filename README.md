@@ -8,9 +8,9 @@ _A user-friendly, local-first vehicle maintenance management app._
 
 [![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red.svg)](./LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android-blue.svg)]()
-[![Built with Expo](https://img.shields.io/badge/Built with-Expo-4630EB.svg)](https://expo.dev)
+[![Built with Expo](https://img.shields.io/badge/Built_with-Expo-4630EB.svg)](https://expo.dev)
 
-[Website][website-url] • [Download APK][download-anchor] • [Report Bug][issues-url]
+[Website](https://shift-vehicle-maintenance.vercel.app/) • [Download APK](#download) • [Report Bug](https://github.com/Azevedo05/Vehicle-Maintenance-App/issues)
 
 </div>
 
