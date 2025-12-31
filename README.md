@@ -1,20 +1,22 @@
-# 🚗 Shift
-
 <div align="center">
 
-**Vehicle Maintenance Management App**
+# Shift
+
+**Developed by Gonçalo Azevedo**
+
+_A user-friendly, local-first vehicle maintenance management app._
 
 [![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red.svg)](./LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android-blue.svg)]()
 [![Built with Expo](https://img.shields.io/badge/Built with-Expo-4630EB.svg)](https://expo.dev)
 
-[Website](https://shift-vehicle-maintenance.vercel.app/) • [Download APK](#-download) • [Report Bug](https://github.com/Azevedo05/Vehicle-Maintenance-App/issues)
+[Website][website-url] • [Download APK][download-anchor] • [Report Bug][issues-url]
 
 </div>
 
 ---
 
-## 📖 About the Project
+## About the Project
 
 **Shift** is a native mobile application for vehicle maintenance management and tracking, featuring an intelligent notification system and full support for Portuguese (Portugal) and English.
 
@@ -22,11 +24,11 @@
 - **Framework**: Expo Router + React Native
 - **Privacy**: 100% offline - all data stays on your device
 
-## 📥 Download
+## Download
 
 ### Android
 
-Download the latest APK from the [releases page](https://github.com/Azevedo05/Vehicle-Maintenance-App/releases) or visit the [website](https://shift-vehicle-maintenance.vercel.app/).
+Download the latest APK from the [releases page][releases-url] or visit the [website][website-url].
 
 ### iOS
 
@@ -34,16 +36,16 @@ Coming soon to the App Store.
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 🚘 Vehicle Management
+### Vehicle Management
 
 - Add and edit vehicles with photo
 - Track current mileage
 - Detailed information (make, model, year, license plate)
 - Modern visual interface with gradients and professional design
 
-### 🔧 Maintenance System
+### Maintenance System
 
 - **Maintenance Tasks**: Schedule future maintenance
   - By date (e.g., annual service)
@@ -53,25 +55,25 @@ Coming soon to the App Store.
 - **Predefined Types**: Oil change, service, tires, brakes, filters, battery, and more
 - **Full Details**: Cost, location, notes, and date/mileage
 
-### ⛽ Fuel Tracking
+### Fuel Tracking
 
 - Log fuel consumption
 - Track fuel costs
 - Monitor fuel efficiency over time
 
-### ⏳ Quick Reminders
+### Quick Reminders
 
 - **Smart To-Do List**: Manage small checks like oil levels, tire pressure, or cleaning.
 - **Nagging Notifications**: Option for frequent reminders (e.g., every 2 hours) to ensure critical tasks aren't forgotten.
 - **Independent Tracking**: Separate from the main maintenance schedule for agility.
 
-### 🖼️ Advanced Image Handling
+### Advanced Image Handling
 
 - **Image Positioning**: Precise control over vehicle photo cropping.
 - **Dual-View Optimization**: Set different positions for list cards and details banners.
 - **Pinch-to-Zoom & Pan**: Intuitive gesture-based adjustment during vehicle setup.
 
-### 🔔 Smart Notifications
+### Smart Notifications
 
 - **Multiple Date-Based Reminders**:
   - 7 days before (initial reminder)
@@ -87,13 +89,13 @@ Coming soon to the App Store.
 - **Convenient Schedule**: Default at 9 AM (customizable)
 - **100% Local**: No internet required, total privacy
 
-### 🌍 Internationalization
+### Internationalization
 
 - Full support for **Portuguese (Portugal)** and **English**
 - Instant language switching
 - Fully translated interface
 
-### 🎨 Themes
+### Themes
 
 - **Light Mode**: Bright and modern interface
 - **Dark Mode**: Perfect for nighttime use
@@ -108,7 +110,7 @@ Coming soon to the App Store.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Core
 
@@ -137,43 +139,7 @@ Coming soon to the App Store.
 
 ---
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js 18+ or Bun
-- Expo CLI
-- Android Emulator or Physical Device
-
-### Installation
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/Azevedo05/Vehicle-Maintenance-App.git
-
-# 2. Navigate to project directory
-cd Vehicle-Maintenance-App
-
-# 3. Install dependencies
-npm install --legacy-peer-deps
-# or
-bun install
-
-# 4. Start the development server
-npm start
-# or
-bun start
-```
-
-### Test on Mobile Device
-
-1. **iOS**: Download [Expo Go](https://apps.apple.com/app/expo-go/id982107779) from App Store
-2. **Android**: Download [Expo Go](https://play.google.com/store/apps/details?id=host.exp.exponent) from Google Play
-3. Run `npm start` and scan the QR code
-
----
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 ├── app/                           # App screens and routing
