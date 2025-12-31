@@ -9,6 +9,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 // Define the feature item type
 type FeatureItem = {
@@ -18,61 +19,6 @@ type FeatureItem = {
   position?: "left" | "right";
   cornerStyle?: string;
 };
-
-// Create feature data arrays for left and right columns
-const leftFeatures: FeatureItem[] = [
-  {
-    icon: CarFront,
-    title: "Vehicle History",
-    description:
-      "Keep a detailed digital log of every service, repair, and modification for all your vehicles.",
-    position: "left",
-    cornerStyle: "sm:translate-x-4 sm:rounded-br-[2px]",
-  },
-  {
-    icon: BellRing,
-    title: "Smart Reminders",
-    description:
-      "Never miss an oil change again. Intelligent notifications based on date and mileage usage.",
-    position: "left",
-    cornerStyle: "sm:-translate-x-4 sm:rounded-br-[2px]",
-  },
-  {
-    icon: Warehouse,
-    title: "Unlimited Garage",
-    description:
-      "Track as many cars as you own. Manage your daily driver, project car, or family fleet all in one place.",
-    position: "left",
-    cornerStyle: "sm:translate-x-4 sm:rounded-tr-[2px]",
-  },
-];
-
-const rightFeatures: FeatureItem[] = [
-  {
-    icon: ShieldCheck,
-    title: "100% Private",
-    description:
-      "Your data stays on your device. No cloud tracking, no accounts, complete privacy.",
-    position: "right",
-    cornerStyle: "sm:-translate-x-4 sm:rounded-bl-[2px]",
-  },
-  {
-    icon: Fuel,
-    title: "Fuel & Costs",
-    description:
-      "Track fuel consumption and visualize your running costs with beautiful charts.",
-    position: "right",
-    cornerStyle: "sm:translate-x-4 sm:rounded-bl-[2px]",
-  },
-  {
-    icon: Download,
-    title: "Data Freedom",
-    description:
-      "Export your vehicle data anytime. Your maintenance logs are yours to keep, share, or backup.",
-    position: "right",
-    cornerStyle: "sm:-translate-x-4 sm:rounded-tl-[2px]",
-  },
-];
 
 // Feature card component
 const FeatureCard = ({ feature }: { feature: FeatureItem }) => {
@@ -110,6 +56,57 @@ const FeatureCard = ({ feature }: { feature: FeatureItem }) => {
 };
 
 export const Features = () => {
+  const { t } = useTranslation();
+
+  // Create feature data arrays for left and right columns
+  const leftFeatures: FeatureItem[] = [
+    {
+      icon: CarFront,
+      title: t("features.history.title"),
+      description: t("features.history.desc"),
+      position: "left",
+      cornerStyle: "sm:translate-x-4 sm:rounded-br-[2px]",
+    },
+    {
+      icon: BellRing,
+      title: t("features.reminders.title"),
+      description: t("features.reminders.desc"),
+      position: "left",
+      cornerStyle: "sm:-translate-x-4 sm:rounded-br-[2px]",
+    },
+    {
+      icon: Warehouse,
+      title: t("features.garage.title"),
+      description: t("features.garage.desc"),
+      position: "left",
+      cornerStyle: "sm:translate-x-4 sm:rounded-tr-[2px]",
+    },
+  ];
+
+  const rightFeatures: FeatureItem[] = [
+    {
+      icon: ShieldCheck,
+      title: t("features.privacy.title"),
+      description: t("features.privacy.desc"),
+      position: "right",
+      cornerStyle: "sm:-translate-x-4 sm:rounded-bl-[2px]",
+    },
+    {
+      icon: Fuel,
+      title: t("features.fuel.title"),
+      description: t("features.fuel.desc"),
+      position: "right",
+      cornerStyle: "sm:translate-x-4 sm:rounded-bl-[2px]",
+    },
+    {
+      icon: Download,
+      title: t("features.dataFreedom.title"),
+      description: t("features.dataFreedom.desc"),
+      position: "right",
+      cornerStyle: "sm:-translate-x-4 sm:rounded-tl-[2px]",
+    },
+  ];
+
   return (
     <section className="pt-24 pb-16 overflow-hidden" id="features">
       <div className="mx-6 max-w-[1280px] pt-8 pb-16 max-[300px]:mx-4 min-[1150px]:mx-auto">
@@ -118,17 +115,16 @@ export const Features = () => {
           <div className="order-1 flex flex-col items-center text-center justify-center md:order-last md:col-span-2 lg:order-2 lg:col-span-1 md:mb-16 lg:mb-0">
             <div className="bg-white/5 text-blue-100 border border-blue-500/20 relative mx-auto mb-6 w-fit rounded-full rounded-bl-[2px] px-4 py-2 text-sm">
               <span className="relative z-1 flex items-center gap-2 font-semibold tracking-wide">
-                Features
+                {t("features.badge")}
               </span>
               <span className="from-blue-500/0 via-blue-500 to-blue-500/0 absolute -bottom-px left-1/2 h-px w-2/5 -translate-x-1/2 bg-gradient-to-r"></span>
               <span className="absolute inset-0 bg-[radial-gradient(30%_40%_at_50%_100%,rgba(59,130,246,0.2)_0%,transparent_100%)]"></span>
             </div>
             <h2 className="text-foreground mb-6 text-center text-3xl md:text-4xl lg:text-5xl font-extrabold sm:mb-6 tracking-tight">
-              Everything you need
+              {t("features.title")}
             </h2>
             <p className="text-muted-foreground mx-auto max-w-[22rem] text-center text-lg leading-relaxed">
-              Premium tools packed into a simple, elegant interface designed for
-              true enthusiasts.
+              {t("features.subtitle")}
             </p>
           </div>
 

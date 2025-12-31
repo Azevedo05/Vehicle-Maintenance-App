@@ -1,0 +1,232 @@
+{
+  "nav": {
+    "features": "Funcionalidades",
+    "showcase": "Demonstração",
+    "makeItYours": "Personalização",
+    "support": "Suporte",
+    "faq": "FAQ",
+    "download": "Download"
+  },
+  "hero": {
+    "newRelease": "Lançamento",
+    "titlePart1": "O Melhor Amigo do",
+    "titlePart2": "Seu Veículo",
+    "description": "Registo meticuloso. Notificações inteligentes. Privacidade total. Mantenha o seu veículo em perfeitas condições com a aplicação de manutenção mais premium.",
+    "downloadFor": "Download para",
+    "android": "Android",
+    "statusOfficial": "Lançamento Oficial Android",
+    "statusSeparator": "|",
+    "statusSoon": "iOS Brevemente",
+    "secureTitle": "Lançamento Oficial Verificado",
+    "secureDesc": "Seguro para instalar. O Android apresenta um aviso de segurança padrão para downloads diretos de APK fora da Play Store."
+  },
+  "features": {
+    "badge": "Funcionalidades",
+    "title": "Tudo o que precisa",
+    "subtitle": "Ferramentas premium integradas numa interface simples e elegante, desenhada para verdadeiros entusiastas.",
+    "history": {
+      "title": "Histórico do Veículo",
+      "desc": "Mantenha um registo digital detalhado de cada serviço, reparação e modificação de todos os seus veículos."
+    },
+    "reminders": {
+      "title": "Lembretes Inteligentes",
+      "desc": "Nunca mais se esqueça de mudar o óleo. Notificações inteligentes baseadas na data e na utilização de quilómetros."
+    },
+    "garage": {
+      "title": "Garagem Ilimitada",
+      "desc": "Faça a gestão de quantos carros quiser. Controle o seu carro do dia-a-dia, o seu clássico ou a frota familiar, tudo num só lugar."
+    },
+    "privacy": {
+      "title": "100% Privado",
+      "desc": "Os seus dados ficam no seu dispositivo. Sem rastreio na nuvem, sem contas, privacidade completa."
+    },
+    "fuel": {
+      "title": "Combustível e Custos",
+      "desc": "Monitorize o consumo de combustível e visualize os seus custos com gráficos intuitivos."
+    },
+    "dataFreedom": {
+      "title": "Liberdade de Dados",
+      "desc": "Exporte os dados dos seus veículos a qualquer altura. Os seus registos são seus para guardar ou partilhar."
+    }
+  },
+  "personalization": {
+    "badge": "Personalize",
+    "title": "Adaptado ao Seu Fluxo",
+    "subtitle": "Experimente a verdadeira liberdade. Alterne as Vistas do Dashboard, Reordene Veículos e ajuste as Notificações Inteligentes. Do Modo Escuro ao Haptic Feedback, cada detalhe é definido por si.",
+    "items": {
+      "viewControl": {
+        "title": "Controlo Total de Vista",
+        "desc": "Ative ou desative módulos. Você decide o que é mais importante."
+      },
+      "reorder": {
+        "title": "Priorize a Sua Frota",
+        "desc": "Reordene facilmente os veículos para corresponder à sua preferência."
+      },
+      "notifications": {
+        "title": "Notificações Inteligentes",
+        "desc": "Personalize alertas, intervalos e horários de lembrete."
+      }
+    }
+  },
+  "showcase": {
+    "title": "Desenhado para a Simplicidade",
+    "subtitle": "Experimente uma interface fluida que lhe devolve o controlo. Cada interação é pensada para velocidade, clareza e precisão.",
+    "features": {
+      "garage": {
+        "title": "Gestão de Garagem Unificada",
+        "desc": "Faça a gestão de toda a sua frota a partir de uma interface única e intuitiva. Sejam carros pessoais ou de trabalho, tenha uma visão geral da sua vida automóvel em segundos."
+      },
+      "insights": {
+        "title": "Dados Precisos do Veículo",
+        "desc": "Analise cada detalhe. Desde o acompanhamento rigoroso da quilometragem à gestão completa de manutenções, aceda a uma visão granular da saúde do seu veículo com elegância."
+      },
+      "reminders": {
+        "title": "Lembretes de Manutenção Proativos",
+        "desc": "O Shift transforma a manutenção numa rotina sem esforço. O nosso sistema proativo de alertas garante que está sempre a par dos serviços essenciais."
+      },
+      "analytics": {
+        "title": "Análise Financeira e Tendências",
+        "desc": "Controle o seu orçamento com dados profundos. Visualize hábitos de gasto, acompanhe custos por quilómetro e tenha uma repartição clara das despesas."
+      }
+    }
+  },
+  "support": {
+    "title": "Apoie o Projeto",
+    "subtitle": "O Shift é gratuito e sempre será. Se o considera útil, considere apoiar o desenvolvimento com uma pequena contribuição.",
+    "cta": "Apoiar",
+    "stripeNote": "Pagamentos processados de forma segura via Stripe. Obrigado pelo seu apoio!",
+    "tiers": {
+      "coffee": {
+        "name": "Café",
+        "desc": "Pague-me um café para alimentar as sessões de código noturnas."
+      },
+      "snack": {
+        "name": "Lanche",
+        "desc": "Mantenha-me alimentado e focado na próxima atualização."
+      },
+      "fuel": {
+        "name": "Depósito",
+        "desc": "Ajude com o depósito e mantenha o desenvolvimento a andar!"
+      }
+    }
+  },
+  "faq": {
+    "badge": "Suporte",
+    "title": "Perguntas Frequentes",
+    "subtitle": "Tudo o que precisa de saber sobre o Shift e como o ajuda a gerir os seus veículos.",
+    "categories": {
+      "all": "Todas",
+      "general": "Geral",
+      "technical": "Técnico"
+    },
+    "cta": "Ainda tem dúvidas? Estamos aqui para ajudar.",
+    "contact": "Contactar Suporte",
+    "download": "Download da App",
+    "items": {
+      "q1": "O Shift é realmente gratuito?",
+      "a1": "Sim! O Shift é maioritariamente gratuito. Acreditamos que a manutenção essencial do veículo deve ser acessível a todos. Poderemos introduzir funcionalidades premium no futuro, mas a experiência principal será sempre gratuita.",
+      "q2": "Os meus dados estão seguros?",
+      "a2": "Absolutamente. O Shift foi construído com uma arquitetura estritamente \"Local-First\". Os dados do seu veículo permanecem no seu dispositivo e nunca são enviados para servidores exceto se optar por fazer backup ou exportar.",
+      "q3": "Posso exportar os meus dados?",
+      "a3": "Sim, tem total liberdade de dados. Pode exportar todo o seu histórico de manutenção para formatos CSV/PDF a qualquer momento para os seus próprios registos ou para partilhar com um mecânico.",
+      "q4": "Quando sai a versão para iOS?",
+      "a4": "Atualmente estamos focados em aperfeiçoar a experiência Android. Uma versão iOS está no nosso roadmap e será lançada assim que estivermos satisfeitos com a estabilidade e funcionalidades da app principal.",
+      "q5": "Suporta vários veículos?",
+      "a5": "Sim, pode adicionar e gerir um número ilimitado de veículos na sua \"Garagem\". Cada veículo regista o seu próprio plano de manutenção, histórico de combustível e estatísticas de forma independente.",
+      "q6": "Como funcionam os lembretes?",
+      "a6": "As notificações são baseadas principalmente na data para garantir que nunca perde um prazo. Os intervalos de quilometragem servem como referência visual para ajudar a planear a próxima revisão baseada no uso.",
+      "q7": "Posso personalizar os intervalos de manutenção?",
+      "a7": "Sim! Tem controlo total. Pode definir intervalos personalizados de tempo e quilometragem para cada item de manutenção, adaptando-se às necessidades específicas do seu veículo.",
+      "q8": "A aplicação funciona offline?",
+      "a8": "Sim. Como o Shift segue uma filosofia 'Local-First', tem acesso total a todas as funcionalidades e dados mesmo sem ligação à internet."
+    }
+  },
+  "about": {
+    "title": "Sobre o Shift",
+    "subtitle": "Redefinir o acompanhamento da manutenção de veículos com privacidade e simplicidade.",
+    "mission": {
+      "title": "A Nossa Missão",
+      "desc": "A nossa missão é fornecer aos proprietários de veículos uma ferramenta poderosa para controlar a saúde do seu carro, sem comprometer a privacidade dos dados ou a experiência do utilizador."
+    },
+    "vision": {
+      "title": "A Nossa Visão",
+      "desc": "Visionamos um mundo onde cada proprietário se sente confiante e no controlo do seu plano de manutenção, prolongando a vida do seu investimento através de cuidados proativos."
+    },
+    "values": {
+      "title": "Os Nossos Valores",
+      "subtitle": "Os princípios que guiam tudo o que fazemos e cada decisão que tomamos.",
+      "v1": {
+        "title": "Privacidade Primeiro",
+        "desc": "Acreditamos que os dados do seu veículo lhe pertencem. É por isso que o Shift funciona localmente, mantendo a sua informação estritamente no seu dispositivo."
+      },
+      "v2": {
+        "title": "Simplicidade",
+        "desc": "A manutenção do veículo não deve ser definida por folhas de cálculo complexas. Criamos ferramentas intuitivas que tornam o registo algo natural."
+      },
+      "v3": {
+        "title": "Fiabilidade",
+        "desc": "Notificações oportunas e registos precisos garantem que nunca falha uma revisão, prolongando a vida do seu veículo."
+      },
+      "v4": {
+        "title": "Autonomia",
+        "desc": "Damos-lhe controlo total sobre a monitorização da saúde do seu veículo, capacitando-o a tomar decisões de manutenção informadas."
+      }
+    }
+  },
+  "developers": {
+    "title": "Conheça o Criador",
+    "subtitle": "A mente por trás do Shift. Combinando a paixão pela engenharia automóvel com o desenvolvimento de software de ponta.",
+    "name": "Gonçalo Azevedo",
+    "role": "Lead Developer & Designer",
+    "bio": "Apaixonado por criar experiências de utilizador intuitivas e bonitas. O Shift nasceu do desejo de simplificar a gestão da manutenção para todos. Com experiência em tecnologias web modernas e amor por carros, dedico-me a tornar o Shift o melhor companheiro para a sua garagem."
+  },
+  "privacy": {
+    "title": "Política de Privacidade",
+    "updated": "Última atualização",
+    "s1Title": "1. Introdução",
+    "s1Text": "Bem-vindo ao Shift (\"nós\", \"nosso\"). Esta Política de Privacidade explica como lidamos com os seus dados ao utilizar a nossa aplicação móvel. A nossa filosofia é simples: **os seus dados pertencem-lhe**. O Shift é uma aplicação local-first, e não recolhemos, armazenamos ou transmitimos os dados do seu veículo para servidores na nuvem.",
+    "s2Title": "2. Recolha e Armazenamento de Dados",
+    "s2Text1": "**Armazenamento Local Apenas:** Todos os dados que introduz no Shift (detalhes do veículo, registos de manutenção, combustível e imagens) são armazenados localmente no seu dispositivo. Não temos acesso a estes dados.",
+    "s2Text2": "**Sem Necessidade de Conta:** Não precisa de criar uma conta para utilizar a aplicação. Não existem credenciais de login para gerir.",
+    "s3Title": "3. Permissões da App",
+    "s3Text": "A aplicação pode solicitar acesso a certas funcionalidades do dispositivo para funcionar corretamente:",
+    "s3Item1": "**Câmara/Galeria:** Para permitir adicionar fotos dos seus veículos ou recibos. Estas imagens permanecem no seu dispositivo.",
+    "s3Item2": "**Notificações:** Para enviar lembretes locais de manutenção agendada.",
+    "s4Title": "4. Segurança de Dados",
+    "s4Text": "Como os seus dados estão armazenados localmente, a sua segurança depende da segurança do seu dispositivo. Recomendamos manter o dispositivo atualizado e protegido com código ou biometria.",
+    "s5Title": "5. Contacte-nos",
+    "s5Text": "Se tiver dúvidas sobre esta política de privacidade, contacte-nos em:"
+  },
+  "terms": {
+    "title": "Termos de Serviço",
+    "updated": "Última atualização",
+    "s1Title": "1. Aceitação dos Termos",
+    "s1Text": "Ao descarregar ou utilizar a aplicação Shift, estes termos aplicam-se automaticamente. Certifique-se de que os lê cuidadosamente antes de usar a app.",
+    "s2Title": "2. Propriedade Intelectual",
+    "s2Text": "O Serviço e o seu conteúdo original, funcionalidades e características são e continuarão a ser propriedade exclusiva do Shift e dos seus licenciadores. A aplicação está protegida por direitos de autor e outras leis de Portugal e outros países.",
+    "s3Title": "3. Utilização da Aplicação",
+    "s3Text": "O Shift foi desenhado para ajudar a acompanhar a manutenção localmente no seu dispositivo. Concorda que não irá:",
+    "s3Item1": "Tentar fazer engenharia reversa da app.",
+    "s3Item2": "Usar a app para qualquer fim ilegal ou não autorizado.",
+    "s3Item3": "Violar quaisquer leis na sua jurisdição.",
+    "s4Title": "4. Exoneração de Responsabilidade",
+    "s4Text": "A aplicação é fornecida \"tal como está\". Embora nos esforcemos para garantir que a app é útil e correta, não garantimos que esteja sempre livre de erros.",
+    "s4Text2": "**Perda de Dados:** Como o Shift armazena dados localmente, é responsável por manter cópias de segurança do seu dispositivo. Não somos responsáveis por qualquer perda de dados devido a falha do dispositivo ou desinstalação.",
+    "s5Title": "5. Lei Aplicável",
+    "s5Text": "Estes Termos serão regidos e interpretados de acordo com as leis de Portugal.",
+    "s6Title": "6. Alterações",
+    "s6Text": "Reservamo-nos o direito de modificar ou substituir estes Termos a qualquer momento. Indicaremos as alterações atualizando a data no topo deste documento.",
+    "s7Title": "7. Contacte-nos",
+    "s7Text": "Se tiver questões sobre estes Termos, contacte-nos em:"
+  },
+  "footer": {
+    "rights": "Todos os direitos reservados.",
+    "company": "Empresa",
+    "legal": "Legal",
+    "privacy": "Política de Privacidade",
+    "terms": "Termos de Serviço",
+    "about": "Sobre Nós",
+    "developers": "Programadores",
+    "note": "As imagens do produto são apenas para fins ilustrativos. A interface real pode variar."
+  }
+}

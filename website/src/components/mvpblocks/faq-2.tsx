@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-
 import { MinusIcon, PlusIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface FaqItem {
   id: string;
@@ -13,74 +13,67 @@ interface FaqItem {
   category: "general" | "pricing" | "technical" | "support";
 }
 
-const faqItems: FaqItem[] = [
-  {
-    id: "1",
-    question: "Is Shift really free?",
-    answer:
-      "Yes! Shift is primarily free to use. We believe essential vehicle maintenance should be accessible to everyone. We may introduce premium features in the future, but the core experience will always be free.",
-    category: "general",
-  },
-  {
-    id: "2",
-    question: "Is my data safe?",
-    answer:
-      'Absolutely. Shift is built with a strictly "Local-First" architecture. Your vehicle data stays on your device and is never sent to cloud servers unless you explicitly choose to backup or export it.',
-    category: "technical",
-  },
-  {
-    id: "3",
-    question: "Can I export my data?",
-    answer:
-      "Yes, you have total data freedom. You can export your entire maintenance history to CSV/PDF formats at any time for your own records or to share with a mechanic.",
-    category: "technical",
-  },
-  {
-    id: "4",
-    question: "When is the iOS version coming?",
-    answer:
-      "We are currently focusing on perfecting the Android experience. An iOS version is in our roadmap and will be released once we're satisfied with the stability and feature set of the core app.",
-    category: "general",
-  },
-  {
-    id: "5",
-    question: "Does it support multiple vehicles?",
-    answer:
-      'Yes, you can add and manage an unlimited number of vehicles in your "Garage". Each vehicle tracks its own maintenance schedule, fuel history, and statistics independently.',
-    category: "technical",
-  },
-  {
-    id: "6",
-    question: "How do reminders work?",
-    answer:
-      "Notifications are primarily date-based to ensure you never miss a deadline. Mileage intervals serve as a visual reference to help you plan your next service based on your usage.",
-    category: "technical",
-  },
-  {
-    id: "7",
-    question: "Can I customize maintenance intervals?",
-    answer:
-      "Yes! You have full control. You can set custom time and mileage intervals for every single maintenance item to match your vehicle's specific requirements.",
-    category: "technical",
-  },
-  {
-    id: "8",
-    question: "Does the app work offline?",
-    answer:
-      "Yes. Since Shift follows a 'Local-First' philosophy, you have full access to all features and data even without an internet connection.",
-    category: "general",
-  },
-];
-
-const categories = [
-  { id: "all", label: "All" },
-  { id: "general", label: "General" },
-  { id: "technical", label: "Technical" },
-];
-
 export default function Faq2() {
+  const { t } = useTranslation();
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const faqItems: FaqItem[] = [
+    {
+      id: "1",
+      question: t("faq.items.q1"),
+      answer: t("faq.items.a1"),
+      category: "general",
+    },
+    {
+      id: "2",
+      question: t("faq.items.q2"),
+      answer: t("faq.items.a2"),
+      category: "technical",
+    },
+    {
+      id: "3",
+      question: t("faq.items.q3"),
+      answer: t("faq.items.a3"),
+      category: "technical",
+    },
+    {
+      id: "4",
+      question: t("faq.items.q4"),
+      answer: t("faq.items.a4"),
+      category: "general",
+    },
+    {
+      id: "5",
+      question: t("faq.items.q5"),
+      answer: t("faq.items.a5"),
+      category: "technical",
+    },
+    {
+      id: "6",
+      question: t("faq.items.q6"),
+      answer: t("faq.items.a6"),
+      category: "technical",
+    },
+    {
+      id: "7",
+      question: t("faq.items.q7"),
+      answer: t("faq.items.a7"),
+      category: "technical",
+    },
+    {
+      id: "8",
+      question: t("faq.items.q8"),
+      answer: t("faq.items.a8"),
+      category: "general",
+    },
+  ];
+
+  const categories = [
+    { id: "all", label: t("faq.categories.all") },
+    { id: "general", label: t("faq.categories.general") },
+    { id: "technical", label: t("faq.categories.technical") },
+  ];
 
   const filteredFaqs =
     activeCategory === "all"
@@ -96,16 +89,15 @@ export default function Faq2() {
       <div className="container mx-auto max-w-6xl px-4 md:px-6">
         <div className="mb-12 flex flex-col items-center">
           <div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 px-4 py-1.5 rounded-full text-sm font-semibold w-fit mx-auto mb-6">
-            Support
+            {t("faq.badge")}
           </div>
 
           <h2 className="text-white mb-6 text-center text-4xl font-bold tracking-tight md:text-5xl">
-            Frequently Asked Questions
+            {t("faq.title")}
           </h2>
 
           <p className="text-neutral-400 max-w-2xl text-center text-lg">
-            Everything you need to know about Shift and how it helps you manage
-            your vehicles.
+            {t("faq.subtitle")}
           </p>
         </div>
 
@@ -191,22 +183,20 @@ export default function Faq2() {
           transition={{ delay: 0.5, duration: 0.5 }}
           className="mt-20 text-center"
         >
-          <p className="text-neutral-400 mb-6 text-lg">
-            Still have questions? We're here to help.
-          </p>
+          <p className="text-neutral-400 mb-6 text-lg">{t("faq.cta")}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a
               href="mailto:shift.app.help@gmail.com"
               className="bg-white text-black hover:bg-neutral-200 inline-flex items-center justify-center rounded-lg px-8 py-3 font-bold transition-all hover:scale-105"
             >
-              Contact Support
+              {t("faq.contact")}
             </a>
             <a
               href="https://github.com/Azevedo05/Vehicle-Maintenance-App/releases/download/v1.0.0/Shift.apk"
               rel="noopener noreferrer"
               className="border border-white/20 text-white hover:bg-white/10 inline-flex items-center justify-center rounded-lg px-8 py-3 font-bold transition-all hover:scale-105"
             >
-              Download App
+              {t("faq.download")}
             </a>
           </div>
         </motion.div>

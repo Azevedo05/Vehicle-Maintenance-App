@@ -1,28 +1,31 @@
 import { motion } from "framer-motion";
 import { Settings, List, Bell } from "lucide-react";
-
-const items = [
-  {
-    title: "Complete View Control",
-    description: "Toggle modules on or off. You decide what's important.",
-    image: "/mockups/customization_view.jpg",
-    icon: Settings,
-  },
-  {
-    title: "Prioritize Your Fleet",
-    description: "Easily reorder vehicles to match your preference.",
-    image: "/mockups/customization_order.jpg",
-    icon: List,
-  },
-  {
-    title: "Smart Notifications",
-    description: "Customize alerts, intervals, and reminder times.",
-    image: "/mockups/customization_notifications.jpg",
-    icon: Bell,
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export const Personalization = () => {
+  const { t } = useTranslation();
+
+  const items = [
+    {
+      title: t("personalization.items.viewControl.title"),
+      description: t("personalization.items.viewControl.desc"),
+      image: "/mockups/customization_view.jpg",
+      icon: Settings,
+    },
+    {
+      title: t("personalization.items.reorder.title"),
+      description: t("personalization.items.reorder.desc"),
+      image: "/mockups/customization_order.jpg",
+      icon: List,
+    },
+    {
+      title: t("personalization.items.notifications.title"),
+      description: t("personalization.items.notifications.desc"),
+      image: "/mockups/customization_notifications.jpg",
+      icon: Bell,
+    },
+  ];
+
   return (
     <section
       className="py-12 md:py-24 bg-transparent overflow-hidden relative"
@@ -40,15 +43,13 @@ export const Personalization = () => {
           transition={{ duration: 0.6 }}
         >
           <div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 px-4 py-1.5 rounded-full text-sm font-semibold w-fit mx-auto mb-6">
-            Make It Yours
+            {t("personalization.badge")}
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-            Tailored to Your Workflow
+            {t("personalization.title")}
           </h2>
           <p className="text-xl text-neutral-400 max-w-2xl mx-auto leading-relaxed">
-            Experience true freedom. Toggle Dashboard Views, Reorder Vehicles,
-            and fine-tune Smart Notifications. From Dark Mode to Haptics, every
-            detail is yours to define.
+            {t("personalization.subtitle")}
           </p>
         </motion.div>
 
@@ -66,8 +67,6 @@ export const Personalization = () => {
               >
                 {/* Phone Frame Mockup - Showcase Style */}
                 <div className="relative group/phone">
-                  {/* Glow Effect - Removed as per user request */}
-
                   <div className="relative w-[180px] xs:w-[220px] md:w-[260px] max-w-full aspect-[9/19] rounded-[0.5rem] border-[3px] border-neutral-800 bg-black overflow-hidden shadow-2xl mb-8 group-hover:-translate-y-2 transition-transform duration-500">
                     <img
                       src={item.image}

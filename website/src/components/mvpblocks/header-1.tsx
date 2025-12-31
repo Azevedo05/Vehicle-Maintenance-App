@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown, ArrowRight } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useTranslation } from "react-i18next";
 
 interface NavItem {
   name: string;
@@ -10,19 +11,20 @@ interface NavItem {
   dropdownItems?: { name: string; href: string; description?: string }[];
 }
 
-const navItems: NavItem[] = [
-  { name: "Features", href: "/#features" },
-  { name: "Showcase", href: "/#showcase" },
-  { name: "Make It Yours", href: "/#personalization" },
-  { name: "Support", href: "/#support" },
-  { name: "FAQ", href: "/#faq" },
-];
-
 export default function Header1() {
+  const { t } = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const { theme } = useTheme();
+
+  const navItems: NavItem[] = [
+    { name: t("nav.features"), href: "/#features" },
+    { name: t("nav.showcase"), href: "/#showcase" },
+    { name: t("nav.makeItYours"), href: "/#personalization" },
+    { name: t("nav.support"), href: "/#support" },
+    { name: t("nav.faq"), href: "/#faq" },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -146,7 +148,7 @@ export default function Header1() {
                 className="inline-flex items-center space-x-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-800 px-5 py-2 text-sm font-medium text-white transition-all duration-200 hover:shadow-lg lg:px-6 lg:py-2.5 lg:text-base"
                 rel="noopener noreferrer"
               >
-                <span>Download</span>
+                <span>{t("nav.download")}</span>
                 <ArrowRight className="h-4 w-4" />
               </a>
             </motion.div>
@@ -203,7 +205,7 @@ export default function Header1() {
                     onClick={() => setIsMobileMenuOpen(false)}
                     rel="noopener noreferrer"
                   >
-                    Download
+                    {t("nav.download")}
                   </a>
                 </div>
               </div>

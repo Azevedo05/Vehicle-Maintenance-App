@@ -1,0 +1,232 @@
+{
+  "nav": {
+    "features": "Features",
+    "showcase": "Showcase",
+    "makeItYours": "Make It Yours",
+    "support": "Support",
+    "faq": "FAQ",
+    "download": "Download"
+  },
+  "hero": {
+    "newRelease": "New Release",
+    "titlePart1": "Your Vehicle's",
+    "titlePart2": "Best Friend",
+    "description": "Meticulous tracking. Intelligent notifications. Total privacy. Keep your vehicle in perfect condition with the most premium maintenance app.",
+    "downloadFor": "Download for",
+    "android": "Android",
+    "statusOfficial": "Official Android Release",
+    "statusSeparator": "|",
+    "statusSoon": "iOS Coming Soon",
+    "secureTitle": "Verified Official Release",
+    "secureDesc": "Safe to install. Android displays a standard security notice for direct APK downloads from outside the Play Store."
+  },
+  "features": {
+    "badge": "Features",
+    "title": "Everything you need",
+    "subtitle": "Premium tools packed into a simple, elegant interface designed for true enthusiasts.",
+    "history": {
+      "title": "Vehicle History",
+      "desc": "Keep a detailed digital log of every service, repair, and modification for all your vehicles."
+    },
+    "reminders": {
+      "title": "Smart Reminders",
+      "desc": "Never miss an oil change again. Intelligent notifications based on date and mileage usage."
+    },
+    "garage": {
+      "title": "Unlimited Garage",
+      "desc": "Track as many cars as you own. Manage your daily driver, project car, or family fleet all in one place."
+    },
+    "privacy": {
+      "title": "100% Private",
+      "desc": "Your data stays on your device. No cloud tracking, no accounts, complete privacy."
+    },
+    "fuel": {
+      "title": "Fuel & Costs",
+      "desc": "Track fuel consumption and visualize your running costs with beautiful charts."
+    },
+    "dataFreedom": {
+      "title": "Data Freedom",
+      "desc": "Export your vehicle data anytime. Your maintenance logs are yours to keep, share, or backup."
+    }
+  },
+  "personalization": {
+    "badge": "Make It Yours",
+    "title": "Tailored to Your Workflow",
+    "subtitle": "Experience true freedom. Toggle Dashboard Views, Reorder Vehicles, and fine-tune Smart Notifications. From Dark Mode to Haptics, every detail is yours to define.",
+    "items": {
+      "viewControl": {
+        "title": "Complete View Control",
+        "desc": "Toggle modules on or off. You decide what's important."
+      },
+      "reorder": {
+        "title": "Prioritize Your Fleet",
+        "desc": "Easily reorder vehicles to match your preference."
+      },
+      "notifications": {
+        "title": "Smart Notifications",
+        "desc": "Customize alerts, intervals, and reminder times."
+      }
+    }
+  },
+  "showcase": {
+    "title": "Designed for Simplicity",
+    "subtitle": "Experience a fluid interface that puts control back in your hands. Every interaction is crafted for speed, clarity, and precision.",
+    "features": {
+      "garage": {
+        "title": "Unified Garage Management",
+        "desc": "Effortlessly manage your entire fleet from a single, intuitive interface. Whether it's personal cars or work vehicles, get a comprehensive snapshot of your automotive life in seconds."
+      },
+      "insights": {
+        "title": "Precision Vehicle Insights",
+        "desc": "Dive deep into every detail. From tracking precise mileage to comprehensive maintenance management, access a granular view of your vehicle's health and specifications with elegance and ease."
+      },
+      "reminders": {
+        "title": "Intelligent Care Reminders",
+        "desc": "Shift transforms maintenance from a chore into a seamless habit. Our proactive alert system ensures you're always ahead of essential services, extending the lifespan of your investment."
+      },
+      "analytics": {
+        "title": "Financial Analytics & Trends",
+        "desc": "Take control of your budget with deep insights. Visualize spending habits, track costs per kilometer, and get a clear breakdown of expenses across your entire fleet."
+      }
+    }
+  },
+  "support": {
+    "title": "Support the Project",
+    "subtitle": "Shift is free and always will be. If you find it useful, consider supporting development with a small contribution.",
+    "cta": "Support",
+    "stripeNote": "Payments processed securely via Stripe. Thank you for your support!",
+    "tiers": {
+      "coffee": {
+        "name": "Coffee",
+        "desc": "Buy me a coffee to fuel late-night coding sessions."
+      },
+      "snack": {
+        "name": "Snack",
+        "desc": "Keep me fed and focused on the next update."
+      },
+      "fuel": {
+        "name": "Fuel",
+        "desc": "Help with the tank and keep development moving!"
+      }
+    }
+  },
+  "faq": {
+    "badge": "Support",
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything you need to know about Shift and how it helps you manage your vehicles.",
+    "categories": {
+      "all": "All",
+      "general": "General",
+      "technical": "Technical"
+    },
+    "cta": "Still have questions? We're here to help.",
+    "contact": "Contact Support",
+    "download": "Download App",
+    "items": {
+      "q1": "Is Shift really free?",
+      "a1": "Yes! Shift is primarily free to use. We believe essential vehicle maintenance should be accessible to everyone. We may introduce premium features in the future, but the core experience will always be free.",
+      "q2": "Is my data safe?",
+      "a2": "Absolutely. Shift is built with a strictly \"Local-First\" architecture. Your vehicle data stays on your device and is never sent to cloud servers unless you explicitly choose to backup or export it.",
+      "q3": "Can I export my data?",
+      "a3": "Yes, you have total data freedom. You can export your entire maintenance history to CSV/PDF formats at any time for your own records or to share with a mechanic.",
+      "q4": "When is the iOS version coming?",
+      "a4": "We are currently focusing on perfecting the Android experience. An iOS version is in our roadmap and will be released once we're satisfied with the stability and feature set of the core app.",
+      "q5": "Does it support multiple vehicles?",
+      "a5": "Yes, you can add and manage an unlimited number of vehicles in your \"Garage\". Each vehicle tracks its own maintenance schedule, fuel history, and statistics independently.",
+      "q6": "How do reminders work?",
+      "a6": "Notifications are primarily date-based to ensure you never miss a deadline. Mileage intervals serve as a visual reference to help you plan your next service based on your usage.",
+      "q7": "Can I customize maintenance intervals?",
+      "a7": "Yes! You have full control. You can set custom time and mileage intervals for every single maintenance item to match your vehicle's specific requirements.",
+      "q8": "Does the app work offline?",
+      "a8": "Yes. Since Shift follows a 'Local-First' philosophy, you have full access to all features and data even without an internet connection."
+    }
+  },
+  "about": {
+    "title": "About Shift",
+    "subtitle": "Redefining vehicle maintenance tracking with privacy and simplicity at its core.",
+    "mission": {
+      "title": "Our Mission",
+      "desc": "Our mission is to provide car owners with a powerful, comprehensive tool to track their vehicle's health, without compromising on data privacy or user experience."
+    },
+    "vision": {
+      "title": "Our Vision",
+      "desc": "We envision a world where every vehicle owner feels confident and in control of their maintenance schedule, extending the lifespan of their investment through proactive care."
+    },
+    "values": {
+      "title": "Our Core Values",
+      "subtitle": "The principles that guide everything we do and every decision we make.",
+      "v1": {
+        "title": "Privacy First",
+        "desc": "We believe your vehicle data belongs to you. That's why Shift operates offline-first, keeping your information strictly on your device."
+      },
+      "v2": {
+        "title": "Simplicity",
+        "desc": "Vehicle maintenance shouldn't be defined by complex spreadsheets. We build intuitive tools that make tracking effortless."
+      },
+      "v3": {
+        "title": "Reliability",
+        "desc": "Timely notifications and accurate tracking ensure you never miss a service, extending the life of your vehicle."
+      },
+      "v4": {
+        "title": "Empowerment",
+        "desc": "We give you full control over your vehicle's health monitoring, empowering you to make informed maintenance decisions."
+      }
+    }
+  },
+  "developers": {
+    "title": "Meet the Creator",
+    "subtitle": "The mind behind Shift. Combining passion for automotive engineering with cutting-edge software development.",
+    "name": "Gonçalo Azevedo",
+    "role": "Lead Developer & Designer",
+    "bio": "Passionate about building intuitive and beautiful user experiences. Shift was born from a desire to simplify vehicle maintenance management for everyone. With a background in modern web technologies and a love for cars, I'm dedicated to making Shift the best companion for your garage."
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "updated": "Last updated",
+    "s1Title": "1. Introduction",
+    "s1Text": "Welcome to Shift (\"we,\" \"our,\" or \"us\"). This Privacy Policy explains how we handle your data when you use our mobile application. Our philosophy is simple: **your data belongs to you**. Shift is an offline-first application, and we do not collect, store, or transmit your personal vehicle data to any cloud servers.",
+    "s2Title": "2. Data Collection and Storage",
+    "s2Text1": "**Local Storage Only:** All data you enter into Shift (including vehicle details, maintenance logs, fuel records, and images) is stored locally on your device. We do not have access to this data.",
+    "s2Text2": "**No Account Required:** You do not need to create an account to use the application. There are no login credentials to manage.",
+    "s3Title": "3. App Permissions",
+    "s3Text": "The application may request access to certain device features to function correctly:",
+    "s3Item1": "**Camera/Gallery:** To allow you to add photos of your vehicles or maintenance receipts. These images remain on your device.",
+    "s3Item2": "**Notifications:** To send you local reminders for upcoming maintenance or scheduled services.",
+    "s4Title": "4. Data Security",
+    "s4Text": "Since your data is stored locally, its security depends on the security of your device. We recommend keeping your device updated and securing it with a passcode or biometrics to protect your Shift data.",
+    "s5Title": "5. Contact Us",
+    "s5Text": "If you have any questions about this privacy policy, please contact us at:"
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "updated": "Last updated",
+    "s1Title": "1. Agreement to Terms",
+    "s1Text": "By downloading or using the Shift application, these terms will automatically apply to you. You should make sure therefore that you read them carefully before using the app.",
+    "s2Title": "2. Intellectual Property",
+    "s2Text": "The Service and its original content (excluding content provided by you), features and functionality are and will remain the exclusive property of Shift and its licensors. The application is protected by copyright, trademark, and other laws of both Portugal and foreign countries.",
+    "s3Title": "3. Use of the Application",
+    "s3Text": "Shift is designed to help you track vehicle maintenance locally on your device. You agree that you will not:",
+    "s3Item1": "Attempt to reverse engineer the app.",
+    "s3Item2": "Use the app for any illegal or unauthorized purpose.",
+    "s3Item3": "Violate any laws in your jurisdiction.",
+    "s4Title": "4. Disclaimer and Liability",
+    "s4Text": "The application is provided \"as is\". While we strive to ensure the app is useful and accurate, we cannot guarantee that it will always be error-free.",
+    "s4Text2": "**Data Loss:** Since Shift stores data locally on your device, you are responsible for maintaining backups of your device. We are not liable for any loss of data due to device failure, app uninstallation, or other causes.",
+    "s5Title": "5. Governing Law",
+    "s5Text": "These Terms shall be governed and construed in accordance with the laws of Portugal, without regard to its conflict of law provisions.",
+    "s6Title": "6. Changes",
+    "s6Text": "We reserve the right, at our sole discretion, to modify or replace these Terms at any time. We will indicate that terms have changed by updating the \"Last updated\" date at the top of this document.",
+    "s7Title": "7. Contact Us",
+    "s7Text": "If you have any questions about these Terms, please contact us at:"
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "company": "Company",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "about": "About Us",
+    "developers": "Developers",
+    "note": "Product images are for illustrative purposes only. Actual UI may vary."
+  }
+}

@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
 import { TextReveal } from "@/components/ui/text-reveal";
 import { ShieldCheck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export const Hero = () => {
+  const { t } = useTranslation();
+
   return (
     <section
       className="relative min-h-[90vh] flex items-center justify-center pt-20"
@@ -24,15 +27,15 @@ export const Hero = () => {
             className="mb-6 inline-flex items-center rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-sm text-blue-400"
           >
             <span className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-blue-500"></span>
-            New Release
+            {t("hero.newRelease")}
           </motion.div>
 
           <div className="mb-2">
             <h1 className="text-4xl xs:text-5xl font-extrabold tracking-tight text-white sm:text-7xl mb-4">
-              Your Vehicle's
+              {t("hero.titlePart1")}
             </h1>
             <TextReveal className="text-4xl xs:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#2f95dc] to-[#3B82F6] sm:text-7xl pb-2">
-              Best Friend
+              {t("hero.titlePart2")}
             </TextReveal>
           </div>
 
@@ -42,9 +45,7 @@ export const Hero = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mb-8 max-w-lg text-lg text-gray-400"
           >
-            Meticulous tracking. Intelligent notifications. Total privacy. Keep
-            your vehicle in perfect condition with the most premium maintenance
-            app.
+            {t("hero.description")}
           </motion.p>
 
           <motion.div
@@ -68,8 +69,12 @@ export const Hero = () => {
                     <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z" />
                   </svg>
                   <div className="flex flex-col items-start leading-none">
-                    <span className="text-[10px] uppercase">Download for</span>
-                    <span className="font-bold text-lg">Android</span>
+                    <span className="text-[10px] uppercase">
+                      {t("hero.downloadFor")}
+                    </span>
+                    <span className="font-bold text-lg">
+                      {t("hero.android")}
+                    </span>
                   </div>
                 </a>
               </div>
@@ -80,8 +85,11 @@ export const Hero = () => {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                 </span>
                 <span className="text-xs font-medium text-gray-300">
-                  Official Android Release{" "}
-                  <span className="text-gray-600 mx-2">|</span> iOS Coming Soon
+                  {t("hero.statusOfficial")}{" "}
+                  <span className="text-gray-600 mx-2">
+                    {t("hero.statusSeparator")}
+                  </span>{" "}
+                  {t("hero.statusSoon")}
                 </span>
               </div>
 
@@ -92,12 +100,11 @@ export const Hero = () => {
                     className="text-blue-400 group-hover:text-blue-300 transition-colors"
                   />
                   <span className="text-[12px] font-bold text-gray-100 uppercase tracking-wider leading-none">
-                    Verified Official Release
+                    {t("hero.secureTitle")}
                   </span>
                 </div>
                 <p className="text-[11px] text-gray-400 leading-relaxed max-w-[340px]">
-                  Safe to install. Android displays a standard security notice
-                  for direct APK downloads from outside the Play Store.
+                  {t("hero.secureDesc")}
                 </p>
               </div>
             </div>

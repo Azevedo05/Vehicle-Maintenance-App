@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { Spotlight } from "@/components/ui/spotlight";
 import { BorderBeam } from "@/components/ui/border-beam";
 import { CardHoverEffect } from "@/components/ui/pulse-card";
+import { useTranslation } from "react-i18next";
 import {
   Globe,
   Users,
@@ -38,42 +39,37 @@ const iconComponents = {
   Target: Target,
 };
 
-const defaultValues: AboutUsProps["values"] = [
-  {
-    title: "Privacy First",
-    description:
-      "We believe your vehicle data belongs to you. That's why Shift operates offline-first, keeping your information strictly on your device.",
-    icon: "Sparkles",
-  },
-  {
-    title: "Simplicity",
-    description:
-      "Vehicle maintenance shouldn't be defined by complex spreadsheets. We build intuitive tools that make tracking effortless.",
-    icon: "Lightbulb",
-  },
-  {
-    title: "Reliability",
-    description:
-      "Timely notifications and accurate tracking ensure you never miss a service, extending the life of your vehicle.",
-    icon: "Target",
-  },
-  {
-    title: "Empowerment",
-    description:
-      "We give you full control over your vehicle's health monitoring, empowering you to make informed maintenance decisions.",
-    icon: "Rocket",
-  },
-];
-
 export default function AboutUs1() {
+  const { t } = useTranslation();
+
+  const defaultValues: AboutUsProps["values"] = [
+    {
+      title: t("about.values.v1.title"),
+      description: t("about.values.v1.desc"),
+      icon: "Sparkles",
+    },
+    {
+      title: t("about.values.v2.title"),
+      description: t("about.values.v2.desc"),
+      icon: "Lightbulb",
+    },
+    {
+      title: t("about.values.v3.title"),
+      description: t("about.values.v3.desc"),
+      icon: "Target",
+    },
+    {
+      title: t("about.values.v4.title"),
+      description: t("about.values.v4.desc"),
+      icon: "Rocket",
+    },
+  ];
+
   const aboutData = {
-    title: "About Shift",
-    subtitle:
-      "Redefining vehicle maintenance tracking with privacy and simplicity at its core.",
-    mission:
-      "Our mission is to provide car owners with a powerful, comprehensive tool to track their vehicle's health, without compromising on data privacy or user experience.",
-    vision:
-      "We envision a world where every vehicle owner feels confident and in control of their maintenance schedule, extending the lifespan of their investment through proactive care.",
+    title: t("about.title"),
+    subtitle: t("about.subtitle"),
+    mission: t("about.mission.desc"),
+    vision: t("about.vision.desc"),
     values: defaultValues,
     className: "relative overflow-hidden py-20",
   };
@@ -134,7 +130,7 @@ export default function AboutUs1() {
 
               <div className="space-y-4">
                 <h2 className="from-primary/90 to-primary/70 mb-4 bg-gradient-to-r bg-clip-text text-3xl font-bold text-transparent">
-                  Our Mission
+                  {t("about.mission.title")}
                 </h2>
 
                 <p className="text-muted-foreground text-lg leading-relaxed">
@@ -158,7 +154,7 @@ export default function AboutUs1() {
               </div>
 
               <h2 className="mb-4 bg-gradient-to-r from-primary/90 to-primary/70 bg-clip-text text-3xl font-bold text-transparent">
-                Our Vision
+                {t("about.vision.title")}
               </h2>
 
               <p className="text-muted-foreground text-lg leading-relaxed">
@@ -178,11 +174,10 @@ export default function AboutUs1() {
             className="mb-12 text-center"
           >
             <h2 className="from-foreground/80 via-foreground to-foreground/80 bg-gradient-to-r bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
-              Our Core Values
+              {t("about.values.title")}
             </h2>
             <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-lg">
-              The principles that guide everything we do and every decision we
-              make.
+              {t("about.values.subtitle")}
             </p>
           </motion.div>
 

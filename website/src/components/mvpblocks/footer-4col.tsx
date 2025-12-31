@@ -1,44 +1,50 @@
 import { Github, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
-const data = {
-  facebookLink: "#",
-  githubLink: "https://github.com/Azevedo05",
-
-  legal: {
-    privacy: "/privacy",
-    terms: "/terms",
-  },
-  help: {
-    support: "mailto:shift.app.help@gmail.com",
-    faq: "/faq",
-  },
-  contact: {
-    email: "shift.app.help@gmail.com",
-  },
-  company: {
-    name: "Shift",
-    description:
-      "Meticulous tracking. Intelligent notifications. Total privacy. Keep your vehicle in perfect condition.",
-    logo: "/favicon.png",
-  },
-};
-
-const socialLinks = [
-  { icon: Github, label: "GitHub", href: data.githubLink },
-  { icon: Globe, label: "Portfolio", href: "https://goncalo-portfolio.vercel.app/" },
-];
-
-const legalLinks = [
-  { text: "Privacy Policy", href: data.legal.privacy },
-  { text: "Terms of Service", href: data.legal.terms },
-];
-
-const companyLinks = [
-  { text: "About Us", href: "/about" },
-  { text: "Developers", href: "/developers" },
-];
 export default function Footer4Col() {
+  const { t } = useTranslation();
+
+  const data = {
+    facebookLink: "#",
+    githubLink: "https://github.com/Azevedo05",
+    legal: {
+      privacy: "/privacy",
+      terms: "/terms",
+    },
+    help: {
+      support: "mailto:shift.app.help@gmail.com",
+      faq: "/faq",
+    },
+    contact: {
+      email: "shift.app.help@gmail.com",
+    },
+    company: {
+      name: "Shift",
+      description: t("hero.description"),
+      logo: "/favicon.png",
+    },
+  };
+
+  const socialLinks = [
+    { icon: Github, label: "GitHub", href: data.githubLink },
+    {
+      icon: Globe,
+      label: "Portfolio",
+      href: "https://goncalo-portfolio.vercel.app/",
+    },
+  ];
+
+  const legalLinks = [
+    { text: t("footer.privacy"), href: data.legal.privacy },
+    { text: t("footer.terms"), href: data.legal.terms },
+  ];
+
+  const companyLinks = [
+    { text: t("footer.about"), href: "/about" },
+    { text: t("footer.developers"), href: "/developers" },
+  ];
+
   return (
     <footer className="bg-black border-t border-white/10 mt-16 w-full place-self-end rounded-t-xl">
       <div className="mx-auto max-w-screen-xl px-4 pt-16 pb-6 sm:px-6 lg:px-8 lg:pt-24">
@@ -76,7 +82,7 @@ export default function Footer4Col() {
 
           <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:col-span-2 lg:mt-0 lg:flex lg:justify-end lg:gap-16">
             <div className="text-center sm:text-left lg:text-right">
-              <p className="text-lg font-medium">Company</p>
+              <p className="text-lg font-medium">{t("footer.company")}</p>
               <ul className="mt-8 space-y-4 text-sm">
                 {companyLinks.map(({ text, href }) => (
                   <li key={text}>
@@ -92,7 +98,7 @@ export default function Footer4Col() {
             </div>
 
             <div className="text-center sm:text-left lg:text-right">
-              <p className="text-lg font-medium">Legal</p>
+              <p className="text-lg font-medium">{t("footer.legal")}</p>
               <ul className="mt-8 space-y-4 text-sm">
                 {legalLinks.map(({ text, href }) => (
                   <li key={text}>
@@ -114,12 +120,11 @@ export default function Footer4Col() {
             <div className="flex flex-col sm:flex-row gap-2 text-sm text-secondary-foreground/70">
               <p>&copy; 2025-2026 {data.company.name}</p>
               <span className="hidden sm:inline">&middot;</span>
-              <p>All rights reserved.</p>
+              <p>{t("footer.rights")}</p>
             </div>
 
             <p className="text-xs text-secondary-foreground/40 sm:text-right">
-              Product images are for illustrative purposes only. Actual UI may
-              vary.
+              {t("footer.note")}
             </p>
           </div>
         </div>

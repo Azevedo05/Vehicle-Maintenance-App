@@ -2,8 +2,11 @@ import { motion } from "framer-motion";
 import { Github, Globe, Linkedin } from "lucide-react";
 import Header1 from "./mvpblocks/header-1";
 import Footer4Col from "./mvpblocks/footer-4col";
+import { useTranslation } from "react-i18next";
 
 const Developers = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen bg-black text-white selection:bg-blue-500/30">
       <Header1 />
@@ -18,11 +21,10 @@ const Developers = () => {
             className="text-center mb-20"
           >
             <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 mb-6">
-              Meet the Creator
+              {t("developers.title")}
             </h1>
             <p className="text-xl text-neutral-400 max-w-2xl mx-auto leading-relaxed">
-              The mind behind Shift. Combining passion for automotive
-              engineering with cutting-edge software development.
+              {t("developers.subtitle")}
             </p>
           </motion.div>
 
@@ -37,19 +39,14 @@ const Developers = () => {
             <div className="relative bg-neutral-900 border border-white/10 rounded-2xl p-8 md:p-12 overflow-hidden">
               <div className="flex flex-col items-center text-center">
                 <h2 className="text-4xl font-bold text-white mb-3">
-                  Gonçalo Azevedo
+                  {t("developers.name")}
                 </h2>
                 <p className="text-blue-400 font-medium mb-8 text-lg">
-                  Lead Developer & Designer
+                  {t("developers.role")}
                 </p>
 
                 <p className="text-neutral-300 leading-relaxed mb-10 max-w-2xl text-lg">
-                  Passionate about building intuitive and beautiful user
-                  experiences. Shift was born from a desire to simplify
-                  vehicle maintenance management for everyone. With a
-                  background in modern web technologies and a love for cars,
-                  I'm dedicated to making Shift the best companion for your
-                  garage.
+                  {t("developers.bio")}
                 </p>
 
                 {/* Social Links */}

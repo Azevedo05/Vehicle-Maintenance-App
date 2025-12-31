@@ -1,47 +1,25 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
-const features = [
-  {
-    title: "Unified Garage Management",
-    description:
-      "Effortlessly manage your entire fleet from a single, intuitive interface. Whether it's personal cars or work vehicles, get a comprehensive snapshot of your automotive life in seconds.",
-    image: "/mockups/dashboard.jpg",
-    glowColor: "0_0_30px_rgba(59,130,246,0.25),0_0_60px_rgba(59,130,246,0.12)",
-  },
-  {
-    title: "Precision Vehicle Insights",
-    description:
-      "Dive deep into every detail. From tracking real-time mileage to managing specific fuel types, access a granular view of your vehicle's health and specifications with elegance and ease.",
-    image: "/mockups/details.jpg",
-    glowColor: "0_0_30px_rgba(34,197,94,0.25),0_0_60px_rgba(34,197,94,0.12)",
-  },
-  {
-    title: "Intelligent Care Reminders",
-    description:
-      "Shift transforms maintenance from a chore into a seamless habit. Our proactive alert system ensures you're always ahead of essential services, extending the lifespan of your investment.",
-    image: "/mockups/customization_notifications.jpg",
-    glowColor: "0_0_30px_rgba(234,88,12,0.25),0_0_60px_rgba(234,88,12,0.12)",
-  },
-  {
-    title: "Financial Analytics & Trends",
-    description:
-      "Take control of your budget with deep insights. Visualize spending habits, track costs per kilometer, and get a clear breakdown of expenses across your entire fleet.",
-    image: "/mockups/statistics.jpg",
-    glowColor: "0_0_30px_rgba(225,29,72,0.25),0_0_60px_rgba(225,29,72,0.12)",
-  },
-];
+interface FeatureData {
+  title: string;
+  description: string;
+  image: string;
+  glowColor: string;
+}
 
 const FeatureItem = ({
   feature,
   index,
 }: {
-  feature: (typeof features)[0];
+  feature: FeatureData;
   index: number;
 }) => {
   return (
     <div
-      className={`flex flex-col ${index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
-        } items-center gap-12 lg:gap-32`}
+      className={`flex flex-col ${
+        index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
+      } items-center gap-12 lg:gap-32`}
     >
       {/* Image Side - Slide In Animation */}
       <motion.div
@@ -103,6 +81,36 @@ const FeatureItem = ({
 };
 
 export const Showcase = () => {
+  const { t } = useTranslation();
+
+  const features: FeatureData[] = [
+    {
+      title: t("showcase.features.garage.title"),
+      description: t("showcase.features.garage.desc"),
+      image: "/mockups/dashboard.jpg",
+      glowColor:
+        "0_0_30px_rgba(59,130,246,0.25),0_0_60px_rgba(59,130,246,0.12)",
+    },
+    {
+      title: t("showcase.features.insights.title"),
+      description: t("showcase.features.insights.desc"),
+      image: "/mockups/details.jpg",
+      glowColor: "0_0_30px_rgba(34,197,94,0.25),0_0_60px_rgba(34,197,94,0.12)",
+    },
+    {
+      title: t("showcase.features.reminders.title"),
+      description: t("showcase.features.reminders.desc"),
+      image: "/mockups/customization_notifications.jpg",
+      glowColor: "0_0_30px_rgba(234,88,12,0.25),0_0_60px_rgba(234,88,12,0.12)",
+    },
+    {
+      title: t("showcase.features.analytics.title"),
+      description: t("showcase.features.analytics.desc"),
+      image: "/mockups/statistics.jpg",
+      glowColor: "0_0_30px_rgba(225,29,72,0.25),0_0_60px_rgba(225,29,72,0.12)",
+    },
+  ];
+
   return (
     <section
       className="py-16 md:py-24 lg:py-32 bg-transparent relative"
@@ -117,11 +125,10 @@ export const Showcase = () => {
           transition={{ duration: 0.7, ease: "easeOut" }}
         >
           <h2 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50 mb-8 tracking-tight pb-4">
-            Designed for Simplicity
+            {t("showcase.title")}
           </h2>
           <p className="text-xl text-neutral-400 max-w-2xl mx-auto leading-relaxed">
-            Experience a fluid interface that puts control back in your hands.
-            Every interaction is crafted for speed, clarity, and precision.
+            {t("showcase.subtitle")}
           </p>
         </motion.div>
 

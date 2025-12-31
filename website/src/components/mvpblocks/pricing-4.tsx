@@ -1,35 +1,38 @@
 import { Button } from "@/components/ui/button";
 import { Coffee, Pizza, Fuel } from "lucide-react";
 import { motion } from "framer-motion";
-
-const supportTiers = [
-  {
-    name: "Coffee",
-    price: 2,
-    icon: Coffee,
-    description: "Buy me a coffee to fuel late-night coding sessions.",
-    color: "from-amber-500 to-orange-500",
-    paymentLink: "https://buy.stripe.com/aFadRagqrg8V0eabfAcs800",
-  },
-  {
-    name: "Snack",
-    price: 5,
-    icon: Pizza,
-    description: "Keep me fed and focused on the next update.",
-    color: "from-pink-500 to-rose-500",
-    paymentLink: "https://buy.stripe.com/dRmaEY2zBbSF8KG0AWcs801",
-  },
-  {
-    name: "Fuel",
-    price: 15,
-    icon: Fuel,
-    description: "Help with the tank and keep development moving!",
-    color: "from-emerald-500 to-teal-500",
-    paymentLink: "https://buy.stripe.com/eVq14o1vx9Kxf94abwcs802",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export default function SupportSection() {
+  const { t } = useTranslation();
+
+  const supportTiers = [
+    {
+      name: t("support.tiers.coffee.name"),
+      price: 2,
+      icon: Coffee,
+      description: t("support.tiers.coffee.desc"),
+      color: "from-amber-500 to-orange-500",
+      paymentLink: "https://buy.stripe.com/aFadRagqrg8V0eabfAcs800",
+    },
+    {
+      name: t("support.tiers.snack.name"),
+      price: 5,
+      icon: Pizza,
+      description: t("support.tiers.snack.desc"),
+      color: "from-pink-500 to-rose-500",
+      paymentLink: "https://buy.stripe.com/dRmaEY2zBbSF8KG0AWcs801",
+    },
+    {
+      name: t("support.tiers.fuel.name"),
+      price: 15,
+      icon: Fuel,
+      description: t("support.tiers.fuel.desc"),
+      color: "from-emerald-500 to-teal-500",
+      paymentLink: "https://buy.stripe.com/eVq14o1vx9Kxf94abwcs802",
+    },
+  ];
+
   return (
     <section id="support" className="relative w-full bg-black py-16 md:py-32">
       <div className="absolute inset-0 -z-10 overflow-hidden">
@@ -47,11 +50,10 @@ export default function SupportSection() {
             transition={{ duration: 0.5 }}
           >
             <h2 className="text-3xl font-extrabold text-balance md:text-4xl lg:text-5xl text-white">
-              Support the Project
+              {t("support.title")}
             </h2>
             <p className="text-gray-400 mt-4 text-lg">
-              Shift is free and always will be. If you find it useful, consider
-              supporting development with a small contribution.
+              {t("support.subtitle")}
             </p>
           </motion.div>
         </div>
@@ -88,7 +90,7 @@ export default function SupportSection() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Support
+                    {t("support.cta")}
                   </a>
                 </Button>
               </div>
@@ -103,7 +105,7 @@ export default function SupportSection() {
           transition={{ duration: 0.5, delay: 0.5 }}
           className="text-zinc-500 mt-10 text-center text-sm"
         >
-          Payments processed securely via Stripe. Thank you for your support! ❤️
+          {t("support.stripeNote")} ❤️
         </motion.p>
       </div>
     </section>
