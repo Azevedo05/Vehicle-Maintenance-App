@@ -57,7 +57,6 @@ export const Hero = () => {
                   href="https://github.com/Azevedo05/Vehicle-Maintenance-App/releases/download/v1.0.0/Shift.apk"
                   className="flex items-center gap-3 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-white transition-transform hover:scale-105 hover:bg-white/10"
                   rel="noopener noreferrer"
-                  download
                 >
                   <svg
                     viewBox="0 0 512 512"
