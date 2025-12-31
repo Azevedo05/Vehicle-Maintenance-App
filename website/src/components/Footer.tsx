@@ -6,7 +6,7 @@ export const Footer = () => {
       <div className="footer-content">
         <div className="footer-brand">
           <img src="/logo.png" alt="Shift Logo" className="logo-image" />
-          <p>&copy; 2025 Shift App. All rights reserved.</p>
+          <p>&copy; 2025-2026 Shift App. All rights reserved.</p>
           <p className="footer-disclaimer text-xs text-neutral-500 mt-2">
             Product images are for illustrative purposes only. Actual UI may
             vary.

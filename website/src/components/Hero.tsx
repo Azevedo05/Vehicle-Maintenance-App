@@ -53,10 +53,12 @@ export const Hero = () => {
           >
             <div className="flex flex-col gap-6">
               <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-                {/* Google Play Button Only */}
-                <button
-                  className="flex items-center gap-3 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-white transition-transform hover:scale-105 hover:bg-white/10 disabled:opacity-70 disabled:cursor-not-allowed"
-                  disabled
+                <a
+                  href="https://github.com/Azevedo05/Vehicle-Maintenance-App/releases/latest/download/Shift.apk"
+                  className="flex items-center gap-3 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-white transition-transform hover:scale-105 hover:bg-white/10"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download
                 >
                   <svg
                     viewBox="0 0 512 512"
@@ -67,20 +69,19 @@ export const Hero = () => {
                     <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z" />
                   </svg>
                   <div className="flex flex-col items-start leading-none">
-                    <span className="text-[10px] uppercase">Get it on</span>
-                    <span className="font-bold text-lg">Google Play</span>
+                    <span className="text-[10px] uppercase">Download for</span>
+                    <span className="font-bold text-lg">Android</span>
                   </div>
-                </button>
+                </a>
               </div>
 
-              {/* Consolidated Status Badge */}
               <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-white/10 bg-white/5 w-fit backdrop-blur-sm">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                 </span>
                 <span className="text-xs font-medium text-gray-300">
-                  Android Private Beta{" "}
+                  Official Android Release{" "}
                   <span className="text-gray-600 mx-2">|</span> iOS Coming Soon
                 </span>
               </div>
