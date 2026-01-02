@@ -1,9 +1,15 @@
 import { Github, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
 
 export default function Footer4Col() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === "en" ? "pt" : "en";
+    i18n.changeLanguage(newLang);
+  };
 
   const data = {
     facebookLink: "#",
@@ -48,8 +54,8 @@ export default function Footer4Col() {
   return (
     <footer className="bg-black border-t border-white/10 mt-16 w-full place-self-end rounded-t-xl">
       <div className="mx-auto max-w-screen-xl px-4 pt-16 pb-6 sm:px-6 lg:px-8 lg:pt-24">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          <div>
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch">
+          <div className="flex flex-col">
             <div className="text-primary flex justify-center gap-2 sm:justify-start">
               <img
                 src={data.company.logo || "/placeholder.svg"}
@@ -65,7 +71,7 @@ export default function Footer4Col() {
               {data.company.description}
             </p>
 
-            <ul className="mt-8 flex justify-center gap-6 sm:justify-start md:gap-8">
+            <ul className="mt-auto flex justify-center gap-6 pt-8 sm:justify-start md:gap-8">
               {socialLinks.map(({ icon: Icon, label, href }) => (
                 <li key={label}>
                   <a
@@ -97,7 +103,7 @@ export default function Footer4Col() {
               </ul>
             </div>
 
-            <div className="text-center sm:text-left lg:text-right">
+            <div className="text-center sm:text-left lg:text-right flex flex-col">
               <p className="text-lg font-medium">{t("footer.legal")}</p>
               <ul className="mt-8 space-y-4 text-sm">
                 {legalLinks.map(({ text, href }) => (
@@ -111,11 +117,52 @@ export default function Footer4Col() {
                   </li>
                 ))}
               </ul>
+
+              {/* Language Switcher Toggle - Aligned with Portfolio/Social icons */}
+              <div className="mt-auto flex justify-center pt-8 sm:justify-start lg:justify-end">
+                <button
+                  onClick={toggleLanguage}
+                  className="group relative flex h-9 w-20 items-center rounded-full bg-white/5 p-1 transition-colors hover:bg-white/10"
+                  aria-label="Toggle Language"
+                >
+                  <motion.div
+                    className="flex h-7 w-[46%] items-center justify-center rounded-full bg-blue-600 shadow-lg"
+                    animate={{
+                      x: i18n.language === "en" ? 0 : 38,
+                    }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 500,
+                      damping: 30,
+                    }}
+                  >
+                    <span className="text-xs font-bold text-white uppercase">
+                      {i18n.language}
+                    </span>
+                  </motion.div>
+                  <div className="absolute inset-0 flex items-center justify-between px-3 text-[10px] font-medium text-white/40 pointer-events-none">
+                    <span
+                      className={
+                        i18n.language === "en" ? "opacity-0" : "opacity-100"
+                      }
+                    >
+                      EN
+                    </span>
+                    <span
+                      className={
+                        i18n.language === "pt" ? "opacity-0" : "opacity-100"
+                      }
+                    >
+                      PT
+                    </span>
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-12 border-t pt-6">
+        <div className="mt-12 border-t border-white/10 pt-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
             <div className="flex flex-col sm:flex-row gap-2 text-sm text-secondary-foreground/70">
               <p>&copy; 2025-2026 {data.company.name}</p>
