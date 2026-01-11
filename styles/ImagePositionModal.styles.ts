@@ -211,6 +211,10 @@ export const createImagePositionModalStyles = (colors: Colors) =>
       zIndex: 50,
     },
     controlsPanel: {
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
       backgroundColor: "#161618",
       borderTopLeftRadius: 32,
       borderTopRightRadius: 32,
@@ -220,11 +224,11 @@ export const createImagePositionModalStyles = (colors: Colors) =>
       shadowRadius: 24,
       elevation: 40,
       zIndex: 101, // Ensure controls are always on top
-      position: "relative",
     },
     controlsContent: {
       paddingHorizontal: 20,
-      paddingTop: 24,
+      paddingTop: 8,
+      paddingBottom: 0,
     },
     sliderRow: {
       flexDirection: "row",
@@ -239,16 +243,17 @@ export const createImagePositionModalStyles = (colors: Colors) =>
     presetsWrapper: {
       flexDirection: "row",
       justifyContent: "space-between",
-      marginTop: 16,
-      paddingTop: 16,
+      marginTop: 8,
+      paddingTop: 8,
       borderTopWidth: 1,
       borderTopColor: "rgba(255,255,255,0.05)",
     },
     presetButton: {
       alignItems: "center",
-      gap: 8,
+      gap: 4,
       flex: 1,
-      paddingVertical: 8,
+      paddingTop: 8,
+      paddingBottom: 2,
     },
     presetLabel: {
       color: "rgba(255,255,255,0.4)",

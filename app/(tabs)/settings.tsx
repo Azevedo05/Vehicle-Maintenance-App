@@ -1,6 +1,9 @@
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -22,6 +25,12 @@ export default function SettingsScreen() {
   const { colors } = useTheme();
   const { t } = useLocalization();
   const styles = createSettingsStyles(colors);
+  const insets = useSafeAreaInsets();
+
+  // Altura dinâmica da TabBar (mesma lógica do _layout.tsx)
+  const tbBottomPadding = insets.bottom > 0 ? insets.bottom + 8 : 16;
+  const tabBarHeight = 56 + tbBottomPadding;
+  const bottomPadding = tabBarHeight + 16;
 
   return (
     <ThemedBackground>
@@ -31,7 +40,10 @@ export default function SettingsScreen() {
       >
         <ScrollView
           style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottomPadding },
+          ]}
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>

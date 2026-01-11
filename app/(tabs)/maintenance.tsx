@@ -11,7 +11,10 @@ import {
   View,
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -64,6 +67,12 @@ export default function MaintenanceScreen() {
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
 
   const styles = createStyles(colors);
+  const insets = useSafeAreaInsets();
+
+  // Altura dinâmica da TabBar (mesma lógica do _layout.tsx)
+  const tbBottomPadding = insets.bottom > 0 ? insets.bottom + 8 : 16;
+  const tabBarHeight = 56 + tbBottomPadding;
+  const bottomPadding = tabBarHeight + 16;
 
   const upcomingTasks = getUpcomingTasks();
 
@@ -435,7 +444,10 @@ export default function MaintenanceScreen() {
           ItemSeparatorComponent={renderItemSeparator}
           ListHeaderComponent={renderListHeader}
           ListEmptyComponent={renderListEmpty}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottomPadding },
+          ]}
           showsVerticalScrollIndicator={false}
         />
 

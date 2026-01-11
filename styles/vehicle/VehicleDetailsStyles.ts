@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 export const createVehicleDetailsStyles = (colors: any) =>
   StyleSheet.create({
     section: {
-      marginTop: 10,
+      marginTop: 24,
       paddingHorizontal: 20,
     },
     sectionHeader: {

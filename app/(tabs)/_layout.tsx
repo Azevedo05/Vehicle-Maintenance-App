@@ -2,6 +2,7 @@ import { Tabs } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Bell, CarFront, Settings, TrendingUp } from "lucide-react-native";
 import React from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AnimatedTabIcon } from "@/components/ui/AnimatedTabIcon";
 import { useLocalization } from "@/contexts/LocalizationContext";
@@ -12,6 +13,11 @@ export default function TabLayout() {
   const { colors } = useTheme();
   const { hapticsEnabled } = usePreferences();
   const { t } = useLocalization();
+  const insets = useSafeAreaInsets();
+
+  // Dynamic values for safe area
+  const bottomPadding = insets.bottom > 0 ? insets.bottom + 8 : 16;
+  const tabBarHeight = 56 + bottomPadding;
 
   return (
     <Tabs
@@ -25,11 +31,11 @@ export default function TabLayout() {
         headerTintColor: colors.text,
         tabBarStyle: {
           backgroundColor: colors.card,
-          borderTopLeftRadius: 24, // Smoother curve
+          borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
-          height: 84, // Standard iOS height (49 + 34 safe area) for optimal reachability
+          height: tabBarHeight,
           borderTopWidth: 0,
-          elevation: 8, // Softer shadow
+          elevation: 8,
           shadowColor: "#000",
           shadowOffset: {
             width: 0,
@@ -38,7 +44,7 @@ export default function TabLayout() {
           shadowOpacity: 0.1,
           shadowRadius: 8,
           paddingTop: 12,
-          paddingBottom: 28, // Accommodate Home Indicator physically
+          paddingBottom: bottomPadding,
           position: "absolute",
           bottom: 0,
           left: 0,

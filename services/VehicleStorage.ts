@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Vehicle, FuelLog } from "@/types/vehicle";
+import { Vehicle, FuelLog } from "@/types";
 import { MaintenanceTask, MaintenanceRecord } from "@/types/maintenance";
 import { Reminder } from "@/components/vehicle-details/quick-reminders/types";
 

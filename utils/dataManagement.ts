@@ -3,7 +3,7 @@ import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 import { Platform } from "react-native";
 
-import { FuelLog, Vehicle, VehicleCategory } from "@/types/vehicle";
+import { FuelLog, Vehicle, VehicleCategory } from "@/types";
 import { MaintenanceRecord, MaintenanceTask } from "@/types/maintenance";
 
 interface AppData {

@@ -44,12 +44,12 @@ export const createStyles = (
     },
     vehicleImage: {
       width: SCREEN_WIDTH,
-      height: isMinimalist ? SCREEN_HEIGHT * 0.6 : 400,
+      height: 400,
       backgroundColor: colors.border,
     },
     noImagePlaceholder: {
       width: "100%",
-      height: isMinimalist ? SCREEN_HEIGHT * 0.6 : 400,
+      height: 400,
       backgroundColor: colors.primary + "15",
       justifyContent: "center",
       alignItems: "center",
@@ -159,11 +159,7 @@ export const createStyles = (
       shadowOpacity: 0.1,
       shadowRadius: 24,
       elevation: 10,
-      minHeight:
-        SCREEN_HEIGHT -
-        (isMinimalist ? SCREEN_HEIGHT * 0.6 : 400) +
-        80 -
-        insets.bottom,
+      minHeight: SCREEN_HEIGHT - 400 + 80 - insets.bottom,
       paddingBottom: 32,
     },
   });

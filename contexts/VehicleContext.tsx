@@ -1,4 +1,4 @@
-import { FuelLog, Vehicle } from "@/types/vehicle";
+import { FuelLog, Vehicle } from "@/types";
 import { MaintenanceRecord, MaintenanceTask } from "@/types/maintenance";
 import { Reminder } from "@/components/vehicle-details/quick-reminders/types";
 import { VehicleStorage } from "@/services/VehicleStorage";

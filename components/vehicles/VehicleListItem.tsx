@@ -1,5 +1,11 @@
 import React from "react";
-import { View, Text, StyleSheet, Platform } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Platform,
+  useWindowDimensions,
+} from "react-native";
 import {
   Card,
   Title,
@@ -33,7 +39,9 @@ const VehicleListItemComponent = ({
   const { t } = useLocalization();
   const { formatDistance } = usePreferences();
   const { getUpcomingTasks, getQuickRemindersByVehicle } = useVehicles();
-  const styles = createVehicleListItemStyles(colors);
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 600;
+  const styles = createVehicleListItemStyles(colors, isTablet);
 
   const upcomingTasks = getUpcomingTasks(vehicle.id);
   const dueTasks = upcomingTasks.filter((t) => {
@@ -46,6 +54,8 @@ const VehicleListItemComponent = ({
   const categoryInfo =
     vehicle.category && VEHICLE_CATEGORY_INFO[vehicle.category];
 
+  const imageHeight = isTablet ? 320 : 200;
+
   return (
     <Card
       style={styles.vehicleCard}
@@ -57,8 +67,10 @@ const VehicleListItemComponent = ({
         {vehicle.photo ? (
           <VehicleImage
             uri={vehicle.photo}
-            position={vehicle.photoPosition}
-            height={200}
+            position={
+              vehicle.photoPositions?.[vehicle.photo] || vehicle.photoPosition
+            }
+            height={imageHeight}
             borderTopRadius={24}
             borderBottomRadius={24}
           />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import ImageModal from "react-native-image-modal";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, Stack, useLocalSearchParams, useRouter } from "expo-router";
@@ -56,6 +56,8 @@ import { QuickReminders } from "@/components/vehicle-details/QuickReminders";
 import { VehicleViewSettingsModal } from "@/components/vehicle-details/VehicleViewSettingsModal";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { VehicleImage } from "@/components/ui/VehicleImage";
+import { TechnicalSpecs } from "@/components/vehicle-details/TechnicalSpecs";
+import { InsuranceSection } from "@/components/vehicle-details/InsuranceSection";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -177,12 +179,25 @@ export default function VehicleDetailScreen() {
   const vehicle = getVehicleById(vehicleId);
   const styles = createStyles(colors, insets, isMinimalist, isDark);
 
-  const displayPhotos =
-    vehicle?.photos && vehicle.photos.length > 0
-      ? vehicle.photos
-      : vehicle?.photo
-      ? [vehicle.photo]
-      : [];
+  const displayPhotos = useMemo(() => {
+    if (!vehicle) return [];
+    const allPhotos =
+      vehicle.photos && vehicle.photos.length > 0
+        ? [...vehicle.photos]
+        : vehicle.photo
+        ? [vehicle.photo]
+        : [];
+
+    // Sort to put the current cover photo first
+    if (vehicle.photo && allPhotos.length > 1) {
+      const coverIndex = allPhotos.indexOf(vehicle.photo);
+      if (coverIndex > -1) {
+        allPhotos.splice(coverIndex, 1);
+        allPhotos.unshift(vehicle.photo);
+      }
+    }
+    return allPhotos;
+  }, [vehicle?.photo, vehicle?.photos]);
 
   const handleDelete = () => {
     if (!vehicle || isDeleting) {
@@ -304,7 +319,7 @@ export default function VehicleDetailScreen() {
                             vehicle?.detailsPhotoPositions?.[uri] ||
                             vehicle?.photoPositions?.[uri]
                           }
-                          height={isMinimalist ? SCREEN_HEIGHT * 0.6 : 400}
+                          height={400}
                         />
                       </View>
                     ))}
@@ -457,6 +472,8 @@ export default function VehicleDetailScreen() {
               {/* Vehicle Info inside curved card */}
               <VehicleHeader vehicle={vehicle} />
 
+              <TechnicalSpecs vehicle={vehicle} />
+
               {/* Quick Reminders "Nagging" Section */}
               {vehicleLayout.showQuickReminders && (
                 <QuickReminders vehicleId={vehicleId} />
@@ -472,6 +489,9 @@ export default function VehicleDetailScreen() {
               {vehicleLayout.showFuelLogs && (
                 <FuelLogSection vehicleId={vehicleId} />
               )}
+
+              {/* Insurance Section - Last */}
+              <InsuranceSection vehicle={vehicle} />
             </LinearGradient>
           </Animated.ScrollView>
         </SafeAreaView>

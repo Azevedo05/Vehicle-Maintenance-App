@@ -127,6 +127,20 @@ export const createTaskFormStyles = (colors: Colors) =>
       borderWidth: 1,
       borderColor: colors.border,
     },
+    dateTrigger: {
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    dateTriggerText: {
+      fontSize: 16,
+      color: colors.text,
+      fontWeight: "500",
+    },
     segmentedControl: {
       flexDirection: "row",
       backgroundColor: colors.surface,

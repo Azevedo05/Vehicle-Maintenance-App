@@ -46,11 +46,7 @@ export const VehicleFilters = ({
         </TouchableOpacity>
       </View>
 
-      <ScrollView
-        style={styles.modalScrollView}
-        contentContainerStyle={styles.modalScrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <View style={styles.modalScrollContent}>
         {/* Category Filter Section */}
         <View style={styles.filterSection}>
           <Text style={styles.filterSectionTitle}>
@@ -199,7 +195,6 @@ export const VehicleFilters = ({
                 styles.sortOptionItem,
                 sortOption === "last_maintenance" &&
                   styles.sortOptionItemActive,
-                { borderBottomWidth: 0 },
               ]}
               onPress={() => onSelectSort("last_maintenance")}
             >
@@ -218,7 +213,7 @@ export const VehicleFilters = ({
             </TouchableOpacity>
           </View>
         </View>
-      </ScrollView>
+      </View>
     </BottomSheet>
   );
 };

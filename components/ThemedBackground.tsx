@@ -3,7 +3,7 @@ import { View, StyleSheet, Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "@/contexts/ThemeContext";
 
-const { width, height } = Dimensions.get("window");
+const { width, height: screenHeight } = Dimensions.get("screen");
 
 interface ThemedBackgroundProps {
   children?: React.ReactNode;
@@ -27,7 +27,11 @@ export const ThemedBackground = ({
   return (
     <LinearGradient
       colors={gradientColors}
-      style={[styles.container, style]}
+      style={[
+        styles.container,
+        { height: screenHeight, backgroundColor: colors.background },
+        style,
+      ]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >

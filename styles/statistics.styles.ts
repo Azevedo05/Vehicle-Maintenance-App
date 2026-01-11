@@ -11,7 +11,6 @@ export const createStyles = (colors: any) =>
     },
     scrollContent: {
       paddingHorizontal: 16,
-      paddingBottom: 24,
     },
     header: {
       paddingTop: 8,

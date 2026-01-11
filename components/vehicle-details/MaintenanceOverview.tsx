@@ -7,8 +7,9 @@ import { useLocalization } from "@/contexts/LocalizationContext";
 import { useVehicles } from "@/contexts/VehicleContext";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { useAppAlert } from "@/contexts/AlertContext";
-import { getMaintenanceTypeLabel } from "@/types/maintenance";
+import { getMaintenanceTypeLabel, MaintenanceTask } from "@/types/maintenance";
 import { createVehicleDetailsStyles } from "@/styles/vehicle/VehicleDetailsStyles";
+import { TaskInfoModal } from "../maintenance/TaskInfoModal";
 
 interface MaintenanceOverviewProps {
   vehicleId: string;
@@ -24,6 +25,11 @@ export const MaintenanceOverview = ({
   const { formatDistance } = usePreferences();
   const { showAlert } = useAppAlert();
   const styles = createVehicleDetailsStyles(colors);
+
+  const [selectedTaskInfo, setSelectedTaskInfo] = React.useState<{
+    task: MaintenanceTask;
+    isStrictlyOverdue: boolean;
+  } | null>(null);
 
   const upcomingTasks = getUpcomingTasks(vehicleId);
 
@@ -60,25 +66,10 @@ export const MaintenanceOverview = ({
               key={item.task.id}
               activeOpacity={0.7}
               onPress={() => {
-                if (isStrictlyOverdue) {
-                  showAlert({
-                    title: t("maintenance.details"),
-                    message: `${t("common.created_at")}: ${new Date(
-                      item.task.createdAt
-                    ).toLocaleDateString()} ${new Date(
-                      item.task.createdAt
-                    ).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}\n\n${
-                      item.task.nextDueDate
-                        ? `${t("common.overdue_since")}: ${new Date(
-                            item.task.nextDueDate
-                          ).toLocaleDateString()}`
-                        : ""
-                    }`,
-                  });
-                }
+                setSelectedTaskInfo({
+                  task: item.task,
+                  isStrictlyOverdue,
+                });
               }}
               style={[
                 styles.taskCard,
@@ -140,6 +131,14 @@ export const MaintenanceOverview = ({
             </TouchableOpacity>
           );
         })
+      )}
+      {selectedTaskInfo && (
+        <TaskInfoModal
+          visible={!!selectedTaskInfo}
+          onClose={() => setSelectedTaskInfo(null)}
+          task={selectedTaskInfo.task}
+          isStrictlyOverdue={selectedTaskInfo.isStrictlyOverdue}
+        />
       )}
     </View>
   );

@@ -1,19 +1,25 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   Modal,
   ScrollView,
   TextInput,
   TouchableOpacity,
   Pressable,
 } from "react-native";
-import { X, Clock, Repeat } from "lucide-react-native";
+import { X, Clock, Repeat, Bell } from "lucide-react-native";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  ZoomIn,
+  ZoomOut,
+} from "react-native-reanimated";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { Reminder } from "./types";
-import { getStatusColor, getStatusText } from "./utils";
+import { getStatusColor } from "./utils";
+import { createReminderDetailStyles } from "@/styles/vehicle/ReminderDetailModal.styles";
 
 interface ReminderDetailModalProps {
   visible: boolean;
@@ -30,42 +36,83 @@ export const ReminderDetailModal = ({
   onUpdateText,
   onComplete,
 }: ReminderDetailModalProps) => {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const { t } = useLocalization();
-  const styles = createStyles(colors);
+  const styles = createReminderDetailStyles(colors, isDark);
+
+  const [currentText, setCurrentText] = useState("");
+  const [isModified, setIsModified] = useState(false);
+
+  useEffect(() => {
+    if (reminder && visible) {
+      setCurrentText(reminder.text);
+      setIsModified(false);
+    }
+  }, [reminder, visible]);
 
   if (!reminder) return null;
+
+  const handleTextChange = (text: string) => {
+    setCurrentText(text);
+    setIsModified(text !== reminder.text);
+  };
+
+  const handleAction = () => {
+    if (isModified) {
+      onUpdateText(currentText);
+      onClose();
+    } else {
+      onComplete();
+    }
+  };
 
   return (
     <Modal
       visible={visible}
       transparent
-      animationType="fade"
+      animationType="none"
       statusBarTranslucent
       onRequestClose={onClose}
     >
-      <View style={styles.modalContainer}>
-        <Pressable style={styles.modalBackdrop} onPress={onClose} />
+      <View style={styles.overlay}>
+        <Pressable style={styles.backdrop} onPress={onClose}>
+          <Animated.View
+            entering={FadeIn}
+            exiting={FadeOut}
+            style={[
+              styles.absoluteFill,
+              { backgroundColor: "rgba(0,0,0,0.6)" },
+            ]}
+          />
+        </Pressable>
 
-        <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{t("quick_reminders.title")}</Text>
-            <TouchableOpacity onPress={onClose}>
-              <X size={24} color={colors.text} />
+        <Animated.View
+          entering={ZoomIn.duration(300)}
+          exiting={ZoomOut.duration(200)}
+          style={styles.modalContainer}
+        >
+          <View style={styles.header}>
+            <View style={styles.titleContainer}>
+              <Bell size={20} color={colors.primary} style={styles.titleIcon} />
+              <Text style={styles.title}>{t("quick_reminders.title")}</Text>
+            </View>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <X size={20} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {/* Info Group (Settings Style) */}
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.content}
+          >
             <View style={styles.menuGroup}>
-              {/* Type/Time Row - Now the only metadata row */}
               <View style={styles.menuRow}>
                 <View style={styles.menuLabelRow}>
                   {reminder.type === "recurring" ? (
-                    <Repeat size={20} color={colors.primary} />
+                    <Repeat size={18} color={colors.primary} />
                   ) : (
                     <Clock
-                      size={20}
+                      size={18}
                       color={getStatusColor(
                         reminder.dueAt,
                         reminder.type,
@@ -82,7 +129,6 @@ export const ReminderDetailModal = ({
                 <Text
                   style={[
                     styles.menuValue,
-                    // Color text red if overdue and not recurring
                     reminder.type !== "recurring" &&
                     reminder.dueAt <= Date.now()
                       ? { color: colors.error }
@@ -110,10 +156,9 @@ export const ReminderDetailModal = ({
                 </Text>
               </View>
 
-              {/* Created At / Overdue Since Metadata */}
               <View style={[styles.menuRow, styles.menuRowLast]}>
-                <View style={{ gap: 4, flex: 1 }}>
-                  <Text style={[styles.timestampText, { textAlign: "right" }]}>
+                <View style={styles.timestampContainer}>
+                  <Text style={styles.timestampText}>
                     {t("common.created_at")}:{" "}
                     {new Date(reminder.createdAt).toLocaleDateString()}{" "}
                     {new Date(reminder.createdAt).toLocaleTimeString([], {
@@ -124,10 +169,7 @@ export const ReminderDetailModal = ({
                   {reminder.type !== "recurring" &&
                     reminder.dueAt <= Date.now() && (
                       <Text
-                        style={[
-                          styles.timestampText,
-                          { color: colors.error, textAlign: "right" },
-                        ]}
+                        style={[styles.timestampText, { color: colors.error }]}
                       >
                         {t("common.overdue_since")}:{" "}
                         {new Date(reminder.dueAt).toLocaleDateString()}{" "}
@@ -141,143 +183,32 @@ export const ReminderDetailModal = ({
               </View>
             </View>
 
-            {/* Description Section */}
-            <Text style={styles.sectionLabel}>
-              {t("quick_reminders.description_label")}
-            </Text>
-            <View style={[styles.menuGroup, { padding: 4, minHeight: 100 }]}>
-              <TextInput
-                style={styles.descriptionInput}
-                multiline
-                value={reminder.text}
-                onChangeText={onUpdateText}
-                placeholder={t("quick_reminders.description_placeholder")}
-                placeholderTextColor={colors.textSecondary}
-              />
+            <View>
+              <Text style={styles.sectionLabel}>
+                {t("quick_reminders.description_label")}
+              </Text>
+              <View style={styles.descriptionInputContainer}>
+                <TextInput
+                  style={styles.descriptionInput}
+                  multiline
+                  value={currentText}
+                  onChangeText={handleTextChange}
+                  placeholder={t("quick_reminders.description_placeholder")}
+                  placeholderTextColor={colors.textSecondary}
+                />
+              </View>
             </View>
           </ScrollView>
 
-          {/* Actions */}
-          <View style={{ marginTop: 24, gap: 12 }}>
-            <TouchableOpacity
-              style={[
-                styles.saveButton,
-                { backgroundColor: colors.primary, marginTop: 0 },
-              ]}
-              onPress={onComplete}
-            >
-              <Text style={styles.saveButtonText}>
-                {t("quick_reminders.complete_button")}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+          <TouchableOpacity style={styles.actionButton} onPress={handleAction}>
+            <Text style={styles.actionButtonText}>
+              {isModified
+                ? t("quick_reminders.update_button")
+                : t("quick_reminders.complete_button")}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
       </View>
     </Modal>
   );
 };
-
-const createStyles = (colors: any) =>
-  StyleSheet.create({
-    modalContainer: {
-      flex: 1,
-      justifyContent: "center",
-      padding: 20,
-    },
-    modalBackdrop: {
-      ...StyleSheet.absoluteFillObject,
-      backgroundColor: "rgba(0,0,0,0.5)",
-    },
-    modalContent: {
-      backgroundColor: colors.background,
-      borderRadius: 24,
-      padding: 24,
-      borderWidth: 1,
-      borderColor: colors.border,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.2,
-      shadowRadius: 20,
-      elevation: 10,
-      maxHeight: "80%",
-    },
-    modalHeader: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: 20,
-    },
-    modalTitle: {
-      fontSize: 20,
-      fontWeight: "700",
-      color: colors.text,
-    },
-    sectionLabel: {
-      fontSize: 14,
-      fontWeight: "600",
-      color: colors.textSecondary,
-      marginBottom: 8,
-      marginTop: 16,
-      marginLeft: 4,
-    },
-    descriptionInput: {
-      fontSize: 16,
-      color: colors.text,
-      lineHeight: 24,
-      textAlign: "left",
-      textAlignVertical: "top",
-      padding: 12,
-      minHeight: 100,
-    },
-    saveButton: {
-      backgroundColor: colors.primary,
-      paddingVertical: 16,
-      borderRadius: 12,
-      alignItems: "center",
-      marginTop: 20,
-    },
-    saveButtonText: {
-      color: "#FFFFFF",
-      fontSize: 16,
-      fontWeight: "700",
-    },
-    // Menu Styles
-    menuGroup: {
-      backgroundColor: colors.card,
-      borderRadius: 16,
-      overflow: "hidden",
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    menuRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      padding: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    menuRowLast: {
-      borderBottomWidth: 0,
-    },
-    menuLabelRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 12,
-    },
-    menuLabel: {
-      fontSize: 16,
-      color: colors.text,
-      fontWeight: "500",
-    },
-    menuValue: {
-      fontSize: 16,
-      color: colors.textSecondary,
-      fontWeight: "600",
-    },
-    timestampText: {
-      fontSize: 12,
-      color: "#8E8E93",
-      fontWeight: "500",
-    },
-  });

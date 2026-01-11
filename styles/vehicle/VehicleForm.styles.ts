@@ -1,7 +1,10 @@
 import { StyleSheet, Platform } from "react-native";
 import { Colors } from "@/contexts/ThemeContext";
 
-export const createFormStyles = (colors: Colors) =>
+export const createFormStyles = (
+  colors: Colors,
+  aspectRatio: number = 16 / 9
+) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -23,7 +26,7 @@ export const createFormStyles = (colors: Colors) =>
     },
     mainPhotoContainer: {
       width: "100%",
-      aspectRatio: 16 / 9,
+      aspectRatio,
       borderRadius: 16,
       overflow: "hidden",
     },
@@ -37,20 +40,6 @@ export const createFormStyles = (colors: Colors) =>
       height: "100%",
       backgroundColor: colors.border,
     },
-    mainLabel: {
-      position: "absolute",
-      bottom: 12,
-      left: 12,
-      backgroundColor: "rgba(0,0,0,0.6)",
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 8,
-    },
-    mainLabelText: {
-      color: "#FFFFFF",
-      fontSize: 12,
-      fontWeight: "600" as const,
-    },
     photoPlaceholder: {
       width: "100%",
       height: "100%",
@@ -62,6 +51,47 @@ export const createFormStyles = (colors: Colors) =>
       justifyContent: "center" as const,
       alignItems: "center" as const,
       gap: 12,
+    },
+    setCoverButton: {
+      position: "absolute",
+      top: 12,
+      left: 12,
+      backgroundColor: "rgba(0,0,0,0.6)", // Glassmorphism dark
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderRadius: 12,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      borderWidth: 1,
+      borderColor: "rgba(255,255,255,0.1)",
+    },
+    setCoverButtonText: {
+      color: "#FFFFFF",
+      fontSize: 12,
+      fontWeight: "600" as const,
+    },
+    mainLabel: {
+      position: "absolute",
+      top: 12,
+      left: 12,
+      backgroundColor: colors.primary,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderRadius: 12,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 6,
+    },
+    mainLabelText: {
+      color: "#FFFFFF",
+      fontSize: 12,
+      fontWeight: "700" as const,
     },
     photoPlaceholderText: {
       fontSize: 16,
@@ -232,5 +262,74 @@ export const createFormStyles = (colors: Colors) =>
       justifyContent: "center",
       alignItems: "center",
       padding: 20,
+    },
+    sectionHeader: {
+      marginTop: 16,
+      marginBottom: 12,
+    },
+    sectionTitle: {
+      fontSize: 22,
+      fontWeight: "800" as const,
+      color: "#FFFFFF",
+    },
+    row: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+    },
+    extrasToggle: {
+      marginTop: 24,
+      backgroundColor: colors.surface,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      overflow: "hidden",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    extrasToggleContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: 16,
+    },
+    extrasToggleLeft: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+    },
+    extrasToggleText: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.text,
+    },
+    pressureSwitcher: {
+      flexDirection: "row",
+      backgroundColor: colors.surface,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 2,
+      alignSelf: "flex-start",
+    },
+    pressureSwitcherOption: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 8,
+      minWidth: 50,
+      alignItems: "center",
+    },
+    pressureSwitcherOptionActive: {
+      backgroundColor: colors.primary,
+    },
+    pressureSwitcherText: {
+      fontSize: 12,
+      fontWeight: "700",
+      color: colors.textSecondary,
+    },
+    pressureSwitcherTextActive: {
+      color: "#FFFFFF",
     },
   });

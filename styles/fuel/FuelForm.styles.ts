@@ -62,14 +62,17 @@ export const createFuelFormStyles = (colors: Colors) =>
       gap: 8,
     },
     typeChip: {
-      // Custom style override if needed
+      flexGrow: 1,
+      minWidth: "40%",
     },
     row: {
       flexDirection: "row",
+      flexWrap: "wrap",
       gap: 12,
     },
     rowItem: {
       flex: 1,
+      minWidth: 140,
     },
     suggestionsContainer: {
       marginTop: 4,

@@ -14,6 +14,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Check, Lightbulb, Calendar, Info } from "lucide-react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { useVehicles } from "@/contexts/VehicleContext";
 import {
@@ -55,8 +56,9 @@ export default function AddTaskScreen() {
   const [lastMileage, setLastMileage] = useState(
     vehicle?.currentMileage.toString() || "0"
   );
-  const [isRecurring, setIsRecurring] = useState(true);
+  const [isRecurring, setIsRecurring] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   // Update effect for initial state if vehicle loads late
   React.useEffect(() => {
@@ -124,6 +126,20 @@ export default function AddTaskScreen() {
       return t("maintenance.recommended_days_simple", {
         days: typeInfo.defaultTimeInterval.toString(),
       });
+    }
+  };
+
+  const getSelectedDate = () => {
+    const days = parseInt(intervalValue || "0");
+    return new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+  };
+
+  const handleDateChange = (event: any, date?: Date) => {
+    setShowDatePicker(Platform.OS === "ios");
+    if (date) {
+      const diffMs = date.getTime() - Date.now();
+      const diffDays = Math.max(1, Math.ceil(diffMs / (24 * 60 * 60 * 1000)));
+      setIntervalValue(diffDays.toString());
     }
   };
 
@@ -367,6 +383,37 @@ export default function AddTaskScreen() {
                   keyboardType="numeric"
                 />
               </View>
+
+              {intervalType === "date" && (
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>
+                    {t("maintenance.next_maintenance_date")}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.dateTrigger}
+                    onPress={() => setShowDatePicker(true)}
+                    activeOpacity={0.7}
+                  >
+                    <Calendar
+                      size={20}
+                      color={colors.primary}
+                      style={{ marginRight: 12 }}
+                    />
+                    <Text style={styles.dateTriggerText}>
+                      {getSelectedDate().toLocaleDateString()}
+                    </Text>
+                  </TouchableOpacity>
+                  {showDatePicker && (
+                    <DateTimePicker
+                      value={getSelectedDate()}
+                      mode="date"
+                      display={Platform.OS === "ios" ? "spinner" : "default"}
+                      onChange={handleDateChange}
+                      minimumDate={new Date(Date.now() + 24 * 60 * 60 * 1000)}
+                    />
+                  )}
+                </View>
+              )}
 
               {intervalType === "mileage" && (
                 <View style={styles.inputGroup}>

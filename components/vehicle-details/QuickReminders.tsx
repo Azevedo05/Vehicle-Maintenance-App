@@ -189,10 +189,7 @@ export const QuickReminders = ({ vehicleId }: QuickRemindersProps) => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.titleRow}>
-          <Bell size={18} color={colors.primary} />
-          <Text style={styles.title}>{t("quick_reminders.title")}</Text>
-        </View>
+        <Text style={styles.title}>{t("quick_reminders.title")}</Text>
         <TouchableOpacity style={styles.addButton} onPress={handleOpenModal}>
           <Plus size={20} color="#fff" />
         </TouchableOpacity>
@@ -216,6 +213,7 @@ export const QuickReminders = ({ vehicleId }: QuickRemindersProps) => {
         </ScrollView>
       ) : (
         <View style={styles.emptyState}>
+          <Bell size={32} color={colors.placeholder} />
           <Text style={styles.emptyText}>
             {t("quick_reminders.empty_state")}
           </Text>
@@ -244,25 +242,21 @@ export const QuickReminders = ({ vehicleId }: QuickRemindersProps) => {
 const createStyles = (colors: any) =>
   StyleSheet.create({
     container: {
-      marginTop: 20,
-      marginBottom: 10,
+      marginTop: 24,
+      marginBottom: 8,
     },
     header: {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
       paddingHorizontal: 20,
-      marginBottom: 12,
-    },
-    titleRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 8,
+      marginBottom: 16,
     },
     title: {
-      fontSize: 18,
-      fontWeight: "700",
+      fontSize: 22,
+      fontWeight: "800",
       color: colors.text,
+      letterSpacing: 0.5,
     },
     addButton: {
       backgroundColor: colors.primary,
@@ -280,18 +274,17 @@ const createStyles = (colors: any) =>
     emptyState: {
       backgroundColor: colors.card,
       marginHorizontal: 20,
-      padding: 24,
-      borderRadius: 20,
+      padding: 32,
+      borderRadius: 16,
       alignItems: "center",
       justifyContent: "center",
+      gap: 12,
       borderStyle: "dashed",
-      borderWidth: 2,
+      borderWidth: 1,
       borderColor: colors.border,
-      opacity: 0.8,
-      minHeight: 100,
     },
     emptyText: {
-      fontSize: 14,
+      fontSize: 16,
       color: colors.textSecondary,
       textAlign: "center",
     },

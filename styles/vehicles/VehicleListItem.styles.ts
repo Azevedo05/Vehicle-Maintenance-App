@@ -1,7 +1,10 @@
-import { StyleSheet, Platform } from "react-native";
+import { StyleSheet, Platform, Dimensions } from "react-native";
 import { Colors } from "@/contexts/ThemeContext";
 
-export const createVehicleListItemStyles = (colors: Colors) =>
+export const createVehicleListItemStyles = (
+  colors: Colors,
+  isTablet: boolean
+) =>
   StyleSheet.create({
     vehicleCard: {
       borderRadius: 24,
@@ -11,13 +14,16 @@ export const createVehicleListItemStyles = (colors: Colors) =>
       shadowOpacity: 0.1,
       shadowRadius: 12,
       elevation: 4,
-      marginBottom: 16,
+      marginBottom: 20,
+      marginHorizontal: isTablet ? 8 : 0,
     },
     imageContainer: {
       position: "relative",
+      overflow: "hidden",
+      borderRadius: 24,
     },
     vehicleImagePlaceholder: {
-      height: 200,
+      height: isTablet ? 320 : 200,
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
       width: "100%",
@@ -27,10 +33,10 @@ export const createVehicleListItemStyles = (colors: Colors) =>
     },
     badgeContainer: {
       position: "absolute",
-      top: 16,
-      right: 16,
+      top: 12,
+      right: 12,
       flexDirection: "row",
-      gap: 10,
+      gap: 8,
       zIndex: 1,
     },
     archivedBadgeAndroid: {

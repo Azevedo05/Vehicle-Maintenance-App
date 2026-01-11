@@ -26,6 +26,9 @@ export const useVehicleImageHandling = ({
   const { showAlert } = useAppAlert();
 
   const [photo, setPhoto] = useState<string | undefined>(initialPhoto);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | undefined>(
+    initialPhoto
+  );
   const [photos, setPhotos] = useState<string[]>(initialPhotos);
   const [photoPositions, setPhotoPositions] = useState<
     Record<string, ImagePosition>
@@ -90,9 +93,8 @@ export const useVehicleImageHandling = ({
         ...prev,
         [pendingImage]: result.detailsPosition,
       }));
-      if (!photo) {
-        setPhoto(pendingImage);
-      }
+      setPhoto(pendingImage);
+      setSelectedPhoto(pendingImage);
       setPendingImage(null);
       setShowPositionModal(false);
     }
@@ -108,6 +110,10 @@ export const useVehicleImageHandling = ({
     if (photo === uriToRemove) {
       const remaining = photos.filter((p) => p !== uriToRemove);
       setPhoto(remaining.length > 0 ? remaining[0] : undefined);
+    }
+    if (selectedPhoto === uriToRemove) {
+      const remaining = photos.filter((p) => p !== uriToRemove);
+      setSelectedPhoto(remaining.length > 0 ? remaining[0] : undefined);
     }
 
     // Cleanup positions
@@ -126,6 +132,8 @@ export const useVehicleImageHandling = ({
   return {
     photo,
     setPhoto,
+    selectedPhoto,
+    setSelectedPhoto,
     photos,
     setPhotos,
     photoPositions,

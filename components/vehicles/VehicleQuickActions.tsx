@@ -1,6 +1,13 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { Wrench, Fuel, BarChart3, Edit, Trash2 } from "lucide-react-native";
+import {
+  Wrench,
+  Fuel,
+  BarChart3,
+  Edit,
+  Trash2,
+  ChevronRight,
+} from "lucide-react-native";
 import { router } from "expo-router";
 
 import { BottomSheet } from "@/components/BottomSheet";
@@ -61,15 +68,24 @@ export const VehicleQuickActions = ({
     });
   };
 
-  if (!vehicleId) return null;
+  if (!vehicleId || !vehicle) return null;
 
   return (
     <BottomSheet visible={visible} onClose={onClose}>
       <View style={styles.modalHeaderRow}>
-        <Text style={styles.modalTitle}>{t("vehicles.quick_actions")}</Text>
+        <View>
+          <Text style={styles.modalTitle}>
+            {vehicle.make} {vehicle.model}
+          </Text>
+          <Text style={styles.modalSubtitle}>
+            {vehicle.licensePlate || t("vehicles.no_plate")}
+          </Text>
+        </View>
       </View>
 
       <View style={styles.actionsList}>
+        <Text style={styles.actionsSectionTitle}>{t("common.activity")}</Text>
+
         <TouchableOpacity
           style={styles.actionItem}
           onPress={() => {
@@ -81,13 +97,18 @@ export const VehicleQuickActions = ({
           }}
         >
           <View style={styles.actionIcon}>
-            <Wrench size={24} color={colors.primary} />
+            <Wrench size={20} color={colors.primary} />
           </View>
           <View style={styles.actionContent}>
             <Text style={styles.actionTitle}>
               {t("vehicles.quick_add_maintenance")}
             </Text>
           </View>
+          <ChevronRight
+            size={18}
+            color={colors.textSecondary}
+            style={styles.actionChevron}
+          />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -101,13 +122,18 @@ export const VehicleQuickActions = ({
           }}
         >
           <View style={styles.actionIcon}>
-            <Fuel size={24} color={colors.primary} />
+            <Fuel size={20} color={colors.primary} />
           </View>
           <View style={styles.actionContent}>
             <Text style={styles.actionTitle}>
               {t("vehicles.quick_add_fuel")}
             </Text>
           </View>
+          <ChevronRight
+            size={18}
+            color={colors.textSecondary}
+            style={styles.actionChevron}
+          />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -118,16 +144,23 @@ export const VehicleQuickActions = ({
           }}
         >
           <View style={styles.actionIcon}>
-            <BarChart3 size={24} color={colors.primary} />
+            <BarChart3 size={20} color={colors.primary} />
           </View>
           <View style={styles.actionContent}>
             <Text style={styles.actionTitle}>
               {t("vehicles.quick_view_stats")}
             </Text>
           </View>
+          <ChevronRight
+            size={18}
+            color={colors.textSecondary}
+            style={styles.actionChevron}
+          />
         </TouchableOpacity>
 
-        <View style={styles.divider} />
+        <Text style={[styles.actionsSectionTitle, { marginTop: 12 }]}>
+          {t("common.management")}
+        </Text>
 
         <TouchableOpacity
           style={styles.actionItem}
@@ -137,22 +170,34 @@ export const VehicleQuickActions = ({
           }}
         >
           <View style={styles.actionIcon}>
-            <Edit size={24} color={colors.text} />
+            <Edit size={20} color={colors.text} />
           </View>
           <View style={styles.actionContent}>
             <Text style={styles.actionTitle}>{t("vehicles.edit")}</Text>
           </View>
+          <ChevronRight
+            size={18}
+            color={colors.textSecondary}
+            style={styles.actionChevron}
+          />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionItem} onPress={handleDelete}>
-          <View style={styles.actionIcon}>
-            <Trash2 size={24} color={colors.error} />
+          <View
+            style={[styles.actionIcon, { borderColor: colors.error + "30" }]}
+          >
+            <Trash2 size={20} color={colors.error} />
           </View>
           <View style={styles.actionContent}>
             <Text style={[styles.actionTitle, { color: colors.error }]}>
               {t("common.delete")}
             </Text>
           </View>
+          <ChevronRight
+            size={18}
+            color={colors.error}
+            style={[styles.actionChevron, { opacity: 0.2 }]}
+          />
         </TouchableOpacity>
       </View>
     </BottomSheet>

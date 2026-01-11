@@ -8,7 +8,10 @@ import {
   ScrollView,
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import {
   Plus,
   Car,
@@ -110,6 +113,12 @@ export default function VehiclesScreen() {
       keyboardDidShowListener.remove();
     };
   }, []);
+
+  const insets = useSafeAreaInsets();
+  const tbBottomPadding = insets.bottom > 0 ? insets.bottom + 8 : 16;
+  const tabBarHeight = 56 + tbBottomPadding;
+  const bottomPadding = tabBarHeight + 16;
+  const fabBottom = bottomPadding; // Unificar para facilitar manutenção
 
   const styles = createStyles(colors);
 
@@ -394,7 +403,7 @@ export default function VehiclesScreen() {
             {/* Sortable List */}
             {filteredVehicles.length > 0 ? (
               <Sortable.Grid
-                columns={1}
+                columns={width >= 600 ? 2 : 1}
                 data={filteredVehicles}
                 renderItem={renderSortableItem}
                 customHandle
@@ -418,7 +427,11 @@ export default function VehiclesScreen() {
             data={filteredVehicles}
             renderItem={renderNormalItem}
             keyExtractor={(item) => item.id}
-            ItemSeparatorComponent={renderItemSeparator}
+            numColumns={width >= 600 ? 2 : 1}
+            key={width >= 600 ? "grid" : "list"}
+            ItemSeparatorComponent={
+              width >= 600 ? undefined : renderItemSeparator
+            }
             ListHeaderComponent={renderListHeader}
             ListFooterComponent={
               <VehicleListFooter
@@ -429,14 +442,24 @@ export default function VehiclesScreen() {
             ListEmptyComponent={
               <VehicleListEmpty hasVehicles={vehicles.length > 0} />
             }
-            contentContainerStyle={[styles.scrollContent, { flexGrow: 1 }]}
+            contentContainerStyle={[
+              styles.scrollContent,
+              {
+                flexGrow: 1,
+                paddingBottom: bottomPadding,
+              },
+            ]}
             showsVerticalScrollIndicator={false}
           />
         )}
 
         {!isKeyboardVisible && !isReorderMode && (
           <Animated.View
-            style={[styles.addButton, animatedFabStyle, { zIndex: 999 }]}
+            style={[
+              styles.addButton,
+              animatedFabStyle,
+              { zIndex: 999, bottom: fabBottom },
+            ]}
           >
             <TouchableOpacity
               style={{

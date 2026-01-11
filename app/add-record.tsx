@@ -11,7 +11,8 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Check, Trash2 } from "lucide-react-native";
+import { Check, Trash2, Calendar } from "lucide-react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { useVehicles } from "@/contexts/VehicleContext";
 import {
@@ -40,6 +41,7 @@ export default function AddRecordScreen() {
     updateRecord,
     getRecordById,
     deleteRecord,
+    deleteTask,
     restoreLastSnapshot,
   } = useVehicles();
   const { colors } = useTheme();
@@ -63,7 +65,8 @@ export default function AddRecordScreen() {
         ? t("maintenance.types.battery")
         : t("maintenance.types.oil_change"))
   );
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [mileage, setMileage] = useState("");
   const [cost, setCost] = useState("");
   const [location, setLocation] = useState("");
@@ -75,7 +78,7 @@ export default function AddRecordScreen() {
     if (existingRecord) {
       setSelectedType(existingRecord.type);
       setTitle(existingRecord.title);
-      setDate(new Date(existingRecord.date).toISOString().split("T")[0]);
+      setDate(new Date(existingRecord.date));
       setMileage(existingRecord.mileage.toString());
       setCost(existingRecord.cost?.toString() || "");
       setLocation(existingRecord.location || "");
@@ -116,25 +119,38 @@ export default function AddRecordScreen() {
   };
 
   const handleDelete = () => {
-    if (!existingRecord) return;
+    if (!existingRecord && !task) return;
 
     showAlert({
       title: t("common.delete"),
-      message: t("maintenance.delete_confirm"),
+      message: existingRecord
+        ? t("maintenance.delete_record_text")
+        : t("maintenance.delete_confirm"),
       buttons: [
         { text: t("common.cancel"), style: "cancel" },
         {
           text: t("common.delete"),
           style: "destructive",
           onPress: async () => {
-            await deleteRecord(existingRecord.id);
-            showToast({
-              message: t("maintenance.delete_success"),
-              actionLabel: t("common.undo"),
-              onAction: async () => {
-                await restoreLastSnapshot();
-              },
-            });
+            if (existingRecord) {
+              await deleteRecord(existingRecord.id);
+              showToast({
+                message: t("maintenance.delete_record_success"),
+                actionLabel: t("common.undo"),
+                onAction: async () => {
+                  await restoreLastSnapshot();
+                },
+              });
+            } else if (task) {
+              await deleteTask(task.id);
+              showToast({
+                message: t("maintenance.delete_success"),
+                actionLabel: t("common.undo"),
+                onAction: async () => {
+                  await restoreLastSnapshot();
+                },
+              });
+            }
             router.back();
           },
         },
@@ -193,7 +209,7 @@ export default function AddRecordScreen() {
         taskId: taskId as string | undefined,
         type: selectedType,
         title: recordTitle,
-        date: new Date(date).getTime(),
+        date: date.getTime(),
         mileage: mileageNum,
         cost: costNum,
         location: location.trim() || undefined,
@@ -259,7 +275,7 @@ export default function AddRecordScreen() {
                 >
                   <Check size={24} color={colors.primary} />
                 </TouchableOpacity>
-                {existingRecord && (
+                {(existingRecord || task) && (
                   <TouchableOpacity
                     onPress={handleDelete}
                     disabled={isSubmitting}
@@ -329,13 +345,32 @@ export default function AddRecordScreen() {
                 />
               )}
 
-              <Input
-                label={t("maintenance.date")}
-                value={date}
-                onChangeText={setDate}
-                placeholder={t("maintenance.date_placeholder")}
-                required
-              />
+              <TouchableOpacity
+                onPress={() => setShowDatePicker(true)}
+                activeOpacity={0.7}
+              >
+                <Input
+                  label={t("maintenance.date")}
+                  value={date.toLocaleDateString()}
+                  placeholder={t("maintenance.date_placeholder")}
+                  required
+                  editable={false}
+                  pointerEvents="none"
+                />
+              </TouchableOpacity>
+
+              {showDatePicker && (
+                <DateTimePicker
+                  value={date}
+                  mode="date"
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+                  onChange={(event, selectedDate) => {
+                    setShowDatePicker(Platform.OS === "ios");
+                    if (selectedDate) setDate(selectedDate);
+                  }}
+                  maximumDate={new Date()}
+                />
+              )}
 
               <Input
                 label={`${t("vehicles.current_mileage")} (${t("vehicles.km")})`}

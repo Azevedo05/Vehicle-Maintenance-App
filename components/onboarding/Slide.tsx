@@ -4,12 +4,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import {
-  Check,
   Car,
   Bell,
   Fuel,
   TrendingUp,
   CalendarClock,
+  Check,
 } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
@@ -180,17 +180,12 @@ export const Slide = React.memo(({ item, index, scrollX }: SlideProps) => {
           {/* --- 3. READY SLIDE --- */}
           {item.type === "ready" && (
             <View style={styles.centerContent}>
-              <View
-                style={[
-                  styles.iconContainer,
-                  { backgroundColor: colors.success + "20" },
-                ]}
-              >
-                <Check size={80} color={colors.success} />
-                <View style={[styles.glow, { shadowColor: colors.success }]} />
+              <View style={styles.minimalIconCircle}>
+                <Check size={48} color={colors.primary} strokeWidth={2.5} />
               </View>
-              <Text style={styles.slideTitle}>{item.title}</Text>
-              <Text style={styles.slideBody}>{item.subtitle}</Text>
+
+              <Text style={styles.cleanTitle}>{item.title}</Text>
+              <Text style={styles.cleanSubtitle}>{item.subtitle}</Text>
             </View>
           )}
         </Animated.View>
@@ -301,45 +296,36 @@ const createStyles = (colors: any) =>
       fontWeight: "500",
       lineHeight: 24,
     },
-    // Ready Slide
+    // Minimalist Ready Slide
     centerContent: {
       alignItems: "center",
       width: "100%",
     },
-    iconContainer: {
-      width: 140,
-      height: 140,
-      borderRadius: 70,
-      backgroundColor: colors.card,
-      justifyContent: "center",
-      alignItems: "center",
-      marginBottom: 40,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    glow: {
-      position: "absolute",
+    minimalIconCircle: {
       width: 100,
       height: 100,
       borderRadius: 50,
-      shadowOffset: { width: 0, height: 0 },
-      shadowOpacity: 0.8,
-      shadowRadius: 40,
-      elevation: 10,
+      backgroundColor: colors.primary + "08",
+      justifyContent: "center",
+      alignItems: "center",
+      marginBottom: 32,
+      borderWidth: 1,
+      borderColor: colors.primary + "15",
     },
-    slideTitle: {
+    cleanTitle: {
       fontSize: 32,
-      fontWeight: "bold",
+      fontWeight: "700",
       color: colors.text,
       marginBottom: 16,
       textAlign: "center",
+      letterSpacing: -0.5,
     },
-    slideBody: {
+    cleanSubtitle: {
       fontSize: 18,
-      color: colors.text,
+      color: colors.textSecondary,
       textAlign: "center",
       lineHeight: 28,
       maxWidth: "85%",
-      opacity: 0.7,
+      fontWeight: "400",
     },
   });

@@ -1,4 +1,6 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
+
+const { width } = Dimensions.get("window");
 
 export const createStyles = (colors: any) =>
   StyleSheet.create({
@@ -16,8 +18,8 @@ export const createStyles = (colors: any) =>
       flex: 1,
     },
     scrollContent: {
-      paddingHorizontal: 16,
-      paddingBottom: 100,
+      paddingHorizontal: width >= 600 ? 24 : 16,
+      paddingBottom: 16,
     },
     header: {
       paddingTop: 8,
@@ -357,10 +359,15 @@ export const createStyles = (colors: any) =>
       zIndex: 1000,
     },
     modalTitle: {
-      fontSize: 16,
-      fontWeight: "600" as const,
+      fontSize: 20,
+      fontWeight: "700" as const,
+      color: colors.text,
+      marginBottom: 4,
+    },
+    modalSubtitle: {
+      fontSize: 14,
       color: colors.textSecondary,
-      marginBottom: 12,
+      marginBottom: 16,
     },
     modalAction: {
       flexDirection: "row",
@@ -409,7 +416,7 @@ export const createStyles = (colors: any) =>
       flexGrow: 0,
     },
     modalScrollContent: {
-      paddingBottom: 8,
+      paddingBottom: 0,
     },
     quickLabel: {
       fontSize: 12,
@@ -434,18 +441,19 @@ export const createStyles = (colors: any) =>
     actionItem: {
       flexDirection: "row",
       alignItems: "center",
-      padding: 12,
-      backgroundColor: colors.card,
-      borderRadius: 12,
+      padding: 14,
+      backgroundColor: colors.surface,
+      borderRadius: 16,
       borderWidth: 1,
       borderColor: colors.border,
-      gap: 12,
+      gap: 14,
+      marginBottom: 4,
     },
     actionIcon: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: colors.background,
+      width: 44,
+      height: 44,
+      borderRadius: 12,
+      backgroundColor: colors.card,
       justifyContent: "center",
       alignItems: "center",
     },
@@ -456,11 +464,24 @@ export const createStyles = (colors: any) =>
       fontSize: 16,
       fontWeight: "600" as const,
       color: colors.text,
-      marginBottom: 2,
     },
     actionDescription: {
-      fontSize: 13,
+      fontSize: 12,
       color: colors.textSecondary,
+      lineHeight: 16,
+    },
+    actionChevron: {
+      opacity: 0.3,
+    },
+    actionsSectionTitle: {
+      fontSize: 12,
+      fontWeight: "700" as const,
+      color: colors.textSecondary,
+      textTransform: "uppercase" as const,
+      letterSpacing: 1,
+      marginTop: 8,
+      marginBottom: 8,
+      marginLeft: 4,
     },
     divider: {
       height: 1,

@@ -119,6 +119,15 @@ function RootLayoutNav() {
         }}
       />
       <Stack.Screen
+        name="add-insurance"
+        options={{
+          presentation: "modal",
+          title: t("insurance.add"),
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.text,
+        }}
+      />
+      <Stack.Screen
         name="record/[id]"
         options={{
           title: t("maintenance.details"),

@@ -1,6 +1,14 @@
 import * as ImagePicker from "expo-image-picker";
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import { Camera, X, Check, Images, Plus, Trash2 } from "lucide-react-native";
+import {
+  Camera,
+  X,
+  Check,
+  Images,
+  Plus,
+  Trash2,
+  Star,
+} from "lucide-react-native";
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -13,10 +21,12 @@ import {
   View,
   ActivityIndicator,
   Modal,
+  useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
@@ -32,8 +42,11 @@ import {
   TransmissionType,
 } from "@/types/vehicle";
 import { Chip } from "@/components/ui/Chip";
+import { Input } from "@/components/ui/Input";
 import { createFormStyles } from "@/styles/vehicle/VehicleForm.styles";
+import Toast from "react-native-toast-message";
 import { useVehicleImageHandling } from "@/hooks/useVehicleImageHandling";
+import { VehicleExtrasForm } from "@/components/vehicle/VehicleExtrasForm";
 import { ThemedBackground } from "@/components/ThemedBackground";
 import { VehicleImage } from "@/components/ui/VehicleImage";
 import { ImagePositionModal } from "@/components/ui/ImagePositionModal";
@@ -54,6 +67,8 @@ export default function EditVehicleScreen() {
   const {
     photo,
     setPhoto,
+    selectedPhoto,
+    setSelectedPhoto,
     photos,
     setPhotos,
     photoPositions,
@@ -92,23 +107,63 @@ export default function EditVehicleScreen() {
   );
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [engineError, setEngineError] = useState<string | null>(null);
+  const [tireSizeFront, setTireSizeFront] = useState(
+    vehicle?.tireSizeFront || ""
+  );
+  const [tireSizeRear, setTireSizeRear] = useState(vehicle?.tireSizeRear || "");
+  const [tirePressureFront, setTirePressureFront] = useState(
+    vehicle?.tirePressureFront || ""
+  );
+  const [tirePressureRear, setTirePressureRear] = useState(
+    vehicle?.tirePressureRear || ""
+  );
+  const [tirePressureUnit, setTirePressureUnit] = useState<
+    import("@/types/vehicle").PressureUnit
+  >(vehicle?.tirePressureUnit || "bar");
+  const [vin, setVin] = useState(vehicle?.vin || "");
+  const [batteryCapacity, setBatteryCapacity] = useState(
+    vehicle?.batteryCapacity?.toString() || ""
+  );
+  const [batteryCapacityError, setBatteryCapacityError] = useState<
+    string | null
+  >(null);
+  const [horsepower, setHorsepower] = useState(
+    vehicle?.horsepower?.toString() || ""
+  );
+  const [horsepowerError, setHorsepowerError] = useState<string | null>(null);
+  const [torque, setTorque] = useState(vehicle?.torque?.toString() || "");
+  const [torqueError, setTorqueError] = useState<string | null>(null);
+  const [driveType, setDriveType] = useState<
+    import("@/types/vehicle").DriveType | undefined
+  >(vehicle?.driveType);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleEngineChange = (value: string) => {
-    setEngine(value);
-    if (value.trim() === "") {
-      setEngineError(null);
-      return;
-    }
-    const numValue = parseInt(value.replace(/\D/g, ""), 10);
-    if (isNaN(numValue) || numValue < 50 || numValue > 13000) {
-      setEngineError(t("vehicles.invalid_engine_text"));
-    } else {
-      setEngineError(null);
-    }
-  };
+  const hasExtraData = !!(
+    vehicle?.engine ||
+    vehicle?.transmission ||
+    vehicle?.purchaseDate ||
+    vehicle?.horsepower ||
+    vehicle?.torque ||
+    vehicle?.vin ||
+    vehicle?.batteryCapacity ||
+    vehicle?.driveType ||
+    vehicle?.tireSizeFront ||
+    vehicle?.tireSizeRear
+  );
+  const [showExtras, setShowExtras] = useState(hasExtraData);
 
-  const styles = createFormStyles(colors);
+  const { width: windowWidth } = useWindowDimensions();
+
+  // Proporção dinâmica para corresponder aos cartões da lista principal
+  const isTablet = windowWidth >= 600;
+  const imageHeight = isTablet ? 320 : 200;
+  // Para tablets, o frame no modal usa (screenWidth - 48) para padding de 24 em cada lado
+  // A altura é 320. Para phone, width total - 48 padding e altura 200
+  const listAspectRatio = (windowWidth - 48) / imageHeight;
+  const detailsAspectRatio = windowWidth / 400; // 400 é a altura do banner nos detalhes
+
+  const formAspectRatio = 16 / 9;
+  const styles = createFormStyles(colors, formAspectRatio);
 
   if (!vehicle) {
     return (
@@ -155,6 +210,14 @@ export default function EditVehicleScreen() {
       return;
     }
 
+    if (engineError || horsepowerError || torqueError || batteryCapacityError) {
+      showAlert({
+        title: t("common.error"),
+        message: t("vehicles.fill_required"),
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const engineNum = engine
@@ -180,6 +243,29 @@ export default function EditVehicleScreen() {
             : undefined,
         transmission: fuelType === "electric" ? "automatic" : transmission,
         purchaseDate: purchaseDate?.getTime(),
+        horsepower:
+          horsepower &&
+          parseInt(horsepower, 10) >= 5 &&
+          parseInt(horsepower, 10) <= 2000
+            ? parseInt(horsepower, 10)
+            : undefined,
+        torque:
+          torque && parseInt(torque, 10) >= 5 && parseInt(torque, 10) <= 3000
+            ? parseInt(torque, 10)
+            : undefined,
+        tireSizeFront: tireSizeFront.trim() || undefined,
+        tireSizeRear: tireSizeRear.trim() || undefined,
+        tirePressureFront: tirePressureFront.trim() || undefined,
+        tirePressureRear: tirePressureRear.trim() || undefined,
+        tirePressureUnit,
+        vin: vin.trim() || undefined,
+        batteryCapacity:
+          batteryCapacity &&
+          parseFloat(batteryCapacity) >= 1 &&
+          parseFloat(batteryCapacity) <= 250
+            ? parseFloat(batteryCapacity)
+            : undefined,
+        driveType,
       });
 
       router.back();
@@ -239,9 +325,9 @@ export default function EditVehicleScreen() {
           }}
         />
         <KeyboardAvoidingView
-          behavior="padding"
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
           style={styles.keyboardView}
-          keyboardVerticalOffset={100}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
         >
           <ScrollView
             style={styles.scrollView}
@@ -250,16 +336,16 @@ export default function EditVehicleScreen() {
           >
             <View style={styles.photoSection}>
               <View style={styles.mainPhotoContainer}>
-                {photo ? (
+                {selectedPhoto ? (
                   <Animated.View
                     entering={FadeIn}
                     exiting={FadeOut}
                     style={styles.photoWrapper}
                   >
                     <VehicleImage
-                      uri={photo}
-                      position={photoPositions[photo]}
-                      aspectRatio={16 / 9}
+                      uri={selectedPhoto}
+                      position={photoPositions[selectedPhoto]}
+                      aspectRatio={formAspectRatio}
                       borderTopRadius={16}
                       borderBottomRadius={16}
                     />
@@ -286,11 +372,30 @@ export default function EditVehicleScreen() {
                       </TouchableOpacity>
                     </View>
 
-                    <View style={styles.mainLabel}>
-                      <Text style={styles.mainLabelText}>
-                        {t("vehicles.main_photo")}
-                      </Text>
-                    </View>
+                    {selectedPhoto === photo ? (
+                      <View style={styles.mainLabel}>
+                        <Star size={14} color="#FFF" fill="#FFF" />
+                        <Text style={styles.mainLabelText}>
+                          {t("vehicles.main_photo")}
+                        </Text>
+                      </View>
+                    ) : (
+                      <TouchableOpacity
+                        style={styles.setCoverButton}
+                        onPress={() => {
+                          setPhoto(selectedPhoto);
+                          Haptics.impactAsync(
+                            Haptics.ImpactFeedbackStyle.Medium
+                          );
+                        }}
+                        activeOpacity={0.8}
+                      >
+                        <Star size={14} color="#FFF" />
+                        <Text style={styles.setCoverButtonText}>
+                          {t("vehicles.set_as_main")}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
                   </Animated.View>
                 ) : (
                   <TouchableOpacity
@@ -323,14 +428,14 @@ export default function EditVehicleScreen() {
                     <View key={index} style={styles.galleryItemContainer}>
                       <TouchableOpacity
                         onPress={() => {
-                          if (photo !== uri) {
-                            setPhoto(uri);
+                          if (selectedPhoto !== uri) {
+                            setSelectedPhoto(uri);
                           }
                         }}
                         activeOpacity={0.7}
                         style={[
                           styles.galleryItem,
-                          photo === uri && styles.galleryItemSelected,
+                          selectedPhoto === uri && styles.galleryItemSelected,
                         ]}
                       >
                         <Image
@@ -358,72 +463,47 @@ export default function EditVehicleScreen() {
             </View>
 
             <View style={styles.form}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>
-                  {t("vehicles.make")} <Text style={styles.required}>*</Text>
-                </Text>
-                <TextInput
-                  style={styles.input}
-                  value={make}
-                  onChangeText={setMake}
-                  placeholder={t("vehicles.make_placeholder")}
-                  placeholderTextColor={colors.placeholder}
-                />
-              </View>
+              <Input
+                label={t("vehicles.make")}
+                value={make}
+                onChangeText={setMake}
+                placeholder={t("vehicles.make_placeholder")}
+                required
+              />
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>
-                  {t("vehicles.model")} <Text style={styles.required}>*</Text>
-                </Text>
-                <TextInput
-                  style={styles.input}
-                  value={model}
-                  onChangeText={setModel}
-                  placeholder={t("vehicles.model_placeholder")}
-                  placeholderTextColor={colors.placeholder}
-                />
-              </View>
+              <Input
+                label={t("vehicles.model")}
+                value={model}
+                onChangeText={setModel}
+                placeholder={t("vehicles.model_placeholder")}
+                required
+              />
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>
-                  {t("vehicles.year")} <Text style={styles.required}>*</Text>
-                </Text>
-                <TextInput
-                  style={styles.input}
-                  value={year}
-                  onChangeText={setYear}
-                  placeholder={t("vehicles.year_placeholder")}
-                  placeholderTextColor={colors.placeholder}
-                  keyboardType="numeric"
-                />
-              </View>
+              <Input
+                label={t("vehicles.year")}
+                value={year}
+                onChangeText={setYear}
+                placeholder={t("vehicles.year_placeholder")}
+                keyboardType="numeric"
+                required
+              />
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>{t("vehicles.license_plate")}</Text>
-                <TextInput
-                  style={styles.input}
-                  value={licensePlate}
-                  onChangeText={(text) => setLicensePlate(text.toUpperCase())}
-                  placeholder={t("vehicles.license_placeholder")}
-                  placeholderTextColor={colors.placeholder}
-                  autoCapitalize="characters"
-                />
-              </View>
+              <Input
+                label={t("vehicles.license_plate")}
+                value={licensePlate}
+                onChangeText={(text) => setLicensePlate(text.toUpperCase())}
+                placeholder={t("vehicles.license_placeholder")}
+                autoCapitalize="characters"
+              />
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>
-                  {t("vehicles.current_mileage")} ({t("vehicles.km")}){" "}
-                  <Text style={styles.required}>*</Text>
-                </Text>
-                <TextInput
-                  style={styles.input}
-                  value={currentMileage}
-                  onChangeText={setCurrentMileage}
-                  placeholder={t("vehicles.mileage_placeholder")}
-                  placeholderTextColor={colors.placeholder}
-                  keyboardType="numeric"
-                />
-              </View>
+              <Input
+                label={`${t("vehicles.current_mileage")} (${t("vehicles.km")})`}
+                value={currentMileage}
+                onChangeText={setCurrentMileage}
+                placeholder={t("vehicles.mileage_placeholder")}
+                keyboardType="numeric"
+                required
+              />
 
               {/* Fuel Type */}
               <View style={styles.inputGroup}>
@@ -450,80 +530,6 @@ export default function EditVehicleScreen() {
                 </View>
               </View>
 
-              {/* Engine - hidden for electric */}
-              {fuelType !== "electric" && (
-                <View style={styles.inputGroup}>
-                  <Text style={styles.label}>{t("vehicles.engine")}</Text>
-                  <TextInput
-                    style={[styles.input, engineError && styles.inputError]}
-                    placeholder={t("vehicles.engine_placeholder")}
-                    value={engine}
-                    onChangeText={handleEngineChange}
-                    placeholderTextColor={colors.placeholder}
-                    keyboardType="numeric"
-                  />
-                  {engineError && (
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        color: colors.error,
-                        marginTop: 4,
-                      }}
-                    >
-                      {engineError}
-                    </Text>
-                  )}
-                </View>
-              )}
-
-              {/* Transmission */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>{t("vehicles.transmission")}</Text>
-                <View style={styles.categoryGrid}>
-                  {(["manual", "automatic"] as const).map((type) => (
-                    <Chip
-                      key={type}
-                      label={t(`vehicles.transmission_${type}`)}
-                      active={
-                        transmission === type ||
-                        (fuelType === "electric" && type === "automatic")
-                      }
-                      onPress={() => {
-                        if (fuelType === "electric" && type === "manual")
-                          return;
-                        setTransmission(type);
-                      }}
-                      style={
-                        fuelType === "electric" && type === "manual"
-                          ? { ...styles.categoryChip, opacity: 0.4 }
-                          : styles.categoryChip
-                      }
-                    />
-                  ))}
-                </View>
-              </View>
-
-              {/* Purchase Date */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>{t("vehicles.purchase_date")}</Text>
-                <TouchableOpacity
-                  style={styles.input}
-                  onPress={() => setShowDatePicker(true)}
-                >
-                  <Text
-                    style={
-                      purchaseDate
-                        ? { color: colors.text }
-                        : { color: colors.placeholder }
-                    }
-                  >
-                    {purchaseDate
-                      ? purchaseDate.toLocaleDateString()
-                      : t("maintenance.date_placeholder")}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>
                   {t("vehicles.category")}{" "}
@@ -548,6 +554,46 @@ export default function EditVehicleScreen() {
                   })}
                 </View>
               </View>
+
+              <VehicleExtrasForm
+                fuelType={fuelType}
+                engine={engine}
+                setEngine={setEngine}
+                engineError={engineError}
+                setEngineError={setEngineError}
+                transmission={transmission}
+                setTransmission={setTransmission}
+                purchaseDate={purchaseDate}
+                setShowDatePicker={setShowDatePicker}
+                horsepower={horsepower}
+                setHorsepower={setHorsepower}
+                horsepowerError={horsepowerError}
+                setHorsepowerError={setHorsepowerError}
+                torque={torque}
+                setTorque={setTorque}
+                torqueError={torqueError}
+                setTorqueError={setTorqueError}
+                vin={vin}
+                setVin={setVin}
+                batteryCapacity={batteryCapacity}
+                setBatteryCapacity={setBatteryCapacity}
+                batteryCapacityError={batteryCapacityError}
+                setBatteryCapacityError={setBatteryCapacityError}
+                driveType={driveType}
+                setDriveType={(val) => setDriveType(val)}
+                tireSizeFront={tireSizeFront}
+                setTireSizeFront={setTireSizeFront}
+                tirePressureFront={tirePressureFront}
+                setTirePressureFront={setTirePressureFront}
+                tireSizeRear={tireSizeRear}
+                setTireSizeRear={setTireSizeRear}
+                tirePressureRear={tirePressureRear}
+                setTirePressureRear={setTirePressureRear}
+                tirePressureUnit={tirePressureUnit}
+                setTirePressureUnit={setTirePressureUnit}
+                showExtras={showExtras}
+                setShowExtras={setShowExtras}
+              />
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -618,6 +664,8 @@ export default function EditVehicleScreen() {
             imageUri={pendingImage}
             onConfirm={handlePositionConfirm}
             onCancel={handlePositionCancel}
+            listAspectRatio={listAspectRatio}
+            detailsAspectRatio={detailsAspectRatio}
           />
         )}
 

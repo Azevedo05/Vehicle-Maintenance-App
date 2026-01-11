@@ -1,4 +1,4 @@
-import { FuelLog, Vehicle, VehicleCategory, FuelType } from "@/types/vehicle";
+import { FuelLog, Vehicle, VehicleCategory, FuelType } from "@/types";
 import { MaintenanceRecord, MaintenanceType } from "@/types/maintenance";
 
 export interface VehicleStats {

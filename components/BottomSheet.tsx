@@ -5,6 +5,7 @@ import {
   BottomSheetBackdrop,
   BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/contexts/ThemeContext";
 
 interface BottomSheetProps {
@@ -22,6 +23,7 @@ export const BottomSheet = ({
   maxHeight = "90%",
 }: BottomSheetProps) => {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
 
   // Handle visibility changes
@@ -75,11 +77,10 @@ export const BottomSheet = ({
     [colors.card, colors.border]
   );
 
-  const contentContainerStyle = useMemo(
+  const scrollStyle = useMemo(
     () => ({
       paddingHorizontal: 24,
       paddingTop: 12,
-      paddingBottom: 40,
     }),
     []
   );
@@ -97,10 +98,11 @@ export const BottomSheet = ({
       style={styles.bottomSheet}
     >
       <BottomSheetScrollView
-        style={contentContainerStyle}
-        contentContainerStyle={{ paddingBottom: 40 }}
-        bounces={false}
-        overScrollMode="never"
+        style={scrollStyle}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom + 32,
+        }}
+        bounces={true}
         showsVerticalScrollIndicator={false}
       >
         {children}

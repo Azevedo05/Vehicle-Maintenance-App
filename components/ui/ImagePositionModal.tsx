@@ -5,15 +5,16 @@ import {
   Modal,
   TouchableOpacity,
   Text,
-  Dimensions,
   Image as RNImage,
   ScrollView,
+  useWindowDimensions,
 } from "react-native";
 import Slider from "@react-native-community/slider";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
+  useAnimatedProps,
 } from "react-native-reanimated";
 import { Image } from "expo-image";
 import {
@@ -33,7 +34,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/contexts/ThemeContext";
 import { VehicleImage } from "./VehicleImage";
 import { DetailsSkeleton } from "./DetailsSkeleton";
-import { createImagePositionModalStyles } from "@/styles/ui/ImagePositionModal.styles";
+import { createImagePositionModalStyles } from "@/styles/ImagePositionModal.styles";
 
 interface ImagePosition {
   xRatio: number;
@@ -57,7 +58,9 @@ interface ImagePositionModalProps {
   detailsAspectRatio?: number;
 }
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+// Removed static Dimensions - now using useWindowDimensions() inside component
+
+const AnimatedSlider = Animated.createAnimatedComponent(Slider);
 
 export const ImagePositionModal = ({
   visible,
@@ -71,6 +74,8 @@ export const ImagePositionModal = ({
 }: ImagePositionModalProps) => {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const { width: screenWidth } = useWindowDimensions();
+  const isTablet = screenWidth >= 600;
   const styles = createImagePositionModalStyles(colors);
 
   const [step, setStep] = useState<1 | 2>(1);
@@ -82,10 +87,10 @@ export const ImagePositionModal = ({
 
   const currentAspectRatio = step === 1 ? listAspectRatio : detailsAspectRatio;
   const padding = step === 1 ? 24 : 0;
-  const frameWidth = SCREEN_WIDTH - padding * 2;
+  const frameWidth = screenWidth - padding * 2;
   // Step 2 usa uma altura fixa como a página real de detalhes
-  // Usamos 350 para caber melhor em ecrãs pequenos mantendo o aspeto "alto"
-  const bannerHeight = 350;
+  // Usamos 400 para corresponder à página real de detalhes
+  const bannerHeight = 400;
   const frameHeight =
     step === 1 ? frameWidth / currentAspectRatio : bannerHeight;
 
@@ -151,22 +156,28 @@ export const ImagePositionModal = ({
 
       setIsReady(true);
     }
-  }, [step, baseSize, containerHeight]);
+  }, [step, baseSize, containerHeight, imageUri]);
 
   // Animated Style for the Image
   const animatedImageStyle = useAnimatedStyle(() => {
     const s = scale.value;
-    const currentW = baseSize.width * s;
-    const currentH = baseSize.height * s;
+    const bw = baseSize.width;
+    const bh = baseSize.height;
+    const currentW = bw * s;
+    const currentH = bh * s;
 
-    // Full freedom image movement
+    // Full freedom image movement logic
     const tx = posX.value * (frameWidth + currentW) - currentW;
     const ty = posY.value * (frameHeight + currentH) - currentH;
 
+    // Centering offsets for transform: scale (which scales around the center)
+    const TX = tx + currentW / 2 - bw / 2;
+    const TY = ty + currentH / 2 - bh / 2;
+
     return {
-      width: currentW,
-      height: currentH,
-      transform: [{ translateX: tx }, { translateY: ty }],
+      width: bw,
+      height: bh,
+      transform: [{ translateX: TX }, { translateY: TY }, { scale: s }],
     };
   });
 
@@ -200,11 +211,12 @@ export const ImagePositionModal = ({
   };
 
   const headerHeight = insets.top + 90;
-  // Step 2: image starts below the navigation header (simulating details page top)
+  // Margem de segurança para não bater no topo ou nos controlos
+  const minFrameTop = headerHeight + 20;
   const frameTop =
     step === 1
       ? containerHeight > 0
-        ? (containerHeight - frameHeight) / 2
+        ? Math.max(minFrameTop, (containerHeight - frameHeight - 100) / 2)
         : 100
       : headerHeight;
 
@@ -317,8 +329,22 @@ export const ImagePositionModal = ({
 
           {/* Header */}
           <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-            <TouchableOpacity style={styles.headerButton} onPress={onCancel}>
-              <X size={24} color="#FFF" />
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => {
+                if (step === 2) {
+                  setStep(1);
+                  setIsReady(false);
+                } else {
+                  onCancel();
+                }
+              }}
+            >
+              {step === 1 ? (
+                <X size={24} color="#FFF" />
+              ) : (
+                <ChevronLeft size={24} color="#FFF" />
+              )}
             </TouchableOpacity>
             <View style={styles.titleContainer}>
               <Text style={styles.title}>
@@ -344,7 +370,11 @@ export const ImagePositionModal = ({
                 }
               }}
             >
-              <Check size={24} color="#FFF" />
+              {step === 1 ? (
+                <ChevronRight size={24} color="#FFF" />
+              ) : (
+                <Check size={24} color="#FFF" />
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -356,20 +386,24 @@ export const ImagePositionModal = ({
           <View
             style={[
               styles.controlsPanel,
-              { paddingBottom: insets.bottom + 16 },
+              { paddingBottom: insets.bottom || 8 },
             ]}
           >
             <View style={styles.controlsContent}>
               {/* Zoom */}
               <View style={styles.sliderRow}>
                 <Maximize2 size={16} color="rgba(255,255,255,0.4)" />
-                <Slider
+                <AnimatedSlider
                   style={styles.slider}
                   minimumValue={0.2}
                   maximumValue={3}
-                  value={currentScale}
+                  animatedProps={useAnimatedProps(() => ({
+                    value: scale.value,
+                  }))}
                   onValueChange={(v: number) => {
                     scale.value = v;
+                  }}
+                  onSlidingComplete={(v: number) => {
                     setCurrentScale(v);
                   }}
                   minimumTrackTintColor={colors.primary}
@@ -381,13 +415,17 @@ export const ImagePositionModal = ({
               {/* X Position */}
               <View style={styles.sliderRow}>
                 <MoveHorizontal size={16} color="rgba(255,255,255,0.4)" />
-                <Slider
+                <AnimatedSlider
                   style={styles.slider}
                   minimumValue={0}
                   maximumValue={1}
-                  value={currentPosX}
+                  animatedProps={useAnimatedProps(() => ({
+                    value: posX.value,
+                  }))}
                   onValueChange={(v: number) => {
                     posX.value = v;
+                  }}
+                  onSlidingComplete={(v: number) => {
                     setCurrentPosX(v);
                   }}
                   minimumTrackTintColor="rgba(255,255,255,0.2)"
@@ -399,13 +437,17 @@ export const ImagePositionModal = ({
               {/* Y Position */}
               <View style={styles.sliderRow}>
                 <MoveVertical size={16} color="rgba(255,255,255,0.4)" />
-                <Slider
+                <AnimatedSlider
                   style={styles.slider}
                   minimumValue={0}
                   maximumValue={1}
-                  value={currentPosY}
+                  animatedProps={useAnimatedProps(() => ({
+                    value: posY.value,
+                  }))}
                   onValueChange={(v: number) => {
                     posY.value = v;
+                  }}
+                  onSlidingComplete={(v: number) => {
                     setCurrentPosY(v);
                   }}
                   minimumTrackTintColor="rgba(255,255,255,0.2)"

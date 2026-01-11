@@ -20,6 +20,7 @@ import {
   clearAllData,
   exportCategoryData,
 } from "@/utils/dataManagement";
+import { getSampleData } from "@/utils/sampleData";
 import { VEHICLE_CATEGORY_INFO, VehicleCategory } from "@/types/vehicle";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import { createSettingsStyles } from "@/styles/settings/SettingsSections.styles";
@@ -196,6 +197,51 @@ export const DataManagementSettings = () => {
     });
   };
 
+  const handleLoadSampleData = async () => {
+    if (hapticsEnabled) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+
+    showAlert({
+      title: t("settings.load_sample_data", "Carregar Dados de Teste"),
+      message: t(
+        "settings.load_sample_data_confirm",
+        "Isto irá substituir ou adicionar veículos de exemplo. Deseja continuar?"
+      ),
+      buttons: [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("common.confirm", "Confirmar"),
+          onPress: async () => {
+            setIsImporting(true);
+            const sample = getSampleData();
+
+            // Simular importação guardando no storage
+            const { VehicleStorage: Storage } = await import(
+              "@/services/VehicleStorage"
+            );
+            await Storage.saveVehicles(sample.vehicles);
+            await Storage.saveTasks(sample.tasks);
+            await Storage.saveRecords(sample.records);
+            await Storage.saveFuelLogs(sample.fuelLogs);
+            await Storage.saveQuickReminders(sample.quickReminders);
+
+            await reloadVehicleData();
+            setIsImporting(false);
+
+            showAlert({
+              title: t("common.success"),
+              message: t(
+                "settings.load_sample_success",
+                "Dados de teste carregados com sucesso!"
+              ),
+            });
+          },
+        },
+      ],
+    });
+  };
+
   return (
     <>
       <View style={styles.section}>
@@ -265,6 +311,26 @@ export const DataManagementSettings = () => {
                 {t("settings.clear_data_description")}
               </Text>
             </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.optionButton, styles.optionButtonLast]}
+            onPress={handleLoadSampleData}
+            activeOpacity={0.7}
+          >
+            <Database size={20} color={colors.primary} />
+            <View style={styles.notificationContent}>
+              <Text style={styles.optionText}>
+                {t("settings.load_sample_data", "Carregar Dados de Teste")}
+              </Text>
+              <Text style={styles.optionDescription}>
+                {t(
+                  "settings.load_sample_data_description",
+                  "Adiciona veículos de exemplo para testar o layout."
+                )}
+              </Text>
+            </View>
+            <ChevronRight size={20} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
       </View>

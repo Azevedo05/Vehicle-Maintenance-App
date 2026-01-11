@@ -1,6 +1,9 @@
 import React from "react";
 import { ScrollView, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -29,7 +32,13 @@ export default function StatisticsScreen() {
   const { vehicles, records, fuelLogs } = useVehicles();
   const { currencySymbol } = usePreferences();
 
+  const insets = useSafeAreaInsets();
   const styles = createStyles(colors);
+
+  // Altura dinâmica da TabBar (mesma lógica do _layout.tsx)
+  const tbBottomPadding = insets.bottom > 0 ? insets.bottom + 8 : 16;
+  const tabBarHeight = 56 + tbBottomPadding;
+  const bottomPadding = tabBarHeight + 16;
 
   // Calculate all statistics
   const overallStats = calculateOverallStats(records);
@@ -45,7 +54,10 @@ export default function StatisticsScreen() {
       >
         <ScrollView
           style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: bottomPadding },
+          ]}
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>

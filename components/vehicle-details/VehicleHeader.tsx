@@ -80,58 +80,6 @@ export const VehicleHeader = ({ vehicle }: VehicleHeaderProps) => {
           )}
         </TouchableOpacity>
       </View>
-
-      {/* Specs Grid - Modern stacked label-value design */}
-      <View style={styles.specsGrid}>
-        {[
-          { label: t("vehicles.year"), value: String(vehicle.year) },
-          vehicle.fuelType && {
-            label: t("fuel.fuel"),
-            value: t(`fuel.type_${vehicle.fuelType}`),
-          },
-          vehicle.transmission && {
-            label: t("vehicles.transmission"),
-            value: t(`vehicles.transmission_${vehicle.transmission}`),
-          },
-          vehicle.engine && {
-            label: t("vehicles.engine"),
-            value: `${vehicle.engine.toLocaleString()} cc`,
-          },
-          vehicle.category && {
-            label: t("vehicles.category"),
-            value: t(`vehicles.category_${vehicle.category}`),
-          },
-          vehicle.purchaseDate && {
-            label: t("vehicles.purchase_date"),
-            value: new Date(vehicle.purchaseDate).toLocaleDateString(),
-          },
-        ]
-          .filter(
-            (item): item is { label: string; value: string } =>
-              !!item && typeof item === "object"
-          )
-          .map((spec, index) => (
-            <View key={spec.label} style={styles.specItem}>
-              <Text style={styles.specLabel}>{spec.label}</Text>
-              <Text style={styles.specValue}>{spec.value}</Text>
-            </View>
-          ))}
-      </View>
-
-      <View style={styles.mileageContainer}>
-        <View style={styles.mileageHeader}>
-          <View style={styles.iconCircle}>
-            <Gauge size={20} color={colors.primary} />
-          </View>
-          <Text style={styles.mileageLabel}>
-            {t("vehicles.current_mileage")}
-          </Text>
-        </View>
-        <Text style={styles.mileageValue}>
-          {vehicle.currentMileage.toLocaleString()}{" "}
-          <Text style={styles.mileageUnit}>{t("vehicles.km")}</Text>
-        </Text>
-      </View>
     </View>
   );
 };
