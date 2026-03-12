@@ -94,7 +94,7 @@ export default function NotificationSettingsScreen() {
 
       Toast.show({
         type: "success",
-        text1: t("common.success"),
+        text1: t("settings.settings_saved"),
         props: { toastId: Date.now() },
       });
       router.back();

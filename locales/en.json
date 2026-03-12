@@ -4,9 +4,9 @@
     "reminders": "Reminders",
     "statistics": "Stats",
     "settings": "Settings",
-    "preferences": "Preferences"
+    "preferences": "Preferences",
+    "calendar": "Calendar"
   },
-
   "validation": {
     "required": "This field is required",
     "number_required": "Please enter a valid number",
@@ -14,7 +14,7 @@
     "invalid_year": "Please enter a valid year (1900-Current)",
     "invalid_mileage": "Please enter a valid mileage",
     "max_mileage": "Mileage cannot exceed 2,000,000 km",
-    "max_fuel_volume": "Fuel volume cannot exceed 200 liters"
+    "max_electric_volume": "Charge capacity cannot exceed 250 kWh"
   },
   "vehicles": {
     "title": "My Vehicles",
@@ -211,7 +211,7 @@
     "empty_text_all_done": "No upcoming maintenance tasks at the moment",
     "empty_history": "No maintenance records yet",
     "add_task": "Add Maintenance Task",
-    "log_maintenance": "Edit Maintenance Log",
+    "log_maintenance": "Log Maintenance",
     "logging": "Logging...",
     "use_recommended": "Use Recommended",
     "recommended_km": "Recommended: {{km}} km",
@@ -246,7 +246,7 @@
     "overdue": "Overdue",
     "recurring": "Recurring",
     "due_now": "Pending",
-    "due_soon": "Due soon",
+    "due_soon": "Due Soon",
     "scheduled": "Scheduled",
     "complete": "Complete",
     "select_type": "Select Maintenance Type",
@@ -259,6 +259,13 @@
     "add_error": "Failed to add maintenance task. Please try again.",
     "add_task_success": "{{title}} task added successfully.",
     "add_record_success": "{{title}} maintenance logged successfully.",
+    "add_to_calendar": "Add to Calendar",
+    "calendar_title": "{{type}} - {{vehicle}}",
+    "calendar_notes": "Vehicle: {{vehicle}}\nType: {{type}}{{mileage}}",
+    "add_to_calendar_success": "Added to your calendar!",
+    "add_to_calendar_error": "Failed to add to calendar. Check permissions.",
+    "remove_from_calendar": "Remove from Calendar",
+    "remove_from_calendar_success": "Event removed from calendar!",
     "log_error": "Failed to log maintenance. Please try again.",
     "invalid_interval": "Invalid Interval",
     "invalid_interval_text": "Please enter a valid {{type}} interval.",
@@ -290,6 +297,13 @@
     "sort_custom": "Custom Order",
     "reorder_mode": "Drag to reorder tasks",
     "delete_confirm": "Are you sure you want to delete this maintenance task?",
+    "task_info": "Maintenance Information",
+    "created_on": "Created on {{date}}",
+    "last_completed_on": "Last completed on {{date}}",
+    "never_completed": "Never completed before",
+    "recurring_status": "This is a recurring task",
+    "one_time_status": "This is a one-time task",
+    "overdue_since": "Overdue since {{date}}",
     "types": {
       "oil_change": "Oil Change",
       "tire_rotation": "Tire Rotation",
@@ -333,7 +347,6 @@
     "by_type": "Spending by Type",
     "by_category": "Spending by Category",
     "category_breakdown": "{{vehicles}} vehicles • {{maintenance}} maintenances",
-
     "no_data": "No Statistics Yet",
     "no_data_text": "Start logging maintenance records to see your spending insights and trends"
   },
@@ -364,6 +377,7 @@
     "date_label": "Date",
     "odometer_label": "Odometer ({{unit}})",
     "volume_label": "Fuel ({{unit}})",
+    "volume_label_electric": "Charge ({{unit}})",
     "volume_placeholder": "45",
     "total_cost_label": "Total ({{currency}})",
     "price_per_unit_label": "Price per unit",
@@ -466,7 +480,6 @@
     "export_data_description": "Create a backup of all your data",
     "import_data": "Import Data",
     "import_data_description": "Restore from a backup file",
-
     "clear_data": "Clear All Data",
     "clear_data_description": "Delete all vehicles and maintenance records",
     "load_sample_data": "Load Sample Data",
@@ -556,7 +569,11 @@
     "specifications": "Vehicle Specifications",
     "back_to_top": "Back to Top",
     "drag_adjust": "Drag to adjust",
-    "adjust_position": "Adjust position"
+    "adjust_position": "Adjust position",
+    "tap_to_edit": "Tap to edit",
+    "created_at": "Created at",
+    "overdue_since": "Overdue since",
+    "call": "Call"
   },
   "quick_reminders": {
     "title": "New Reminder",
@@ -571,7 +588,7 @@
     "hours_label": "HOURS",
     "minutes_label": "MINUTES",
     "notification_permission_alert_title": "Notifications Disabled",
-    "notification_permission_alert_message": "You need to enable notifications to use this feature.",
+    "notification_permission_alert_message": "You need to enable notifications in Settings to use this feature.",
     "reminder_completed": "Reminder completed.",
     "undo": "Undo",
     "notification_title": "Quick Reminder",
@@ -600,7 +617,14 @@
     "maintenance_3days_body": "{{taskTitle}} for {{vehicleName}} in 3 days",
     "maintenance_tomorrow_title": "Maintenance Tomorrow",
     "maintenance_tomorrow_body": "Don't forget: {{taskTitle}} for {{vehicleName}} is tomorrow!",
-    "snoozed_title": "Snoozed Reminder"
+    "snoozed_title": "Snoozed Reminder",
+    "snoozed_body": "{{taskTitle}} - {{vehicleName}}",
+    "insurance_overdue_title": "Insurance Expired",
+    "insurance_overdue_body": "The insurance ({{provider}}) for {{vehicleName}} expired {{days}} days ago!",
+    "insurance_today_title": "Insurance Expires Today",
+    "insurance_today_body": "The insurance ({{provider}}) for {{vehicleName}} expires today!",
+    "insurance_reminder_title": "Insurance Expiry Reminder",
+    "insurance_x_days_body": "The insurance ({{provider}}) for {{vehicleName}} expires in {{days}} days"
   },
   "onboarding": {
     "welcome_pretitle": "Welcome to,",
@@ -632,8 +656,14 @@
   "insurance": {
     "title": "Insurance",
     "add": "Add Insurance",
+    "add_success": "Insurance added successfully.",
     "edit": "Edit Insurance",
+    "edit_success": "Insurance updated successfully.",
+    "delete_success": "Insurance deleted successfully.",
+    "calendar_title": "Insurance {{provider}} - {{vehicle}}",
+    "calendar_notes": "Vehicle: {{vehicle}}\nPolicy: {{policy}}{{contact}}",
     "provider": "Provider",
+    "invalid_dates": "Start date must be before end date",
     "policy_number": "Policy Number",
     "start_date": "Start Date",
     "end_date": "End Date",
@@ -663,7 +693,7 @@
     "deductible_placeholder": "e.g. 250",
     "bonus_percentage": "No-Claims Bonus",
     "bonus_percentage_placeholder": "e.g. 50",
-    "emergency_contact": "24h Emergency Contact",
+    "emergency_contact": "Emergency Contact",
     "emergency_contact_placeholder": "e.g. 800 200 300",
     "additional_coverages": "Additional Coverages",
     "max_value": "Max Value",
@@ -683,6 +713,21 @@
     "replacement_vehicle": "Replacement Vehicle",
     "replacement_days": "Number of Days",
     "replacement_days_placeholder": "e.g. 15",
-    "expires": "Expires"
+    "expires": "Expires",
+    "section_basic_info": "Basic Information",
+    "section_dates": "Dates & Payments",
+    "policy_details": "Policy Details",
+    "payment_details": "Payment Details",
+    "mark_as_paid": "Mark as Paid",
+    "confirm_payment_title": "Confirm Payment",
+    "confirm_payment_message": "Are you sure you want to mark this insurance as paid? The status will reset automatically on the next payment date.",
+    "delete_title": "Delete Insurance",
+    "delete_message": "Are you sure you want to delete this insurance? This action cannot be undone.",
+    "invalid_cost_limit": "The annual cost cannot exceed 10,000€.",
+    "invalid_deductible_limit": "The deductible cannot exceed 10,000€.",
+    "invalid_bonus_limit": "The bonus percentage must be between 0 and 100%.",
+    "invalid_contact_limit": "The emergency contact cannot exceed 20 characters.",
+    "invalid_notes_limit": "The notes cannot exceed 250 characters.",
+    "not_defined": "Not defined"
   }
 }

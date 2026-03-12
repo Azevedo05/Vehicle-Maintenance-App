@@ -237,8 +237,7 @@ export default function AddVehicleScreen() {
 
       Toast.show({
         type: "success",
-        text1: t("common.success"),
-        text2: t("vehicles.add_success", {
+        text1: t("vehicles.add_success", {
           name: `${make.trim()} ${model.trim()}`,
         }),
         props: { toastId: Date.now() },

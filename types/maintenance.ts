@@ -238,6 +238,7 @@ export interface MaintenanceTask {
   isRecurring: boolean;
   isCompleted: boolean;
   customOrder?: number;
+  calendarEventId?: string;
   createdAt: number;
   updatedAt: number;
 }

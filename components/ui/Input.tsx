@@ -43,6 +43,7 @@ export const Input = ({
             backgroundColor: colors.primary + "05", // Very subtle tint
           },
           error ? { borderColor: colors.error } : null,
+          props.multiline && { textAlignVertical: "top" },
           style,
         ]}
         placeholderTextColor={colors.placeholder}

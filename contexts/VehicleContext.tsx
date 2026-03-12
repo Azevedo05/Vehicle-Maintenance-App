@@ -1,7 +1,8 @@
 import { FuelLog, Vehicle } from "@/types";
-import { MaintenanceRecord, MaintenanceTask } from "@/types/maintenance";
+import { MaintenanceRecord, MaintenanceTask, MaintenanceType } from "@/types/maintenance";
 import { Reminder } from "@/components/vehicle-details/quick-reminders/types";
 import { VehicleStorage } from "@/services/VehicleStorage";
+import { cancelTaskOrInsuranceNotification } from "@/contexts/NotificationContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import createContextHook from "@nkzw/create-context-hook";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -183,6 +184,17 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
   const deleteVehicle = useCallback(
     async (id: string) => {
       takeSnapshot();
+
+      const vehicle = vehicles.find((v) => v.id === id);
+      if (vehicle?.insurance?.id) {
+        await cancelTaskOrInsuranceNotification(vehicle.insurance.id);
+      }
+
+      const vehicleTasks = tasks.filter((t) => t.vehicleId === id);
+      for (const t of vehicleTasks) {
+        await cancelTaskOrInsuranceNotification(t.id);
+      }
+
       await saveVehicles(vehicles.filter((v: Vehicle) => v.id !== id));
       await saveTasks(tasks.filter((t: MaintenanceTask) => t.vehicleId !== id));
       await saveRecords(
@@ -258,6 +270,18 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
       // Save current state before a destructive bulk operation
       takeSnapshot();
       const idSet = new Set(ids);
+
+      for (const v of vehicles) {
+        if (idSet.has(v.id) && v.insurance?.id) {
+          await cancelTaskOrInsuranceNotification(v.insurance.id);
+        }
+      }
+      for (const t of tasks) {
+        if (idSet.has(t.vehicleId)) {
+          await cancelTaskOrInsuranceNotification(t.id);
+        }
+      }
+
       await saveVehicles(vehicles.filter((v: Vehicle) => !idSet.has(v.id)));
       await saveTasks(
         tasks.filter((t: MaintenanceTask) => !idSet.has(t.vehicleId))
@@ -311,6 +335,7 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
   const deleteTask = useCallback(
     async (id: string) => {
       takeSnapshot();
+      await cancelTaskOrInsuranceNotification(id);
       await saveTasks(tasks.filter((t) => t.id !== id));
     },
     [tasks, saveTasks, takeSnapshot]
@@ -466,11 +491,11 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
       const now = Date.now();
       const filteredTasks = vehicleId
         ? tasks.filter(
-            (t: MaintenanceTask) => t.vehicleId === vehicleId && !t.isCompleted
-          )
+          (t: MaintenanceTask) => t.vehicleId === vehicleId && !t.isCompleted
+        )
         : tasks.filter((t: MaintenanceTask) => !t.isCompleted);
 
-      return filteredTasks
+      const filteredTasksMap = filteredTasks
         .map((task: MaintenanceTask) => {
           const vehicle = vehicles.find(
             (v: Vehicle) => v.id === task.vehicleId
@@ -498,7 +523,37 @@ export const [VehicleProvider, useVehicles] = createContextHook(() => {
             milesUntilDue,
           };
         })
-        .filter((item: any): item is NonNullable<typeof item> => item !== null)
+        .filter((item: any): item is NonNullable<typeof item> => item !== null);
+
+      // Extract insurances as synthetic tasks for the calendar
+      const insuranceTasks = (vehicleId ? vehicles.filter(v => v.id === vehicleId) : vehicles)
+        .filter(v => v.insurance && v.insurance.endDate)
+        .map(v => {
+          const daysMs = v.insurance!.endDate - now;
+          const daysUntilDue = Math.ceil(daysMs / (24 * 60 * 60 * 1000));
+          
+          return {
+            task: {
+              id: `insurance_${v.insurance!.id}`,
+              vehicleId: v.id,
+              type: "insurance" as MaintenanceType,
+              title: v.insurance!.provider,
+              intervalType: "date" as const,
+              intervalValue: 365, // Approximated for UI requirements
+              nextDueDate: v.insurance!.endDate,
+              isRecurring: false,
+              isCompleted: false,
+              createdAt: v.insurance!.createdAt,
+              updatedAt: v.insurance!.updatedAt,
+            },
+            vehicle: v,
+            isDue: daysUntilDue <= 7,
+            daysUntilDue: daysUntilDue,
+            milesUntilDue: undefined,
+          };
+        });
+
+      return [...filteredTasksMap, ...insuranceTasks]
         .sort((a: any, b: any) => {
           if (a.isDue !== b.isDue) return a.isDue ? -1 : 1;
           if (a.daysUntilDue !== undefined && b.daysUntilDue !== undefined) {

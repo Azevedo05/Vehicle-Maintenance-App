@@ -222,9 +222,13 @@ export default function AddRecordScreen() {
         await addRecord(recordData);
       }
 
+      const displayTitle = selectedType === "other" 
+        ? recordTitle 
+        : getMaintenanceTypeLabel(selectedType, t);
+
       Toast.show({
         type: "success",
-        text1: t("common.success"),
+        text1: t("maintenance.add_record_success", { title: displayTitle }),
         props: { toastId: Date.now() },
       });
       router.back();

@@ -34,7 +34,7 @@ export default function AddTaskScreen() {
   const { vehicleId } = useLocalSearchParams();
   const { addTask, getVehicleById, restoreLastSnapshot } = useVehicles();
   const { colors } = useTheme();
-  const { t } = useLocalization();
+  const { t, language } = useLocalization();
   const { showToast, showAlert } = useAppAlert();
 
   const vehicle = vehicleId ? getVehicleById(vehicleId as string) : null;
@@ -72,6 +72,9 @@ export default function AddTaskScreen() {
 
   const sortedMaintenanceTypes = useMemo(() => {
     let types = Object.keys(MAINTENANCE_TYPES) as MaintenanceType[];
+
+    // Remove 'insurance' from the list — it has its own dedicated section
+    types = types.filter(type => type !== 'insurance');
 
     if (vehicle?.fuelType === "electric") {
       types = types.filter(
@@ -203,9 +206,13 @@ export default function AddTaskScreen() {
 
       router.back();
 
+      const displayTitle = selectedType === "other" 
+        ? taskTitle 
+        : getMaintenanceTypeLabel(selectedType, t);
+
       setTimeout(() => {
         showToast({
-          message: t("maintenance.add_task_success", { title: taskTitle }),
+          message: t("maintenance.add_task_success", { title: displayTitle }),
           actionLabel: t("common.undo"),
           onAction: async () => {
             await restoreLastSnapshot();
@@ -400,7 +407,7 @@ export default function AddTaskScreen() {
                       style={{ marginRight: 12 }}
                     />
                     <Text style={styles.dateTriggerText}>
-                      {getSelectedDate().toLocaleDateString()}
+                      {getSelectedDate().toLocaleDateString(language)}
                     </Text>
                   </TouchableOpacity>
                   {showDatePicker && (

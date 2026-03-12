@@ -39,7 +39,7 @@ export const createTaskFormStyles = (colors: Colors) =>
       flexWrap: "wrap",
       gap: 8,
       marginBottom: 24,
-      justifyContent: "space-between",
+      justifyContent: "flex-start",
     },
     typeCard: {
       width: "31%",

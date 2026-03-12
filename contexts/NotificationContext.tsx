@@ -20,6 +20,31 @@ Notifications.setNotificationHandler({
   }),
 });
 
+/**
+ * Standalone function to cancel a task or insurance notification
+ * Can be used outside of React context/hooks (e.g. in other Contexts)
+ */
+export const cancelTaskOrInsuranceNotification = async (taskId: string) => {
+  try {
+    // Cancel all variants of this task or insurance notification
+    await Notifications.cancelScheduledNotificationAsync(taskId).catch(() => { });
+    await Notifications.cancelScheduledNotificationAsync(`${taskId}_30d`).catch(() => { });
+    await Notifications.cancelScheduledNotificationAsync(`${taskId}_15d`).catch(() => { });
+    await Notifications.cancelScheduledNotificationAsync(`${taskId}_7d`).catch(() => { });
+    await Notifications.cancelScheduledNotificationAsync(`${taskId}_3d`).catch(() => { });
+    await Notifications.cancelScheduledNotificationAsync(`${taskId}_1d`).catch(() => { });
+    await Notifications.cancelScheduledNotificationAsync(`${taskId}_today`).catch(() => { });
+    await Notifications.cancelScheduledNotificationAsync(`${taskId}_overdue`).catch(() => { });
+
+    // Cancel dynamic overdue notifications
+    for (const i of [1, 2, 3, 4, 5, 6, 7, 10, 14, 15, 21, 30]) {
+      await Notifications.cancelScheduledNotificationAsync(`${taskId}_overdue_${i}d`).catch(() => { });
+    }
+  } catch (error) {
+    console.error("Error canceling notification manually:", error);
+  }
+};
+
 export const [NotificationProvider, useNotifications] = createContextHook(
   () => {
     const { t } = useLocalization();
@@ -137,20 +162,20 @@ export const [NotificationProvider, useNotifications] = createContextHook(
         try {
           // Cancel all existing notifications for this task
           await Notifications.cancelScheduledNotificationAsync(taskId).catch(
-            () => {}
+            () => { }
           );
           await Notifications.cancelScheduledNotificationAsync(
             `${taskId}_7d`
-          ).catch(() => {});
+          ).catch(() => { });
           await Notifications.cancelScheduledNotificationAsync(
             `${taskId}_3d`
-          ).catch(() => {});
+          ).catch(() => { });
           await Notifications.cancelScheduledNotificationAsync(
             `${taskId}_1d`
-          ).catch(() => {});
+          ).catch(() => { });
           await Notifications.cancelScheduledNotificationAsync(
             `${taskId}_today`
-          ).catch(() => {});
+          ).catch(() => { });
 
           const now = new Date();
 
@@ -371,40 +396,127 @@ export const [NotificationProvider, useNotifications] = createContextHook(
           console.error("Error scheduling notification:", error);
         }
       },
-      [notificationsEnabled, permissionGranted]
+      [notificationsEnabled, permissionGranted, t, notificationSettings]
+    );
+
+    const scheduleInsuranceNotification = useCallback(
+      async (
+        insuranceId: string,
+        provider: string,
+        vehicleName: string,
+        daysUntil: number,
+      ) => {
+        if (!notificationsEnabled || !permissionGranted) {
+          return;
+        }
+
+        try {
+          // Cancel all existing notifications for this insurance
+          await Notifications.cancelScheduledNotificationAsync(insuranceId).catch(() => { });
+          await Notifications.cancelScheduledNotificationAsync(`${insuranceId}_30d`).catch(() => { });
+          await Notifications.cancelScheduledNotificationAsync(`${insuranceId}_15d`).catch(() => { });
+          await Notifications.cancelScheduledNotificationAsync(`${insuranceId}_7d`).catch(() => { });
+          await Notifications.cancelScheduledNotificationAsync(`${insuranceId}_today`).catch(() => { });
+          await Notifications.cancelScheduledNotificationAsync(`${insuranceId}_overdue`).catch(() => { });
+
+          const now = new Date();
+
+          if (daysUntil < 0) {
+            // Notification for overdue insurance - sent at 9 AM today
+            const overdueDate = new Date();
+            if (now.getHours() >= notificationSettings.notificationTime) {
+              overdueDate.setDate(overdueDate.getDate() + 1); // Tomorrow at scheduled time
+            }
+            overdueDate.setHours(
+              notificationSettings.notificationTime,
+              0,
+              0,
+              0
+            );
+
+            await Notifications.scheduleNotificationAsync({
+              identifier: `${insuranceId}_overdue`,
+              content: {
+                title: t("notifications.insurance_overdue_title"),
+                body: t("notifications.insurance_overdue_body", {
+                  provider,
+                  vehicleName,
+                  days: Math.abs(daysUntil),
+                }),
+                data: { insuranceId, vehicleName, type: "insurance_overdue" },
+                sound: true,
+              },
+              trigger: {
+                type: Notifications.SchedulableTriggerInputTypes.DATE,
+                date: overdueDate,
+              },
+            });
+          } else if (daysUntil === 0) {
+            // Today - notify at scheduled time if not passed yet
+            const todayDate = new Date();
+            todayDate.setHours(notificationSettings.notificationTime, 0, 0, 0);
+
+            if (now.getTime() < todayDate.getTime()) {
+              await Notifications.scheduleNotificationAsync({
+                identifier: `${insuranceId}_today`,
+                content: {
+                  title: t("notifications.insurance_today_title"),
+                  body: t("notifications.insurance_today_body", {
+                    provider,
+                    vehicleName,
+                  }),
+                  data: { insuranceId, vehicleName, type: "insurance_today" },
+                  sound: true,
+                },
+                trigger: {
+                  type: Notifications.SchedulableTriggerInputTypes.DATE,
+                  date: todayDate,
+                },
+              });
+            }
+          } else {
+            // Schedule multiple notifications at recommended intervals
+            const scheduleReminder = async (daysBefore: number, identifierSuffix: string) => {
+              if (daysUntil >= daysBefore) {
+                const reminderDate = new Date();
+                reminderDate.setDate(reminderDate.getDate() + daysUntil - daysBefore);
+                reminderDate.setHours(notificationSettings.notificationTime, 0, 0, 0);
+
+                if (reminderDate.getTime() > now.getTime()) {
+                  await Notifications.scheduleNotificationAsync({
+                    identifier: `${insuranceId}_${identifierSuffix}`,
+                    content: {
+                      title: t("notifications.insurance_reminder_title"),
+                      body: t("notifications.insurance_x_days_body", {
+                        provider,
+                        vehicleName,
+                        days: daysBefore,
+                      }),
+                      data: { insuranceId, vehicleName, type: `insurance_${identifierSuffix}` },
+                      sound: true,
+                    },
+                    trigger: {
+                      type: Notifications.SchedulableTriggerInputTypes.DATE,
+                      date: reminderDate,
+                    },
+                  });
+                }
+              }
+            };
+
+            await scheduleReminder(30, "30d");
+            await scheduleReminder(15, "15d");
+            await scheduleReminder(7, "7d");
+          }
+        } catch (error) {
+          console.error("Error scheduling insurance notification:", error);
+        }
+      },
+      [notificationsEnabled, permissionGranted, notificationSettings, t]
     );
 
     const cancelNotification = useCallback(async (taskId: string) => {
-      try {
-        // Cancel all variants of this task notification
-        await Notifications.cancelScheduledNotificationAsync(taskId).catch(
-          () => {}
-        );
-        await Notifications.cancelScheduledNotificationAsync(
-          `${taskId}_7d`
-        ).catch(() => {});
-        await Notifications.cancelScheduledNotificationAsync(
-          `${taskId}_3d`
-        ).catch(() => {});
-        await Notifications.cancelScheduledNotificationAsync(
-          `${taskId}_1d`
-        ).catch(() => {});
-        await Notifications.cancelScheduledNotificationAsync(
-          `${taskId}_today`
-        ).catch(() => {});
-        await Notifications.cancelScheduledNotificationAsync(
-          `${taskId}_overdue`
-        ).catch(() => {});
-        // Cancel dynamic overdue notifications (we try to cancel common ones)
-        // In a real scenario we might need to store the IDs or iterate a known max range
-        for (const i of [1, 2, 3, 4, 5, 6, 7, 10, 14, 15, 21, 30]) {
-          await Notifications.cancelScheduledNotificationAsync(
-            `${taskId}_overdue_${i}d`
-          ).catch(() => {});
-        }
-      } catch (error) {
-        console.error("Error canceling notification:", error);
-      }
+      await cancelTaskOrInsuranceNotification(taskId);
     }, []);
 
     const cancelAllNotifications = useCallback(async () => {
@@ -442,7 +554,7 @@ export const [NotificationProvider, useNotifications] = createContextHook(
             identifier: `${taskId}_snoozed`,
             content: {
               title: t("notifications.snoozed_title"),
-              body: `${taskTitle} - ${vehicleName}`,
+              body: t("notifications.snoozed_body", { taskTitle, vehicleName }),
               data: { taskId, vehicleName, type: "snoozed", maintenanceType },
               sound: getSoundForType(maintenanceType),
             },
@@ -455,7 +567,7 @@ export const [NotificationProvider, useNotifications] = createContextHook(
           console.error("Error snoozing notification:", error);
         }
       },
-      [notificationsEnabled, permissionGranted, cancelNotification]
+      [notificationsEnabled, permissionGranted, cancelNotification, t]
     );
 
     // Get sound based on maintenance type
@@ -474,6 +586,7 @@ export const [NotificationProvider, useNotifications] = createContextHook(
       toggleNotifications,
       requestPermissions,
       scheduleMaintenanceNotification,
+      scheduleInsuranceNotification,
       cancelNotification,
       cancelAllNotifications,
       snoozeNotification,

@@ -27,8 +27,6 @@ import {
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { useAppAlert } from "@/contexts/AlertContext";
-import { BottomSheet } from "@/components/BottomSheet";
-import { Alert } from "react-native";
 import { MaintenanceListSkeleton } from "@/components/maintenance/MaintenanceListSkeleton";
 import { MaintenanceFilters } from "@/components/maintenance/MaintenanceFilters";
 import { AnimatedItem } from "@/components/ui/AnimatedItem";
@@ -36,6 +34,7 @@ import { SwipeableRow } from "@/components/ui/SwipeableRow";
 import { createStyles } from "@/styles/maintenance.styles";
 import { ThemedBackground } from "@/components/ThemedBackground";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { CalendarDays } from "lucide-react-native";
 
 type MaintenanceSortOption =
   | "due_date_overdue"
@@ -47,7 +46,7 @@ type QuickFilter = "all" | "overdue" | "upcoming";
 
 export default function MaintenanceScreen() {
   const { colors } = useTheme();
-  const { t } = useLocalization();
+  const { t, language } = useLocalization();
   const { formatDistance } = usePreferences();
   const {
     getUpcomingTasks,
@@ -295,7 +294,7 @@ export default function MaintenanceScreen() {
                     : t("maintenance.due_on_date", {
                         date: new Date(
                           item.task.nextDueDate || 0
-                        ).toLocaleDateString(),
+                        ).toLocaleDateString(language),
                       })
                   : item.milesUntilDue !== undefined
                   ? item.milesUntilDue <= 0
@@ -317,15 +316,13 @@ export default function MaintenanceScreen() {
       <View style={styles.header}>
         <Text style={styles.screenTitle}>{t("maintenance.title")}</Text>
         <View style={styles.headerButtons}>
+
           <TouchableOpacity
-            style={styles.iconHeaderButton}
+            style={[styles.iconHeaderButton, { paddingHorizontal: 8 }]}
             onPress={() => setFilterModalVisible(true)}
             activeOpacity={0.7}
           >
             <SlidersHorizontal size={18} color={colors.text} />
-            <Text style={styles.iconHeaderButtonText}>
-              {t("maintenance.filters")}
-            </Text>
             {(selectedVehicleIds.length > 0 || selectedTypes.length > 0) && (
               <View style={styles.filterBadge} />
             )}
@@ -345,6 +342,13 @@ export default function MaintenanceScreen() {
             activeOpacity={0.7}
           >
             <Bell size={18} color={colors.text} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.iconHeaderButton}
+            onPress={() => router.push("/calendar")}
+            activeOpacity={0.7}
+          >
+            <CalendarDays size={18} color={colors.text} />
           </TouchableOpacity>
         </View>
       </View>
@@ -433,23 +437,23 @@ export default function MaintenanceScreen() {
         style={[styles.container, { backgroundColor: "transparent" }]}
         edges={["top"]}
       >
-        <FlashList
-          data={listData}
-          renderItem={renderTaskItem}
-          keyExtractor={(item, index) =>
-            item.type === "header"
-              ? `header-${item.section}-${index}`
-              : `task-${item.item?.task.id}-${index}`
-          }
-          ItemSeparatorComponent={renderItemSeparator}
-          ListHeaderComponent={renderListHeader}
-          ListEmptyComponent={renderListEmpty}
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingBottom: bottomPadding },
-          ]}
-          showsVerticalScrollIndicator={false}
-        />
+          <FlashList
+            data={listData}
+            renderItem={renderTaskItem}
+            keyExtractor={(item, index) =>
+              item.type === "header"
+                ? `header-${item.section}-${index}`
+                : `task-${item.item?.task.id}-${index}`
+            }
+            ItemSeparatorComponent={renderItemSeparator}
+            ListHeaderComponent={renderListHeader}
+            ListEmptyComponent={renderListEmpty}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingBottom: bottomPadding },
+            ]}
+            showsVerticalScrollIndicator={false}
+          />
 
         {/* Filter Modal */}
         <MaintenanceFilters

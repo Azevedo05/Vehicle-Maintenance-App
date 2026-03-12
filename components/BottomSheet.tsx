@@ -14,6 +14,7 @@ interface BottomSheetProps {
   children: React.ReactNode;
   title?: string;
   maxHeight?: string | number;
+  enablePanDownToClose?: boolean;
 }
 
 export const BottomSheet = ({
@@ -21,6 +22,7 @@ export const BottomSheet = ({
   onClose,
   children,
   maxHeight = "90%",
+  enablePanDownToClose = true,
 }: BottomSheetProps) => {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -90,7 +92,7 @@ export const BottomSheet = ({
       ref={bottomSheetRef}
       enableDynamicSizing={true}
       maxDynamicContentSize={Dimensions.get("window").height * 0.9}
-      enablePanDownToClose={true}
+      enablePanDownToClose={enablePanDownToClose}
       onDismiss={handleDismiss}
       backdropComponent={renderBackdrop}
       handleComponent={renderHandle}

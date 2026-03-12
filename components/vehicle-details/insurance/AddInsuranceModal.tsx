@@ -71,9 +71,9 @@ export function AddInsuranceModal({
         setStartDate(new Date(initialData.startDate));
         setEndDate(new Date(initialData.endDate));
         setAnnualCost(initialData.annualCost.toString());
-        setPaymentFrequency(initialData.paymentFrequency);
+        setPaymentFrequency(initialData.paymentFrequency || "annual");
         setCoverage(initialData.coverage);
-        setIsPaid(initialData.isPaid);
+        setIsPaid(initialData.isPaid ?? false);
         setNotes(initialData.notes || "");
       } else {
         setProvider("");
@@ -266,16 +266,15 @@ export function AddInsuranceModal({
               <View style={styles.chipsRow}>
                 {(["basic", "medium", "comprehensive"] as CoverageType[]).map(
                   (cov) => (
-                    <Chip
-                      key={cov}
-                      label={t(`insurance.coverage_${cov}`)}
-                      active={coverage === cov}
-                      onPress={() =>
-                        setCoverage(coverage === cov ? undefined : cov)
-                      }
-                    />
-                  )
-                )}
+                  <Chip
+                    key={cov}
+                    label={t(`insurance.coverage_${cov}`)}
+                    active={coverage === cov}
+                    onPress={() =>
+                      setCoverage(coverage === cov ? undefined : cov)
+                    }
+                  />
+                ))}
               </View>
             </View>
 

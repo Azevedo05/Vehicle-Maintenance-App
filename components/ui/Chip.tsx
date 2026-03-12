@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  TouchableOpacity,
+  Pressable,
   Text,
   StyleSheet,
   ViewStyle,
@@ -32,10 +32,15 @@ export const Chip = ({
   const styles = createStyles(colors);
 
   return (
-    <TouchableOpacity
-      style={[styles.chip, active && styles.chipActive, style]}
+    <Pressable
+      style={({ pressed }) => [
+        styles.chip,
+        style,
+        active && styles.chipActive,
+        pressed && { opacity: 0.7 },
+      ]}
       onPress={onPress}
-      activeOpacity={0.7}
+      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
     >
       {Icon && (
         <Icon
@@ -54,7 +59,7 @@ export const Chip = ({
       >
         {label}
       </Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -68,14 +73,10 @@ const createStyles = (colors: any) =>
       paddingVertical: 12,
       borderRadius: 12,
       backgroundColor: colors.surface,
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.05,
-      shadowRadius: 4,
-      elevation: 2,
     },
     chipActive: {
       backgroundColor: colors.primary,
+      borderColor: colors.primary,
     },
     icon: {
       marginRight: 8,

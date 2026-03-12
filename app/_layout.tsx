@@ -31,6 +31,7 @@ import {
   usePreferences,
 } from "@/contexts/PreferencesContext";
 import { useMaintenanceNotifications } from "@/hooks/useMaintenanceNotifications";
+import { useInsuranceNotifications } from "@/hooks/useInsuranceNotifications";
 import { useUpdateChecker } from "@/hooks/useUpdateChecker";
 
 SplashScreen.preventAutoHideAsync();
@@ -43,6 +44,8 @@ function RootLayoutNav() {
 
   // Sync notifications with maintenance tasks
   useMaintenanceNotifications();
+  // Sync notifications with insurance expiries
+  useInsuranceNotifications();
   // Check for app updates
   useUpdateChecker();
 
@@ -139,6 +142,10 @@ function RootLayoutNav() {
         name="onboarding"
         options={{ headerShown: false, animation: "fade" }}
       />
+      <Stack.Screen
+        name="calendar"
+        options={{ headerShown: false }}
+      />
     </Stack>
   );
 }
@@ -206,8 +213,8 @@ export default function RootLayout() {
                     <GestureHandlerRootView style={{ flex: 1 }}>
                       <BottomSheetModalProvider>
                         <RootLayoutContent />
-                        <Toast config={toastConfig} />
                       </BottomSheetModalProvider>
+                      <Toast config={toastConfig} />
                     </GestureHandlerRootView>
                   </AlertProvider>
                 </VehicleProvider>

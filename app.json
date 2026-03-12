@@ -30,15 +30,12 @@
       "package": "com.shift.vehiclemaintenance",
       "permissions": [
         "android.permission.CAMERA",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.POST_NOTIFICATIONS",
         "android.permission.RECORD_AUDIO",
-        "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.POST_NOTIFICATIONS",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR"
       ],
       "softwareKeyboardLayoutMode": "pan"
     },
@@ -67,7 +64,13 @@
           "color": "#007AFF"
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Allow $(PRODUCT_NAME) to access your calendar to create maintenance reminders."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -80,9 +83,7 @@
         "projectId": "8b03b289-6df4-4ef0-aa57-4c9fdc9dec94"
       }
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "updates": {
       "url": "https://u.expo.dev/8b03b289-6df4-4ef0-aa57-4c9fdc9dec94"
     }

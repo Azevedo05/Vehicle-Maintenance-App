@@ -3,7 +3,8 @@ import { useNotifications } from "@/contexts/NotificationContext";
 import { useVehicles } from "@/contexts/VehicleContext";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { Vehicle } from "@/types/vehicle";
-import { MaintenanceTask } from "@/types/maintenance";
+import { MaintenanceTask, getMaintenanceTypeLabel } from "@/types/maintenance";
+import { useLocalization } from "@/contexts/LocalizationContext";
 
 /**
  * Hook that automatically manages notifications for maintenance tasks
@@ -13,6 +14,7 @@ export function useMaintenanceNotifications() {
     useNotifications();
   const { notificationSettings } = usePreferences();
   const { tasks, vehicles, isLoading: isVehiclesLoading } = useVehicles();
+  const { t, language } = useLocalization();
 
   useEffect(() => {
     if (!notificationsEnabled || isVehiclesLoading) {
@@ -40,9 +42,13 @@ export function useMaintenanceNotifications() {
                 (new Date(task.nextDueDate).getTime() - Date.now()) /
                   (1000 * 60 * 60 * 24)
               );
+              const taskTitle = task.type === "other"
+                ? task.title
+                : getMaintenanceTypeLabel(task.type, t);
+
               await scheduleMaintenanceNotification(
                 task.id,
-                task.title,
+                taskTitle,
                 vehicleName,
                 daysUntil,
                 notificationSettings.overdueIntervals,
@@ -68,6 +74,8 @@ export function useMaintenanceNotifications() {
     isVehiclesLoading,
     scheduleMaintenanceNotification,
     notificationSettings,
+    language,
+    t,
   ]);
 }
 

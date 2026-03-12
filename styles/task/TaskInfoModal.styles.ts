@@ -6,10 +6,15 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 export const createTaskInfoStyles = (colors: Colors, isDark: boolean) =>
   StyleSheet.create({
     overlay: {
-      flex: 1,
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
       justifyContent: "center",
       alignItems: "center",
       padding: 24,
+      zIndex: 1000,
     },
     backdrop: {
       ...StyleSheet.absoluteFillObject,
@@ -38,9 +43,8 @@ export const createTaskInfoStyles = (colors: Colors, isDark: boolean) =>
     titleContainer: {
       flexDirection: "row",
       alignItems: "center",
-    },
-    titleIcon: {
-      marginRight: 8,
+      flex: 1,
+      marginRight: 48, // Give space for the absolute/right-aligned calendar button
     },
     title: {
       fontSize: 18,
@@ -55,11 +59,11 @@ export const createTaskInfoStyles = (colors: Colors, isDark: boolean) =>
     },
     typeBadge: {
       alignSelf: "flex-start",
-      backgroundColor: "rgba(0,122,255,0.1)",
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-      borderRadius: 8,
-      marginBottom: 8,
+      backgroundColor: isDark ? "rgba(0,122,255,0.15)" : "rgba(0,122,255,0.1)",
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 12,
+      marginBottom: 12,
     },
     typeText: {
       fontSize: 12,
@@ -114,7 +118,6 @@ export const createTaskInfoStyles = (colors: Colors, isDark: boolean) =>
       color: colors.error,
     },
     doneButton: {
-      marginTop: 24,
       paddingVertical: 14,
       borderRadius: 16,
       alignItems: "center",
@@ -124,5 +127,20 @@ export const createTaskInfoStyles = (colors: Colors, isDark: boolean) =>
       color: "#FFFFFF",
       fontSize: 16,
       fontWeight: "700",
+    },
+    actions: {
+      marginTop: 24,
+      gap: 12,
+    },
+    headerAction: {
+      position: "absolute",
+      right: 0,
+      top: -4,
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)",
+      justifyContent: "center",
+      alignItems: "center",
     },
   });

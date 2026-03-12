@@ -58,6 +58,8 @@ export default function AddFuelLogScreen() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [volumeError, setVolumeError] = useState("");
+  const [costError, setCostError] = useState("");
   // const [showSuccess, setShowSuccess] = useState(false);
 
   // Load existing log data if editing
@@ -93,6 +95,40 @@ export default function AddFuelLogScreen() {
     );
   }, [station, recentStations]);
 
+  const validateVolume = (text: string) => {
+    setVolume(text);
+    if (!text.trim()) {
+      setVolumeError("");
+      return;
+    }
+
+    const volumeValue = parseFloat(text);
+    if (isNaN(volumeValue) || volumeValue <= 0) {
+      setVolumeError(t("fuel.invalid_volume_text"));
+    } else if (fuelType === "electric" && volumeValue > 250) {
+      setVolumeError(t("validation.max_electric_volume"));
+    } else if (fuelType !== "electric" && volumeValue > 200) {
+      setVolumeError(t("validation.max_fuel_volume"));
+    } else {
+      setVolumeError("");
+    }
+  };
+
+  const validateCost = (text: string) => {
+    setTotalCost(text);
+    if (!text.trim()) {
+      setCostError("");
+      return;
+    }
+
+    const costValue = parseFloat(text);
+    if (isNaN(costValue) || costValue <= 0) {
+      setCostError(t("fuel.invalid_cost_text"));
+    } else {
+      setCostError("");
+    }
+  };
+
   const handleSubmit = async () => {
     if (!date || !volume.trim() || !totalCost.trim()) {
       showAlert({
@@ -100,6 +136,14 @@ export default function AddFuelLogScreen() {
         message: t("vehicles.fill_required"),
       });
       return;
+    }
+
+    // Trigger validation to show errors if they exist
+    validateVolume(volume);
+    validateCost(totalCost);
+
+    if (volumeError || costError) {
+        return; // Don't submit if there are real-time validation errors
     }
 
     const volumeValue = parseFloat(volume);
@@ -113,7 +157,13 @@ export default function AddFuelLogScreen() {
       return;
     }
 
-    if (volumeValue > 200) {
+    if (fuelType === "electric" && volumeValue > 250) {
+      showAlert({
+        title: t("fuel.invalid_volume_title"),
+        message: t("validation.max_electric_volume"),
+      });
+      return;
+    } else if (fuelType !== "electric" && volumeValue > 200) {
       showAlert({
         title: t("fuel.invalid_volume_title"),
         message: t("validation.max_fuel_volume"),
@@ -150,7 +200,7 @@ export default function AddFuelLogScreen() {
 
       Toast.show({
         type: "success",
-        text1: t("common.success"),
+        text1: t("fuel.add_success"),
         props: { toastId: Date.now() },
       });
       router.back();
@@ -297,17 +347,21 @@ export default function AddFuelLogScreen() {
               <View style={styles.row}>
                 <View style={styles.rowItem}>
                   <Input
-                    label={t("fuel.volume_label", {
-                      unit:
-                        fuelType === "electric"
-                          ? t("fuel.volume_unit_electric")
-                          : t("fuel.volume_unit"),
-                    })}
+                    label={
+                      fuelType === "electric"
+                        ? t("fuel.volume_label_electric", {
+                            unit: t("fuel.volume_unit_electric"),
+                          })
+                        : t("fuel.volume_label", {
+                            unit: t("fuel.volume_unit"),
+                          })
+                    }
                     value={volume}
-                    onChangeText={setVolume}
+                    onChangeText={validateVolume}
                     placeholder={t("fuel.volume_placeholder")}
                     keyboardType="decimal-pad"
                     required
+                    error={volumeError}
                   />
                 </View>
                 <View style={styles.rowItem}>
@@ -316,10 +370,11 @@ export default function AddFuelLogScreen() {
                       currency: currencySymbol,
                     })}
                     value={totalCost}
-                    onChangeText={setTotalCost}
+                    onChangeText={validateCost}
                     placeholder="70.00"
                     keyboardType="decimal-pad"
                     required
+                    error={costError}
                   />
                 </View>
               </View>

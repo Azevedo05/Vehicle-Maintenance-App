@@ -64,6 +64,9 @@ export const createFuelFormStyles = (colors: Colors) =>
     typeChip: {
       flexGrow: 1,
       minWidth: "40%",
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
     },
     row: {
       flexDirection: "row",

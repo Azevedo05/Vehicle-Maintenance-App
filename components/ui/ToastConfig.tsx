@@ -37,21 +37,9 @@ const ToastMessage = ({
 }) => {
   const { colors } = useTheme();
 
-  // Animation for progress bar
-  const progress = useRef(new Animated.Value(0)).current;
-
   useEffect(() => {
-    // Reset
-    progress.setValue(1);
-
-    // Animate to 0
-    Animated.timing(progress, {
-      toValue: 0,
-      duration: 3800, // Slightly less than default 4000ms visibility
-      easing: Easing.linear,
-      useNativeDriver: false, // Width can't use native driver
-    }).start();
-  }, [text1, text2, type, props?.actionLabel, props?.toastId]); // toastId ensures animation restarts even with same content
+    // No-op - removed progress bar animation
+  }, [text1, text2, type, props?.actionLabel, props?.toastId]);
 
   const handleAction = () => {
     if (props?.onAction) {
@@ -120,27 +108,6 @@ const ToastMessage = ({
           </React.Fragment>
         )}
       </View>
-
-      {/* Progress Bar - hidden for compact toasts */}
-      {!isCompact && (
-        <View style={styles.progressBarContainer}>
-          <Animated.View
-            style={{
-              height: "100%",
-              backgroundColor:
-                type === "success"
-                  ? colors.primary
-                  : type === "error"
-                  ? "#ef4444"
-                  : colors.text,
-              width: progress.interpolate({
-                inputRange: [0, 1],
-                outputRange: ["0%", "100%"],
-              }),
-            }}
-          />
-        </View>
-      )}
     </View>
   );
 };
@@ -155,15 +122,16 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.15,
     shadowRadius: 12,
-    elevation: 6,
+    elevation: 100,
+    zIndex: 9999,
     marginTop: 10,
     overflow: "hidden", // Highlight: Ensure progress bar stays inside rounded corners
   },
   contentContainer: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 20, // Increased padding since icon is gone
+    paddingVertical: 10,
+    paddingHorizontal: 16,
   },
   textContainer: {
     flex: 1,
@@ -175,8 +143,8 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   description: {
-    fontSize: 14,
-    fontWeight: "400",
+    fontSize: 13,
+    fontWeight: "500",
   },
   separator: {
     width: 1,
@@ -186,14 +154,6 @@ const styles = StyleSheet.create({
   actionLabel: {
     fontSize: 14,
     fontWeight: "700",
-  },
-  progressBarContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 4,
-    zIndex: 10,
   },
   // Compact styles for short toasts (only text1, no text2 or action)
   containerCompact: {

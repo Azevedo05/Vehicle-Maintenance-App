@@ -86,6 +86,8 @@ export interface VehicleInsurance {
   emergencyContact?: string;
   /** Additional coverages */
   coverages?: InsuranceCoverages;
+  /** ID of the event in the native calendar */
+  calendarEventId?: string;
 
   createdAt: Timestamp;
   updatedAt: Timestamp;
